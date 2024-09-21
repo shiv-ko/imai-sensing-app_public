@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-imaisensingapp-dev-1da1a-authRole",
+      "UnauthRoleArn": "arn:aws:iam::283148374727:role/amplify-imaisensingapp-dev-1da1a-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::283148374727:role/amplify-imaisensingapp-dev-1da1a-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-imaisensingapp-dev-1da1a-deployment",
+      "UnauthRoleName": "amplify-imaisensingapp-dev-1da1a-unauthRole",
+      "StackName": "amplify-imaisensingapp-dev-1da1a",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:283148374727:stack/amplify-imaisensingapp-dev-1da1a/4588af20-77e0-11ef-beae-0e3e4f943d79",
+      "AmplifyAppId": "d44xyg849yyol"
+    },
+    "categories": {
+      "auth": {
+        "imaisensingappa137215b": {}
+      },
+      "api": {
+        "imaisensingapp": {}
+      }
+    }
+  }
+}
