@@ -13,6 +13,7 @@ export const onCreateTodo = /* GraphQL */ `subscription OnCreateTodo($filter: Mo
     id
     name
     done
+    test
     description
     createdAt
     updatedAt
@@ -28,6 +29,7 @@ export const onUpdateTodo = /* GraphQL */ `subscription OnUpdateTodo($filter: Mo
     id
     name
     done
+    test
     description
     createdAt
     updatedAt
@@ -43,6 +45,7 @@ export const onDeleteTodo = /* GraphQL */ `subscription OnDeleteTodo($filter: Mo
     id
     name
     done
+    test
     description
     createdAt
     updatedAt

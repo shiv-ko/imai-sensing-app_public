@@ -16,6 +16,7 @@ export const createTodo = /* GraphQL */ `mutation CreateTodo(
     id
     name
     done
+    test
     description
     createdAt
     updatedAt
@@ -34,6 +35,7 @@ export const updateTodo = /* GraphQL */ `mutation UpdateTodo(
     id
     name
     done
+    test
     description
     createdAt
     updatedAt
@@ -52,6 +54,7 @@ export const deleteTodo = /* GraphQL */ `mutation DeleteTodo(
     id
     name
     done
+    test
     description
     createdAt
     updatedAt
