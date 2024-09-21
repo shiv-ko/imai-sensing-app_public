@@ -6,8 +6,5 @@ input AMPLIFY {
 type Todo @model {
   id: ID!
   name: String!
-  done: Boolean!
-  test: String!
   description: String
 }
-

@@ -12,8 +12,6 @@ export const getTodo = /* GraphQL */ `query GetTodo($id: ID!) {
   getTodo(id: $id) {
     id
     name
-    done
-    test
     description
     createdAt
     updatedAt
@@ -30,8 +28,6 @@ export const listTodos = /* GraphQL */ `query ListTodos(
     items {
       id
       name
-      done
-      test
       description
       createdAt
       updatedAt
