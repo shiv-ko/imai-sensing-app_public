@@ -7,7 +7,7 @@
             "UserPoolId"
           ],
           "category": "auth",
-          "resourceName": "imaisensingappa137215b"
+          "resourceName": "imaisensingapp7dc3c16f"
         }
       ],
       "output": {
@@ -15,7 +15,7 @@
           "additionalAuthenticationProviders": [
             {
               "apiKeyConfig": {
-                "apiKeyExpirationDate": "2025-09-21T06:18:59.419Z",
+                "apiKeyExpirationDate": "2025-10-03T22:26:58.635Z",
                 "apiKeyExpirationDays": 365,
                 "description": "pbl2024"
               },
@@ -25,7 +25,7 @@
           "defaultAuthentication": {
             "authenticationType": "AMAZON_COGNITO_USER_POOLS",
             "userPoolConfig": {
-              "userPoolId": "authimaisensingappa137215b"
+              "userPoolId": "authimaisensingapp7dc3c16f"
             }
           }
         }
@@ -35,7 +35,7 @@
     }
   },
   "auth": {
-    "imaisensingappa137215b": {
+    "imaisensingapp7dc3c16f": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
@@ -48,7 +48,8 @@
           "passwordPolicyMinLength": 8
         },
         "signupAttributes": [
-          "EMAIL"
+          "EMAIL",
+          "NICKNAME"
         ],
         "socialProviders": [],
         "usernameAttributes": [

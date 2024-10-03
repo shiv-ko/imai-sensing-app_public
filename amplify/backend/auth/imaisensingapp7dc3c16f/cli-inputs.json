@@ -1,10 +1,10 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "identityPoolName": "imaisensingappa137215b_identitypool_a137215b",
+    "identityPoolName": "imaisensingapp7dc3c16f_identitypool_7dc3c16f",
     "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "imaisea137215b",
-    "userPoolName": "imaisensingappa137215b_userpool_a137215b",
+    "resourceNameTruncated": "imaise7dc3c16f",
+    "userPoolName": "imaisensingapp7dc3c16f_userpool_7dc3c16f",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -20,7 +20,8 @@
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [],
     "requiredAttributes": [
-      "email"
+      "email",
+      "nickname"
     ],
     "aliasAttributes": [],
     "userpoolClientGenerateSecret": false,
@@ -31,15 +32,16 @@
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "imaisea137215b_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "imaise7dc3c16f_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "a137215b",
-    "resourceName": "imaisensingappa137215b",
+    "sharedId": "7dc3c16f",
+    "resourceName": "imaisensingapp7dc3c16f",
     "authSelections": "identityPoolAndUserPool",
     "useDefault": "default",
     "usernameAttributes": [
       "email"
     ],
+    "triggers": {},
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
