@@ -8,12 +8,12 @@
       "DeploymentBucketName": "amplify-imaisensingapp-dev-1da1a-deployment",
       "UnauthRoleName": "amplify-imaisensingapp-dev-1da1a-unauthRole",
       "StackName": "amplify-imaisensingapp-dev-1da1a",
-      "StackId": "arn:aws:cloudformation:ap-northeast-1:283148374727:stack/amplify-imaisensingapp-dev-1da1a/4588af20-77e0-11ef-beae-0e3e4f943d79",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:283148374727:stack/amplify-imaisensingapp-dev-1da1a/73fad410-81d5-11ef-a42d-0aca2bb9481b",
       "AmplifyAppId": "d44xyg849yyol"
     },
     "categories": {
       "auth": {
-        "imaisensingappa137215b": {}
+        "imaisensingapp7dc3c16f": {}
       },
       "api": {
         "imaisensingapp": {}

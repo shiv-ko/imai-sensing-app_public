@@ -1,10 +1,82 @@
 # This "input" configures a global authorization rule to enable public access to
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
-input AMPLIFY {
-  globalAuthRule: AuthRule = { allow: public }
-} # FOR TESTING ONLY!
-type Todo @model {
+type User
+  @model
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, update, delete] }
+      { allow: private, operations: [read, update] }
+      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+    ]
+  ) {
+  id: ID!
+  displayName: String!
+  score: Int!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  currentCategoryId: ID @index(name: "usersByCategoryIndex")
+  currentCategory: Category @belongsTo(fields: ["currentCategoryId"])
+  posts: [PostData] @hasMany(indexName: "postByUser", fields: ["id"])
+  likes: [Like] @hasMany
+}
+
+type PostData
+  @model
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, update, delete] }
+      { allow: private, operations: [read] }
+      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+    ]
+  ) {
+  id: ID!
+  imageUrl: String
+  userId: ID! @index(name: "postByUser", sortKeyFields: ["updatedAt"])
+  user: User @belongsTo(fields: ["userId"])
+  lat: Float!
+  lng: Float!
+  category: String!
+  comment: String!
+  reported: Boolean!
+  deleted: Boolean!
+  visible: Boolean!
+  likes: [Like] @hasMany(indexName: "likeByPost", fields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  point: Int!
+  postType: String!
+    @default(value: "POST")
+    @index(name: "postByUpdatedAt", sortKeyFields: ["updatedAt"])
+}
+
+type Like
+  @model
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, delete] }
+      { allow: private, operations: [read] }
+      { allow: groups, groups: ["Admin"], operations: [read, delete] }
+    ]
+  ) {
+  id: ID!
+  userId: ID!
+  postId: ID! @index(name: "likeByPost")
+  createdAt: AWSDateTime!
+}
+
+type Category
+  @model
+  @auth(
+    rules: [
+      { allow: private, operations: [read] }
+      {
+        allow: groups
+        groups: ["Admin"]
+        operations: [read, create, update, delete]
+      }
+    ]
+  ) {
   id: ID!
   name: String!
-  description: String
+  users: [User] @hasMany(indexName: "usersByCategoryIndex", fields: ["id"])
 }
