@@ -314,3 +314,45 @@ export const onDeleteCategory = /* GraphQL */ `subscription OnDeleteCategory($fi
   APITypes.OnDeleteCategorySubscriptionVariables,
   APITypes.OnDeleteCategorySubscription
 >;
+export const onCreateNote = /* GraphQL */ `subscription OnCreateNote($filter: ModelSubscriptionNoteFilterInput) {
+  onCreateNote(filter: $filter) {
+    id
+    name
+    description
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateNoteSubscriptionVariables,
+  APITypes.OnCreateNoteSubscription
+>;
+export const onUpdateNote = /* GraphQL */ `subscription OnUpdateNote($filter: ModelSubscriptionNoteFilterInput) {
+  onUpdateNote(filter: $filter) {
+    id
+    name
+    description
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateNoteSubscriptionVariables,
+  APITypes.OnUpdateNoteSubscription
+>;
+export const onDeleteNote = /* GraphQL */ `subscription OnDeleteNote($filter: ModelSubscriptionNoteFilterInput) {
+  onDeleteNote(filter: $filter) {
+    id
+    name
+    description
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteNoteSubscriptionVariables,
+  APITypes.OnDeleteNoteSubscription
+>;
