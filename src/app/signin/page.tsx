@@ -4,11 +4,9 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
 import React, { useState, useEffect } from 'react';
 import awsExports from './../../aws-exports';
-import FooterNavBar from '@/components/footer';
-import Header from '@/components/header';
+import Header from '@/shared/components/header'; // Headerコンポーネントのインポート
+import FooterNavBar from '@/shared/components/footer'; // FooterNavBarコンポーネントのインポート
 import '@aws-amplify/ui-react/styles.css';
-import PostComponent from './../home/page';
-import Test from './../post-noimg/page'
 Amplify.configure({ ...awsExports });
 
 const formFields = {
@@ -75,8 +73,7 @@ export default function App() {
       ) : (
         <p>{errorMessage || '位置情報を確認中です。'}</p>
       )}
-      <PostComponent></PostComponent>
-      <Test></Test>
+
     </div>
   );
 };

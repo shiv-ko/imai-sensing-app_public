@@ -1,8 +1,8 @@
 import './globals.css';
 import { Amplify } from 'aws-amplify';
 import awsExports from '../aws-exports';
-import FooterNavBar from '@/components/footer';
-import Header from '@/components/header'
+import FooterNavBar from '@/features/footer';
+import Header from '@/features/header'
 Amplify.configure(awsExports);
 
 export const metadata = {

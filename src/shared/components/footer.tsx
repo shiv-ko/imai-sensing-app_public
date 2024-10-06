@@ -57,14 +57,15 @@ const FooterNavBar: React.FC = () => {
         <FiMap style={iconStyle} />
         <span>マップ</span>
       </div>
+      <div style={navItemStyle} onClick={() => navigateTo('/timeline')}>
+        <BiUser style={iconStyle} />
+        <span>タイムライン</span>
+      </div>
       <div style={navItemStyle} onClick={() => navigateTo('/camera')}>
         <AiOutlineCamera style={iconStyle} />
         <span>カメラ</span>
       </div>
-      <div style={navItemStyle} onClick={() => navigateTo('/account')}>
-        <BiUser style={iconStyle} />
-        <span>アカウント</span>
-      </div>
+      
     </div>
   );
 };

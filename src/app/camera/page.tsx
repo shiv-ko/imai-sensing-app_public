@@ -1,19 +1,19 @@
-// PostMapPage.tsx
-'use client';
+
+'use client'
 import React from 'react';
+import PostPage from '../../features/post/pages/postPage'; // postPageコンポーネントのインポート
 import { withAuthenticator } from '@aws-amplify/ui-react';
-import PostMapPage from '@/features/map/pages/mapPage'; // features/map/pages/mapPageからPostMapPageをインポート
 import Header from '@/shared/components/header'; // Headerコンポーネントのインポート
 import FooterNavBar from '@/shared/components/footer'; // FooterNavBarコンポーネントのインポート
 
-const MapPage: React.FC = () => {
+const PostFormPage: React.FC = () => {
   return (
     <div>
       <Header />
-      <PostMapPage /> {/* PostMapPageコンポーネントを表示 */}
+      <PostPage />
       <FooterNavBar />
     </div>
   );
 };
 
-export default withAuthenticator(MapPage);
+export default withAuthenticator(PostFormPage);
