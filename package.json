@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@aws-amplify/auth": "^6.5.0",
+    "@aws-amplify/ui-react": "^6.5.2",
     "@chakra-ui/next-js": "^2.2.0",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.13.3",
