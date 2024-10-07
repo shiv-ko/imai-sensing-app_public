@@ -5,16 +5,33 @@ import { createPostData } from '../../../graphql/mutations';
 import { generateClient } from 'aws-amplify/api';
 import { uploadData } from 'aws-amplify/storage';
 import { Amplify } from 'aws-amplify';
+import { getCurrentUser, GetCurrentUserOutput } from 'aws-amplify/auth';
 import awsExports from '../../../aws-exports';
 import PostForm from '../components/postForm';
-
+import imageCompression from '../../../shared/utils/image/compressImage'; 
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 Amplify.configure(awsExports);
 
 const client = generateClient();
 
+// 画像圧縮関数
+async function compressImage(file: File): Promise<File> {
+  try {
+    const compressedFile = await imageCompression(file);
+    return compressedFile;
+  } catch (error) {
+    console.error('Error compressing the image:', error);
+    throw error;
+  }
+}
+
 const PostPage: React.FC = () => {
-  
+  const searchParams = useSearchParams();
+  const theme = searchParams.get('theme');
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     userId: '',
     lat: '',
@@ -29,28 +46,30 @@ const PostPage: React.FC = () => {
     postType: 'POST',
   });
   const [loadingLocation, setLoadingLocation] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
-  const [categories, setCategories] = useState<string[]>([
-    'Nature',
-    'Technology',
-    'Art',
-    'Science',
-    'History',
-  ]);
+  const [user, setUser] = useState<GetCurrentUserOutput>();
 
+  //ユーザの位置情報と認証情報を取得
   useEffect(() => {
     getUserLocation();
+    getCurrentUserAsync();
   }, []);
 
-  // 新しいカテゴリを追加する関数
-  const addCategory = () => {
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setNewCategory(''); // 入力欄をリセット
+  useEffect(() => {
+    if (theme && typeof theme === 'string') {
+      setFormData((prevData) => ({
+        ...prevData,
+        category: theme,
+      }));
     }
+  }, [theme]);
+
+  //ユーザの認証情報を取得する関数
+  const getCurrentUserAsync = async () => {
+    const result = await getCurrentUser();
+    setUser(result);
   };
 
-  // ユーザーの位置情報を取得する関数
+  //ユーザの位置情報を取得する関数
   const getUserLocation = () => {
     if ('geolocation' in navigator) {
       setLoadingLocation(true);
@@ -78,11 +97,10 @@ const PostPage: React.FC = () => {
     }
   };
 
-  // 新しい投稿を作成する関数
   async function createPost(event: React.FormEvent) {
     event.preventDefault();
+
     const {
-      userId,
       lat,
       lng,
       category,
@@ -96,7 +114,7 @@ const PostPage: React.FC = () => {
     } = formData;
 
     const postData = {
-      userId,
+      userId: user?.userId ?? '',
       lat: parseFloat(lat),
       lng: parseFloat(lng),
       category,
@@ -106,40 +124,33 @@ const PostPage: React.FC = () => {
       visible,
       point,
       postType,
-      imageUrl: image?.name ? image.name : null,
+      imageUrl: image?.name ?? null,
     };
 
     try {
+      //データをDBに保存。
       await client.graphql({
         query: createPostData,
         variables: { input: postData },
       });
 
+      //画像があったら別でS3に保存
       if (image) {
         await uploadData({ key: image.name, data: image });
       }
 
-
-      // フォームデータをリセット
       setFormData({
-        userId: '',
-        lat: '',
-        lng: '',
-        category: '',
+        ...formData,
         comment: '',
         image: null,
-        reported: false,
-        deleted: false,
-        visible: true,
-        point: 0,
-        postType: 'POST',
       });
+      //投稿完了したら前のテーマ選択のページに戻る。(連続で投稿ができないため)
+      router.push('/camera');
     } catch (error) {
       console.error('Error creating post:', error);
     }
   }
 
-  // フォームの入力を処理する関数
   function handleInputChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
@@ -147,31 +158,45 @@ const PostPage: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   }
 
-  function handleCategoryChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    setFormData({ ...formData, category: event.target.value });
-  }
-
   function setImage(file: File | null) {
-    setFormData({ ...formData, image: file });
+    if (file) {
+      compressImage(file)
+        .then((compressedFile) => {
+          setFormData({ ...formData, image: compressedFile });
+        })
+        .catch((error) => {
+          console.error('Error compressing image:', error);
+        });
+    } else {
+      setFormData({ ...formData, image: null });
+    }
   }
 
   return (
-    <div>
-      <h1>投稿ページ</h1>
-      <PostForm
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleCategoryChange={handleCategoryChange}
-        createPost={createPost}
-        categories={categories}
-        newCategory={newCategory}
-        setNewCategory={setNewCategory}
-        addCategory={addCategory}
-        loadingLocation={loadingLocation}
-        setImage={setImage}
-      />
+    <div style={styles.container}>
+      <h1 style={styles.title}>投稿ページ</h1>
+      {loadingLocation ? (
+        <p>位置情報を取得中...</p>
+      ) : (
+        <PostForm
+          formData={formData}
+          handleInputChange={handleInputChange}
+          createPost={createPost}
+          setImage={setImage}
+        />
+      )}
     </div>
   );
+};
+
+const styles = {
+  container: {
+    padding: '20px'
+  },
+  title: {
+    fontSize: '24px',
+    marginBottom: '20px',
+  },
 };
 
 export default withAuthenticator(PostPage);

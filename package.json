@@ -16,6 +16,7 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "aws-amplify": "^6.6.3",
+    "browser-image-resizer": "^2.4.1",
     "framer-motion": "^11.11.1",
     "leaflet": "^1.9.4",
     "next": "14.2.11",
