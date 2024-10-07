@@ -1,17 +1,15 @@
-// pages/timeline.tsx
 import React, { useState, useEffect } from 'react';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import { listPostData } from '../../../graphql/queries';
 import { generateClient } from 'aws-amplify/api';
 import { getUrl } from 'aws-amplify/storage';
 import { Amplify } from 'aws-amplify';
+import PostItem from '../components/postItem';  
 import awsExports from '../../../aws-exports';
-
 
 Amplify.configure(awsExports);
 
 const client = generateClient();
-
 
 interface Post {
   id: string;
@@ -27,6 +25,7 @@ interface Post {
   point: number;
   postType: string;
 }
+
 const TimelinePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
 
@@ -34,7 +33,6 @@ const TimelinePage: React.FC = () => {
     fetchPostData();
   }, []);
 
-  // 投稿データを取得する関数
   async function fetchPostData() {
     const apiData = await client.graphql({ query: listPostData });
     const postsFromAPI = apiData.data.listPostData.items;
@@ -50,26 +48,27 @@ const TimelinePage: React.FC = () => {
     setPosts(postsFromAPI);
   }
 
-
   return (
-    <div>
-      <ul>
+    <div style={styles.timeline}>
+      <ul style={styles.postList}>
         {posts.map((post) => (
-          <li key={post.id}>
-            <h3>{post.category}</h3>
-            <p>{post.comment}</p>
-            {post.imageUrl && <img src={post.imageUrl} alt={post.category} style={{ maxWidth: "200px" }} />}
-            <p>Location: ({post.lat}, {post.lng})</p>
-            <p>Reported: {post.reported ? "Yes" : "No"}</p>
-            <p>Deleted: {post.deleted ? "Yes" : "No"}</p>
-            <p>Visible: {post.visible ? "Yes" : "No"}</p>
-            <p>Points: {post.point}</p>
-            <p>Posted by: {post.userId}</p>
-          </li>
+           <PostItem key={post.id} post={{ ...post, imageUrl: post.imageUrl ?? undefined }} />
         ))}
       </ul>
     </div>
   );
+};
+
+const styles = {
+  timeline: {
+    padding: '20px',
+    backgroundColor: '#f4f4f4',
+    minHeight: '100vh',
+  },
+  postList: {
+    listStyleType: 'none',
+    padding: '0',
+  },
 };
 
 export default withAuthenticator(TimelinePage);

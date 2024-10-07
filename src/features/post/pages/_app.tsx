@@ -1,4 +1,4 @@
-
+//現状これは不要
 import { ChakraProvider } from '@chakra-ui/react';
 import { AppProps } from 'next/app';
 
