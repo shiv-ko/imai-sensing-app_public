@@ -1,3 +1,4 @@
+//TODO: 画像ファイルだけを投稿できるようにする。
 'use client'
 import React, { useState, useEffect } from 'react';
 import { withAuthenticator } from '@aws-amplify/ui-react';
@@ -5,16 +6,33 @@ import { createPostData } from '../../../graphql/mutations';
 import { generateClient } from 'aws-amplify/api';
 import { uploadData } from 'aws-amplify/storage';
 import { Amplify } from 'aws-amplify';
+import { getCurrentUser, GetCurrentUserOutput } from 'aws-amplify/auth';
 import awsExports from '../../../aws-exports';
 import PostForm from '../components/postForm';
-
+import imageCompression from '../../../shared/utils/image/compressImage'; 
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 Amplify.configure(awsExports);
 
 const client = generateClient();
 
+// 画像圧縮関数
+async function compressImage(file: File): Promise<File> {
+  try {
+    const compressedFile = await imageCompression(file);
+    return compressedFile;
+  } catch (error) {
+    console.error('Error compressing the image:', error);
+    throw error;
+  }
+}
+
 const PostPage: React.FC = () => {
-  
+  const searchParams = useSearchParams();  // useSearchParamsを使用
+  const theme = searchParams.get('theme'); 
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     userId: '',
     lat: '',
@@ -28,26 +46,27 @@ const PostPage: React.FC = () => {
     point: 0,
     postType: 'POST',
   });
-  const [loadingLocation, setLoadingLocation] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
-  const [categories, setCategories] = useState<string[]>([
-    'Nature',
-    'Technology',
-    'Art',
-    'Science',
-    'History',
-  ]);
+  const [loadingLocation, setLoadingLocation] = useState(false);  // 位置情報取得中かどうか
+  const [user, setUser] = useState<GetCurrentUserOutput>();
 
   useEffect(() => {
     getUserLocation();
+    getCurrentUserAsync();
   }, []);
 
-  // 新しいカテゴリを追加する関数
-  const addCategory = () => {
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setNewCategory(''); // 入力欄をリセット
+  useEffect(() => {
+    if (theme && typeof theme === 'string') {
+      setFormData((prevData) => ({
+        ...prevData,
+        category: theme,
+      }));
     }
+  }, [theme]);
+
+  //ユーザの認証情報を取得する関数
+  const getCurrentUserAsync = async () => {
+    const result = await getCurrentUser();
+    setUser(result);
   };
 
   // ユーザーの位置情報を取得する関数
@@ -61,7 +80,7 @@ const PostPage: React.FC = () => {
             lat: position.coords.latitude.toString(),
             lng: position.coords.longitude.toString(),
           }));
-          setLoadingLocation(false);
+          setLoadingLocation(false);  // 位置情報取得完了
         },
         (error) => {
           console.error('Error obtaining geolocation', error);
@@ -81,8 +100,8 @@ const PostPage: React.FC = () => {
   // 新しい投稿を作成する関数
   async function createPost(event: React.FormEvent) {
     event.preventDefault();
+    
     const {
-      userId,
       lat,
       lng,
       category,
@@ -96,7 +115,7 @@ const PostPage: React.FC = () => {
     } = formData;
 
     const postData = {
-      userId,
+      userId: user?.userId ?? '',
       lat: parseFloat(lat),
       lng: parseFloat(lng),
       category,
@@ -106,7 +125,7 @@ const PostPage: React.FC = () => {
       visible,
       point,
       postType,
-      imageUrl: image?.name ? image.name : null,
+      imageUrl: image?.name ?? null,
     };
 
     try {
@@ -119,21 +138,13 @@ const PostPage: React.FC = () => {
         await uploadData({ key: image.name, data: image });
       }
 
-
-      // フォームデータをリセット
+      // フォームデータをリセット（位置情報とカテゴリは保持）
       setFormData({
-        userId: '',
-        lat: '',
-        lng: '',
-        category: '',
+        ...formData,
         comment: '',
         image: null,
-        reported: false,
-        deleted: false,
-        visible: true,
-        point: 0,
-        postType: 'POST',
       });
+      router.push('/camera');
     } catch (error) {
       console.error('Error creating post:', error);
     }
@@ -147,29 +158,36 @@ const PostPage: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   }
 
-  function handleCategoryChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    setFormData({ ...formData, category: event.target.value });
+  // 画像選択時に圧縮処理を実行
+  function setImage(file: File | null) {
+    if (file) {
+      compressImage(file)
+        .then((compressedFile) => {
+          setFormData({ ...formData, image: compressedFile });
+        })
+        .catch((error) => {
+          console.error('Error compressing image:', error);
+        });
+    } else {
+      setFormData({ ...formData, image: null });
+    }
   }
 
-  function setImage(file: File | null) {
-    setFormData({ ...formData, image: file });
-  }
 
   return (
     <div>
       <h1>投稿ページ</h1>
-      <PostForm
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleCategoryChange={handleCategoryChange}
-        createPost={createPost}
-        categories={categories}
-        newCategory={newCategory}
-        setNewCategory={setNewCategory}
-        addCategory={addCategory}
-        loadingLocation={loadingLocation}
-        setImage={setImage}
-      />
+      {/* 位置情報を取得中の場合はメッセージを表示 */}
+      {loadingLocation ? (
+        <p>位置情報を取得中...</p>
+      ) : (
+        <PostForm
+          formData={formData}
+          handleInputChange={handleInputChange}
+          createPost={createPost}
+          setImage={setImage}
+        />
+      )}
     </div>
   );
 };
