@@ -17,6 +17,15 @@
       },
       "api": {
         "imaisensingapp": {}
+      },
+      "function": {
+        "S3Trigger253b8c95": {
+          "deploymentBucketName": "amplify-imaisensingapp-dev-1da1a-deployment",
+          "s3Key": "amplify-builds/S3Trigger253b8c95-6947764e2b555276354b-build.zip"
+        }
+      },
+      "storage": {
+        "s3PBL2024": {}
       }
     }
   }

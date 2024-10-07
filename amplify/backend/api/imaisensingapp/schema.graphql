@@ -24,8 +24,9 @@ type PostData
   @model
   @auth(
     rules: [
-      { allow: owner, operations: [create, update, delete] }
-      { allow: private, operations: [read] }
+      # createをallow:privateにした
+      { allow: owner, operations: [update, delete] }
+      { allow: private, operations: [create, read] }
       { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
     ]
   ) {
@@ -79,4 +80,10 @@ type Category
   id: ID!
   name: String!
   users: [User] @hasMany(indexName: "usersByCategoryIndex", fields: ["id"])
+}
+
+type Note @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  name: String!
+  description: String
 }

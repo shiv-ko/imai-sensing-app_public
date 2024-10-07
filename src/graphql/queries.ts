@@ -347,3 +347,33 @@ export const likesByPostId = /* GraphQL */ `query LikesByPostId(
   APITypes.LikesByPostIdQueryVariables,
   APITypes.LikesByPostIdQuery
 >;
+export const getNote = /* GraphQL */ `query GetNote($id: ID!) {
+  getNote(id: $id) {
+    id
+    name
+    description
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.GetNoteQueryVariables, APITypes.GetNoteQuery>;
+export const listNotes = /* GraphQL */ `query ListNotes(
+  $filter: ModelNoteFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listNotes(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      name
+      description
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.ListNotesQueryVariables, APITypes.ListNotesQuery>;
