@@ -1,4 +1,3 @@
-//TODO: 画像ファイルだけを投稿できるようにする。
 'use client'
 import React, { useState, useEffect } from 'react';
 import { withAuthenticator } from '@aws-amplify/ui-react';
@@ -29,8 +28,8 @@ async function compressImage(file: File): Promise<File> {
 }
 
 const PostPage: React.FC = () => {
-  const searchParams = useSearchParams();  // useSearchParamsを使用
-  const theme = searchParams.get('theme'); 
+  const searchParams = useSearchParams();
+  const theme = searchParams.get('theme');
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -46,9 +45,10 @@ const PostPage: React.FC = () => {
     point: 0,
     postType: 'POST',
   });
-  const [loadingLocation, setLoadingLocation] = useState(false);  // 位置情報取得中かどうか
+  const [loadingLocation, setLoadingLocation] = useState(false);
   const [user, setUser] = useState<GetCurrentUserOutput>();
 
+  //ユーザの位置情報と認証情報を取得
   useEffect(() => {
     getUserLocation();
     getCurrentUserAsync();
@@ -69,7 +69,7 @@ const PostPage: React.FC = () => {
     setUser(result);
   };
 
-  // ユーザーの位置情報を取得する関数
+  //ユーザの位置情報を取得する関数
   const getUserLocation = () => {
     if ('geolocation' in navigator) {
       setLoadingLocation(true);
@@ -80,7 +80,7 @@ const PostPage: React.FC = () => {
             lat: position.coords.latitude.toString(),
             lng: position.coords.longitude.toString(),
           }));
-          setLoadingLocation(false);  // 位置情報取得完了
+          setLoadingLocation(false);
         },
         (error) => {
           console.error('Error obtaining geolocation', error);
@@ -97,10 +97,9 @@ const PostPage: React.FC = () => {
     }
   };
 
-  // 新しい投稿を作成する関数
   async function createPost(event: React.FormEvent) {
     event.preventDefault();
-    
+
     const {
       lat,
       lng,
@@ -129,28 +128,29 @@ const PostPage: React.FC = () => {
     };
 
     try {
+      //データをDBに保存。
       await client.graphql({
         query: createPostData,
         variables: { input: postData },
       });
 
+      //画像があったら別でS3に保存
       if (image) {
         await uploadData({ key: image.name, data: image });
       }
 
-      // フォームデータをリセット（位置情報とカテゴリは保持）
       setFormData({
         ...formData,
         comment: '',
         image: null,
       });
+      //投稿完了したら前のテーマ選択のページに戻る。(連続で投稿ができないため)
       router.push('/camera');
     } catch (error) {
       console.error('Error creating post:', error);
     }
   }
 
-  // フォームの入力を処理する関数
   function handleInputChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
@@ -158,7 +158,6 @@ const PostPage: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   }
 
-  // 画像選択時に圧縮処理を実行
   function setImage(file: File | null) {
     if (file) {
       compressImage(file)
@@ -173,11 +172,9 @@ const PostPage: React.FC = () => {
     }
   }
 
-
   return (
-    <div>
-      <h1>投稿ページ</h1>
-      {/* 位置情報を取得中の場合はメッセージを表示 */}
+    <div style={styles.container}>
+      <h1 style={styles.title}>投稿ページ</h1>
       {loadingLocation ? (
         <p>位置情報を取得中...</p>
       ) : (
@@ -190,6 +187,16 @@ const PostPage: React.FC = () => {
       )}
     </div>
   );
+};
+
+const styles = {
+  container: {
+    padding: '20px'
+  },
+  title: {
+    fontSize: '24px',
+    marginBottom: '20px',
+  },
 };
 
 export default withAuthenticator(PostPage);
