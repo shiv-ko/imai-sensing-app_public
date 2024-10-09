@@ -15,7 +15,7 @@ const Header = () => {
   <header style={styles.header}>
     <div style={styles.logo}>
       <img src="/logo.png" alt="Logo" style={styles.logoImage} />
-      <h1 style={styles.title}>ここアレ</h1>
+      <h1 style={styles.title}>i-MYGO</h1>
     </div>
     <div style={styles.buttons}>
       {/* 使い方ページに移動するボタン */}
