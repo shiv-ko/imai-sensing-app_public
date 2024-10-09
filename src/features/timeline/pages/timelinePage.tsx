@@ -8,6 +8,7 @@ import PostItem from '../components/postItem';
 import awsExports from '../../../aws-exports';
 import CategoryDropdown from '@/shared/utils/category/categorydownMenu';
 import { categoriesList } from '@/shared/utils/category/categoryList';
+import { ModelSortDirection} from '../../../API'
 
 Amplify.configure(awsExports);
 
@@ -59,7 +60,7 @@ const TimelinePage: React.FC = () => {
       variables = {
         postType: "POST", // 投稿タイプで絞り込み
         updatedAt: { beginsWith: "2024-10" }, // 特定の期間に更新されたデータを取得
-        sortDirection: 'DESC', // 最新順に並べ替え（列挙型を使用）
+        sortDirection: ModelSortDirection.DESC, // 最新順に並べ替え（列挙型を使用）
         limit: 10, // 最大10件のデータを取得
         filter: {
           deleted: { eq: false }, // 削除されていない投稿を取得
@@ -70,12 +71,13 @@ const TimelinePage: React.FC = () => {
       variables = {
         postType: "POST", // 投稿タイプで絞り込み
         updatedAt: { beginsWith: "2024-10" }, // 特定の期間に更新されたデータを取得
-        sortDirection: 'DESC', // 最新順に並べ替え（列挙型を使用）
+        sortDirection: ModelSortDirection.DESC, // 最新順に並べ替え（列挙型を使用）
         limit: 10, // 最大10件のデータを取得
         filter: {
           deleted: { eq: false }, // 削除されていない投稿を取得
           category: { eq: selectedCategory }, // 選択されたカテゴリで絞り込み
         },
+        
         nextToken: token // ページネーションのためのトークン
       };
     }
@@ -84,8 +86,10 @@ const TimelinePage: React.FC = () => {
       // データの読み出し
       const apiData = await client.graphql({
         query: postDataByPostTypeAndUpdatedAt, // 選択したカテゴリに基づいて投稿を取得するクエリ
-        variables: variables
+        variables: variables,
+        
       });
+      // console.log(apiData)
 
       const postsFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.items;
       const nextTokenFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.nextToken;
