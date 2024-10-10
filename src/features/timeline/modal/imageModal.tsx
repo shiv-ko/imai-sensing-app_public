@@ -65,7 +65,7 @@ const styles = {
   },
   closeButton: {
     position: 'absolute' as const,
-    top: '5px',
+    top: 'px',
     right: '5px',
     backgroundColor: 'transparent',
     border: 'none',
