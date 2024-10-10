@@ -1,6 +1,7 @@
+// types/post.ts
 export interface Post {
     id: string;
-    imageUrl?: string;
+    imageUrl?: string; // null を除外
     userId: string;
     lat: number;
     lng: number;
@@ -12,4 +13,7 @@ export interface Post {
     point: number;
     postType: string;
     postedby?: string | null;
+    __typename: "PostData";
+    owner?: string | null;
   }
+  

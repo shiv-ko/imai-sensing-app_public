@@ -91,11 +91,14 @@ const PostMapPage: React.FC = () => {
         variables: variables,
       });
 
-      const postsFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.items;
-      const nextTokenFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.nextToken;
+      // 型アサーションを使用して postsFromAPI を Post[] として扱う
+      const postsFromAPI: Post[] = apiData.data.postDataByPostTypeAndUpdatedAt.items as Post[];
+
+      // nextTokenFromAPI を string | null に明示的に変換
+      const nextTokenFromAPI: string | null = apiData.data.postDataByPostTypeAndUpdatedAt.nextToken ?? null;
 
       // 画像URLの取得処理
-      await Promise.all(
+      const transformedPosts: Post[] = await Promise.all(
         postsFromAPI.map(async (post: Post) => {
           if (post.imageUrl) {
             const url = await getUrl({ key: post.imageUrl });
@@ -105,7 +108,7 @@ const PostMapPage: React.FC = () => {
         })
       );
 
-      setPosts((prevPosts) => (isInitialLoad ? postsFromAPI : [...prevPosts, ...postsFromAPI]));
+      setPosts((prevPosts) => (isInitialLoad ? transformedPosts : [...prevPosts, ...transformedPosts]));
       setIsMoreAvailable(!!nextTokenFromAPI);
     } catch (error) {
       console.error('Error fetching data', error);
