@@ -6,7 +6,7 @@ import ImageModal from '../modal/imageModal'; // 画像モーダルをインポ�
 
 interface Post {
   id: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   userId: string;
   lat: number;
   lng: number;
@@ -17,7 +17,7 @@ interface Post {
   visible: boolean;
   point: number;
   postType: string;
-  postedby: string;
+  postedby?:string | null;
 }
 
 interface PostItemProps {
