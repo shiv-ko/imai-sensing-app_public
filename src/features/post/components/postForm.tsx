@@ -19,31 +19,71 @@ const PostForm: React.FC<PostFormProps> = ({
   createPost,
   setImage,
 }) => {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const [imagePreview, setImagePreview] = useState<string | null>(null); // プレビュー用のステート
+
+  // バリデーションエラーメッセージ用のステート
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [commentError, setCommentError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (validImageTypes.includes(file.type)) {
-        setErrorMessage(null);
+        setImageError(null);
         setImage(file);
         setImagePreview(URL.createObjectURL(file)); // 選択された画像のプレビューURLを設定
       } else {
-        setErrorMessage('画像ファイルのみアップロードできます (jpeg, png, gif)');
+        setImageError('画像ファイルのみアップロードできます (jpeg, png, gif)');
         setImage(null);
         setImagePreview(null); // プレビューをクリア
       }
+    } else {
+      setImageError('画像をアップロードしてください');
+      setImage(null);
+      setImagePreview(null);
+    }
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    let valid = true;
+
+    // 画像のバリデーション
+    if (!formData.image) {
+      setImageError('画像をアップロードしてください');
+      valid = false;
+    } else {
+      setImageError(null);
+    }
+
+    // コメントのバリデーション
+    if (!formData.comment.trim()) {
+      setCommentError('コメントを入力してください');
+      valid = false;
+    } else {
+      setCommentError(null);
+    }
+
+    if (valid) {
+      createPost(event);
     }
   };
 
   return (
-    <form onSubmit={createPost} style={styles.form}>
+    <form onSubmit={handleSubmit} style={styles.form}>
       <p style={styles.categoryText}>お題: {formData.category}</p>
 
       {/* 画像プレビュー表示 */}
-      {imagePreview && <img src={imagePreview} alt="プレビュー" style={{ ...styles.imagePreview, objectFit: 'cover' as const }} />}
+      {imagePreview && (
+        <img
+          src={imagePreview}
+          alt="プレビュー"
+          style={{ ...styles.imagePreview, objectFit: 'cover' as const }}
+        />
+      )}
 
       <input
         type="file"
@@ -51,7 +91,9 @@ const PostForm: React.FC<PostFormProps> = ({
         onChange={handleFileChange}
         style={styles.fileInput}
       />
-      {errorMessage && <p style={styles.errorMessage}>{errorMessage}</p>}
+
+      {/* 画像のエラーメッセージ */}
+      {imageError && <p style={styles.errorMessage}>{imageError}</p>}
 
       <textarea
         name="comment"
@@ -61,7 +103,12 @@ const PostForm: React.FC<PostFormProps> = ({
         style={styles.textarea}
       />
 
-      <p style={styles.remainingCharacters}>残り文字数: {140 - formData.comment.length}</p>
+      {/* コメントのエラーメッセージ */}
+      {commentError && <p style={styles.errorMessage}>{commentError}</p>}
+
+      <p style={styles.remainingCharacters}>
+        残り文字数: {140 - formData.comment.length}
+      </p>
 
       <div style={styles.buttonGroup}>
         <button type="submit" style={styles.submitButton}>
@@ -76,7 +123,7 @@ const PostForm: React.FC<PostFormProps> = ({
 const styles = {
   form: {
     display: 'flex',
-    flexDirection: 'column' as const,  // 縦に並べる
+    flexDirection: 'column' as const, // 縦に並べる
     alignItems: 'center',
     padding: '20px',
     backgroundColor: '#f5f5f5',
@@ -90,7 +137,7 @@ const styles = {
     padding: '10px',
     borderRadius: '5px',
     width: '100%',
-    textAlign: 'center' as const,  // 中央揃えにする
+    textAlign: 'center' as const, // 中央揃えにする
     marginBottom: '15px',
   },
   fileInput: {
@@ -133,7 +180,7 @@ const styles = {
   },
   imagePreview: {
     width: '30%',
-    maxHeight: '300px',  // プレビューの最大高さを設定
+    maxHeight: '300px', // プレビューの最大高さを設定
     objectFit: 'contain', // 画像が枠内に収まるよう調整
     marginBottom: '15px',
   },

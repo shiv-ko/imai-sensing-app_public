@@ -27,7 +27,10 @@ interface Post {
   visible: boolean;
   point: number;
   postType: string;
+  postedby?:string | null;
 }
+
+
 
 const TimelinePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -136,7 +139,7 @@ const TimelinePage: React.FC = () => {
         ) : (
           <ul style={styles.postList}>
             {posts.map((post) => (
-              <PostItem key={post.id} post={{ ...post, imageUrl: post.imageUrl ?? undefined }} />
+              <PostItem key={post.id} post={{ ...post, imageUrl: post.imageUrl ?? undefined, postedby: post.postedby ?? 'unknown' }} />
             ))}
           </ul>
         )}
