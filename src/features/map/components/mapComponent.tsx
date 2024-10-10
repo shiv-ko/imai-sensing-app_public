@@ -20,7 +20,7 @@ const postIcon = new L.Icon({
 
 interface Post {
   id: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   userId: string;
   lat: number;
   lng: number;
@@ -59,7 +59,14 @@ const PostMarker: React.FC<{ post: Post }> = ({ post }) => {
           click: handlePopupOpen, // モーダルを開く
         }}
       />
-      <MapModal post={post} isOpen={isModalOpen} onClose={handleModalClose} />
+      <MapModal 
+        post={{ 
+          ...post, 
+          imageUrl: post.imageUrl ?? undefined // null を undefined に変換
+        }} 
+        isOpen={isModalOpen} 
+        onClose={handleModalClose} 
+      />
     </>
   );
 };
