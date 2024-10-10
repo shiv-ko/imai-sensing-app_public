@@ -8,26 +8,11 @@ import MapComponent from '../components/mapComponent';
 import CategoryDropdown from '@/shared/utils/category/categorydownMenu';
 import { categoriesList } from '@/shared/utils/category/categoryList';
 import { getUrl } from 'aws-amplify/storage';
+import { Post } from '../types/post';  // Post型をインポート
 
 Amplify.configure(awsExports);
 
 const client = generateClient();
-
-interface Post {
-  id: string;
-  imageUrl?: string | null;
-  userId: string;
-  lat: number;
-  lng: number;
-  category: string;
-  comment: string;
-  reported: boolean;
-  deleted: boolean;
-  visible: boolean;
-  point: number;
-  postType: string;
-  postedby?: string | null;
-}
 
 const PostMapPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
