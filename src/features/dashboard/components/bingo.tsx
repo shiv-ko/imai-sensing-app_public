@@ -165,6 +165,8 @@ const BingoBoard = React.forwardRef<BingoBoardHandle, BingoBoardProps>(
   }
 );
 
+BingoBoard.displayName = 'BingoBoard';  // この行を追加
+
 // BingoGachaPopup コンポーネント
 const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number; addPoints: (points: number) => void }> = ({ onClose, completedLines, addPoints }) => {
   const [result, setResult] = useState<{ points: number } | null>(null);
