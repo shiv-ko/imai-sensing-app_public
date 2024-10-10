@@ -59,7 +59,7 @@ function pullGacha(completedLines: number) {
 }
 
 // Components
-const Button = ({ onClick, disabled, children }: { onClick: () => void; disabled: boolean; children: React.ReactNode }) => (
+const Button: React.FC<{ onClick: () => void; disabled: boolean; children: React.ReactNode }> = ({ onClick, disabled, children }) => (
   <button
     onClick={onClick}
     disabled={disabled}
@@ -69,8 +69,7 @@ const Button = ({ onClick, disabled, children }: { onClick: () => void; disabled
   </button>
 );
 
-const BingoCard = ({ onComplete, fillAmount }: { onComplete: () => void; fillAmount: number }) => {
-  const [numbers, setNumbers] = useState(Array(25).fill(null).map((_, i) => i + 1));
+const BingoCard: React.FC<{ onComplete: () => void; fillAmount: number }> = ({ onComplete, fillAmount }) => {
   const [highlighted, setHighlighted] = useState<number[]>([]);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -90,7 +89,6 @@ const BingoCard = ({ onComplete, fillAmount }: { onComplete: () => void; fillAmo
   useEffect(() => {
     const pattern = getAnimationPattern();
     let currentInterval = pattern.fillInterval;
-    let pauseIndex = 0;
 
     const interval = setInterval(() => {
       if (highlighted.length < fillAmount) {
@@ -100,9 +98,23 @@ const BingoCard = ({ onComplete, fillAmount }: { onComplete: () => void; fillAmo
             setIsPaused(false);
             if (pattern.secondInterval) {
               currentInterval = pattern.secondInterval;
+              clearInterval(interval);
+              // Restart the interval with the new interval time
+              const newInterval = setInterval(() => {
+                if (highlighted.length < fillAmount && !isPaused) {
+                  setHighlighted(prev => {
+                    const availableSquares = Array.from({ length: 25 }, (_, i) => i).filter(i => !prev.includes(i));
+                    const newSquare = availableSquares[Math.floor(Math.random() * availableSquares.length)];
+                    return [...prev, newSquare];
+                  });
+                } else {
+                  clearInterval(newInterval);
+                  setTimeout(onComplete, 1400);
+                }
+              }, currentInterval);
+              return;
             }
           }, pattern.pauseDuration);
-          pauseIndex++;
         }
         if (!isPaused) {
           setHighlighted(prev => {
@@ -122,7 +134,7 @@ const BingoCard = ({ onComplete, fillAmount }: { onComplete: () => void; fillAmo
 
   return (
     <div className="bingo-gacha-card">
-      {numbers.map((num, index) => (
+      {Array.from({ length: 25 }, (_, i) => i + 1).map((num, index) => (
         <motion.div
           key={index}
           className={`bingo-gacha-cell ${highlighted.includes(index) ? 'highlighted' : ''}`}
@@ -143,7 +155,7 @@ const BingoCard = ({ onComplete, fillAmount }: { onComplete: () => void; fillAmo
   );
 };
 
-const ResultPopup = ({ result, onClose }: { result: { points: number; fillAmount: number }; onClose: () => void }) => (
+const ResultPopup: React.FC<{ result: { points: number; fillAmount: number }; onClose: () => void }> = ({ result, onClose }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -167,7 +179,10 @@ const ResultPopup = ({ result, onClose }: { result: { points: number; fillAmount
   </motion.div>
 );
 
-const BingoBoard = React.forwardRef<{ checkBingo: () => number; state: { board: { value: number; revealed: boolean }[] } }, { onBingoComplete: (lines: number) => void }>(({ onBingoComplete }, ref) => {
+const BingoBoard = React.forwardRef<
+  { checkBingo: () => number; state: { board: { value: number; revealed: boolean }[] } },
+  { onBingoComplete: (lines: number) => void }
+>(({ onBingoComplete }, ref) => {
   const [board, setBoard] = useState(Array(9).fill(null).map((_, i) => ({ value: i, revealed: false })));
 
   const checkBingo = useCallback((newBoard: { value: number; revealed: boolean }[]) => {
@@ -223,8 +238,9 @@ const BingoBoard = React.forwardRef<{ checkBingo: () => number; state: { board: 
     </div>
   );
 });
+BingoBoard.displayName = 'BingoBoard';
 
-const BingoGachaPopup = ({ onClose, completedLines }: { onClose: () => void; completedLines: number }) => {
+const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number }> = ({ onClose, completedLines }) => {
   const [result, setResult] = useState<{ points: number; fillAmount: number } | null>(null);
   const [stage, setStage] = useState<'idle' | 'bingo' | 'bingoText' | 'result' | 'popup'>('idle');
   const confettiCanvasRef = useRef<HTMLDivElement>(null);
@@ -368,6 +384,7 @@ const BingoGachaPopup = ({ onClose, completedLines }: { onClose: () => void; com
     </motion.div>
   );
 };
+BingoGachaPopup.displayName = 'BingoGachaPopup';
 
 export function Bingo() {
   const [showBingo, setShowBingo] = useState(true);
