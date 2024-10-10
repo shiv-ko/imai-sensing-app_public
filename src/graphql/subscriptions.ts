@@ -116,6 +116,7 @@ export const onCreatePostData = /* GraphQL */ `subscription OnCreatePostData($fi
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -154,6 +155,7 @@ export const onUpdatePostData = /* GraphQL */ `subscription OnUpdatePostData($fi
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -192,6 +194,7 @@ export const onDeletePostData = /* GraphQL */ `subscription OnDeletePostData($fi
       owner
       __typename
     }
+    postedby
     lat
     lng
     category

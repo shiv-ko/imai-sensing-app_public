@@ -34,6 +34,7 @@ type PostData
   imageUrl: String
   userId: ID! @index(name: "postByUser", sortKeyFields: ["updatedAt"])
   user: User @belongsTo(fields: ["userId"])
+  postedby: String
   lat: Float!
   lng: Float!
   category: String!

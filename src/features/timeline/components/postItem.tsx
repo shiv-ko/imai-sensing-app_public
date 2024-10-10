@@ -1,4 +1,8 @@
+// PostItem.tsx
+
 import React, { useState } from 'react';
+import LocationModal from '../modal/locationModal'; // 地図モーダルをインポート
+import ImageModal from '../modal/imageModal'; // 画像モーダルをインポート
 
 interface Post {
   id: string;
@@ -13,6 +17,7 @@ interface Post {
   visible: boolean;
   point: number;
   postType: string;
+  postedby: string;
 }
 
 interface PostItemProps {
@@ -20,10 +25,15 @@ interface PostItemProps {
 }
 
 const PostItem: React.FC<PostItemProps> = ({ post }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
+  const toggleImageModal = () => {
+    setIsImageModalOpen(!isImageModalOpen);
+  };
+
+  const toggleLocationModal = () => {
+    setIsLocationModalOpen(!isLocationModalOpen);
   };
 
   return (
@@ -35,35 +45,39 @@ const PostItem: React.FC<PostItemProps> = ({ post }) => {
             src={post.imageUrl}
             alt={post.category}
             style={styles.image}
-            onClick={toggleModal}
+            onClick={toggleImageModal}
           />
+          <p style={styles.clickToEnlarge}>画像をクリックで拡大</p>
         </div>
       )}
 
       {/* 右側：テキスト部分 */}
-      <div style={styles.infoContainer}>
+      <div style={styles.textContainer}>
         <h3 style={styles.category}>{post.category}</h3>
-        <p style={styles.comment}>{post.comment}</p>
-        <div style={styles.meta}>
-          <p>Location: ({post.lat}, {post.lng})</p>
-          <p>Points: {post.point}</p>
-          <p style={styles.user}>Posted by: {post.userId}</p>
-        </div>
-        <div style={styles.status}>
-          {post.reported && <span style={styles.reportedBadge}>Reported</span>}
-          {post.deleted && <span style={styles.deletedBadge}>Deleted</span>}
-          {!post.visible && <span style={styles.invisibleBadge}>Invisible</span>}
-        </div>
+        <p style={styles.postedby}>投稿者: {post.postedby}</p>
+        <p style={styles.comment}>コメント: {post.comment}</p>
+
+        {/* 場所を確認するボタン */}
+        <button onClick={toggleLocationModal} style={styles.locationButton}>
+          場所を確認する
+        </button>
       </div>
 
-      {/* モーダル */}
-      {isModalOpen && (
-        <div style={styles.modalOverlay} onClick={toggleModal}>
-          <div style={styles.modalContent}>
-            <img src={post.imageUrl} alt={post.category} style={styles.modalImage} />
-          </div>
-        </div>
-      )}
+      {/* 画像モーダル */}
+      <ImageModal
+        isOpen={isImageModalOpen}
+        onClose={toggleImageModal}
+        imageUrl={post.imageUrl || ''}
+        altText={post.category}
+      />
+
+      {/* 位置情報モーダル */}
+      <LocationModal
+        isOpen={isLocationModalOpen}
+        onClose={toggleLocationModal}
+        lat={post.lat}
+        lng={post.lng}
+      />
     </li>
   );
 };
@@ -76,66 +90,51 @@ const styles = {
     padding: '16px',
     marginBottom: '16px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    alignItems: 'flex-start',
   },
   imageContainer: {
     marginRight: '20px',
+    textAlign: 'center' as const,
     cursor: 'pointer',
   },
   image: {
     maxWidth: '150px',
     borderRadius: '8px',
   },
-  infoContainer: {
-    flex: 1,
+  clickToEnlarge: {
+    fontSize: '12px',
+    color: '#888',
+    marginTop: '8px',
+  },
+  textContainer: {
+    display: 'flex',
+    flexDirection: 'column' as const,
   },
   category: {
     fontSize: '18px',
     fontWeight: 'bold',
     color: '#333',
   },
+  postedby: {
+    fontStyle: 'italic',
+    color: '#333',
+    marginTop: '5px',
+  },
   comment: {
     fontSize: '16px',
-    marginBottom: '12px',
+    marginTop: '12px',
     color: '#555',
   },
-  meta: {
+  locationButton: {
+    marginTop: '12px',
+    padding: '6px 12px',
     fontSize: '14px',
-    color: '#777',
-  },
-  user: {
-    fontStyle: 'italic',
-  },
-  status: {
-    marginTop: '10px',
-  },
-  reportedBadge: {
-    color: 'red',
-    fontWeight: 'bold',
-  },
-  deletedBadge: {
-    color: 'gray',
-  },
-  invisibleBadge: {
-    color: 'orange',
-  },
-  modalOverlay: {
-    position: 'fixed' as const,
-    top: '0',
-    left: '0',
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    position: 'relative' as const,
-  },
-  modalImage: {
-    maxWidth: '90%',
-    maxHeight: '90%',
-    borderRadius: '8px',
+    backgroundColor: '#4CAF50', // ボタンの背景色
+    color: 'white', // ボタンのテキスト色
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
   },
 };
 

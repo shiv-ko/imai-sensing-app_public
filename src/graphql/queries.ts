@@ -72,6 +72,7 @@ export const getPostData = /* GraphQL */ `query GetPostData($id: ID!) {
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -105,6 +106,7 @@ export const listPostData = /* GraphQL */ `query ListPostData(
       id
       imageUrl
       userId
+      postedby
       lat
       lng
       category
@@ -251,6 +253,7 @@ export const postDataByUserIdAndUpdatedAt = /* GraphQL */ `query PostDataByUserI
       id
       imageUrl
       userId
+      postedby
       lat
       lng
       category
@@ -293,6 +296,7 @@ export const postDataByPostTypeAndUpdatedAt = /* GraphQL */ `query PostDataByPos
       id
       imageUrl
       userId
+      postedby
       lat
       lng
       category

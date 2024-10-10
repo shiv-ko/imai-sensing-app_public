@@ -5,12 +5,13 @@ import { createPostData } from '../../../graphql/mutations';
 import { generateClient } from 'aws-amplify/api';
 import { uploadData } from 'aws-amplify/storage';
 import { Amplify } from 'aws-amplify';
-import { getCurrentUser, GetCurrentUserOutput } from 'aws-amplify/auth';
+import { getCurrentUser, GetCurrentUserOutput ,fetchUserAttributes} from 'aws-amplify/auth';
 import awsExports from '../../../aws-exports';
 import PostForm from '../components/postForm';
 import imageCompression from '../../../shared/utils/image/compressImage'; 
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+
 
 Amplify.configure(awsExports);
 
@@ -42,16 +43,19 @@ const PostPage: React.FC = () => {
     reported: false,
     deleted: false,
     visible: true,
-    point: 0,
+    point: 1,
     postType: 'POST',
+    likes:0,
   });
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [user, setUser] = useState<GetCurrentUserOutput>();
+  const [nickName,setNickName]=useState<string>();
 
   //ユーザの位置情報と認証情報を取得
   useEffect(() => {
     getUserLocation();
     getCurrentUserAsync();
+    handleFetchUserAttributes();
   }, []);
 
   useEffect(() => {
@@ -67,7 +71,19 @@ const PostPage: React.FC = () => {
   const getCurrentUserAsync = async () => {
     const result = await getCurrentUser();
     setUser(result);
+    console.log('user is ',user);
   };
+  //ユーザの属性を取得する関数
+  async function handleFetchUserAttributes() {
+  try {
+    const userAttributes = await fetchUserAttributes();
+    setNickName(userAttributes.nickname || '');
+    console.log('userAttributes:',userAttributes);
+    console.log('userNickName',userAttributes.nickname);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
   //ユーザの位置情報を取得する関数
   const getUserLocation = () => {
@@ -99,7 +115,7 @@ const PostPage: React.FC = () => {
 
   async function createPost(event: React.FormEvent) {
     event.preventDefault();
-
+    //フォームから入力を取得
     const {
       lat,
       lng,
@@ -112,12 +128,12 @@ const PostPage: React.FC = () => {
       point,
       postType,
     } = formData;
-
+    //投稿するデータの定義
     const postData = {
       userId: user?.userId ?? '',
       lat: parseFloat(lat),
       lng: parseFloat(lng),
-      category,
+      category:category,
       comment,
       reported,
       deleted,
@@ -125,27 +141,28 @@ const PostPage: React.FC = () => {
       point,
       postType,
       imageUrl: image?.name ?? null,
+      postedby:nickName,
     };
 
     try {
       //データをDBに保存。
       await client.graphql({
         query: createPostData,
-        variables: { input: postData },
+        variables: { input: { ...postData, postedby: postData.postedby || '' } },
       });
 
       //画像があったら別でS3に保存
       if (image) {
         await uploadData({ key: image.name, data: image });
       }
-
+      //フォームのリセット
       setFormData({
         ...formData,
         comment: '',
         image: null,
       });
       //投稿完了したら前のテーマ選択のページに戻る。(連続で投稿ができないため)
-      router.push('/camera');
+      router.push('/camera/completion');
     } catch (error) {
       console.error('Error creating post:', error);
     }
@@ -157,7 +174,7 @@ const PostPage: React.FC = () => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   }
-
+  //画像を圧縮してセット
   function setImage(file: File | null) {
     if (file) {
       compressImage(file)

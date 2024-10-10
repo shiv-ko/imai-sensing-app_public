@@ -128,6 +128,7 @@ export const createPostData = /* GraphQL */ `mutation CreatePostData(
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -169,6 +170,7 @@ export const updatePostData = /* GraphQL */ `mutation UpdatePostData(
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -210,6 +212,7 @@ export const deletePostData = /* GraphQL */ `mutation DeletePostData(
       owner
       __typename
     }
+    postedby
     lat
     lng
     category

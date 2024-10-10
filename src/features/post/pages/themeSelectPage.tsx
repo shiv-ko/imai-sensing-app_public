@@ -1,24 +1,19 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ThemeSelector from '../components/themeSelector';
+import { categoriesList } from '@/shared/utils/category/categoryList'; // themes をインポート
 
 const ThemeSelectPage: React.FC = () => {
   const router = useRouter();
   const [selectedTheme, setSelectedTheme] = useState('');
 
-  const themes = [
-    'Nature',
-    'Technology',
-    'Art',
-    'Science',
-    'History',
-    'テスト',
-  ];
+    const filteredThemes = categoriesList.filter((theme) => theme !== 'All');
 
   const handleThemeChange = (theme: string) => {
     setSelectedTheme(theme);
   };
-  //次のページへの遷移を管理
+
+  // 次のページへの遷移を管理
   const handleNext = () => {
     if (selectedTheme) {
       const params = new URLSearchParams({ theme: selectedTheme });
@@ -36,7 +31,7 @@ const ThemeSelectPage: React.FC = () => {
 
       {/* テーマセレクター */}
       <ThemeSelector
-        themes={themes}
+        themes={filteredThemes}
         selectedTheme={selectedTheme}
         onThemeChange={handleThemeChange}
       />
