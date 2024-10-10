@@ -8,11 +8,26 @@ import MapComponent from '../components/mapComponent';
 import CategoryDropdown from '@/shared/utils/category/categorydownMenu';
 import { categoriesList } from '@/shared/utils/category/categoryList';
 import { getUrl } from 'aws-amplify/storage';
-import { Post } from '../types/post';  // Post型をインポート
 
 Amplify.configure(awsExports);
 
 const client = generateClient();
+
+interface Post {
+  id: string;
+  imageUrl?: string | null;
+  userId: string;
+  lat: number;
+  lng: number;
+  category: string;
+  comment: string;
+  reported: boolean;
+  deleted: boolean;
+  visible: boolean;
+  point: number;
+  postType: string;
+  postedby?: string | null;
+}
 
 const PostMapPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -91,14 +106,11 @@ const PostMapPage: React.FC = () => {
         variables: variables,
       });
 
-      // 型アサーションを使用して postsFromAPI を Post[] として扱う
-      const postsFromAPI: Post[] = apiData.data.postDataByPostTypeAndUpdatedAt.items as Post[];
-
-      // nextTokenFromAPI を string | null に明示的に変換
-      const nextTokenFromAPI: string | null = apiData.data.postDataByPostTypeAndUpdatedAt.nextToken ?? null;
+      const postsFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.items;
+      const nextTokenFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.nextToken;
 
       // 画像URLの取得処理
-      const transformedPosts: Post[] = await Promise.all(
+      await Promise.all(
         postsFromAPI.map(async (post: Post) => {
           if (post.imageUrl) {
             const url = await getUrl({ key: post.imageUrl });
@@ -108,7 +120,7 @@ const PostMapPage: React.FC = () => {
         })
       );
 
-      setPosts((prevPosts) => (isInitialLoad ? transformedPosts : [...prevPosts, ...transformedPosts]));
+      setPosts((prevPosts) => (isInitialLoad ? postsFromAPI : [...prevPosts, ...postsFromAPI]));
       setIsMoreAvailable(!!nextTokenFromAPI);
     } catch (error) {
       console.error('Error fetching data', error);

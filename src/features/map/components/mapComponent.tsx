@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React,{useState} from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import MapModal from '../modal/mapModal'; // モーダルコンポーネントをインポート
-import { Post } from '../types/post';  // Post型をインポート
 
 const userIcon = new L.Icon({
   iconUrl: '4965.png',
@@ -19,16 +18,28 @@ const postIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
+interface Post {
+  id: string;
+  imageUrl?: string;
+  userId: string;
+  lat: number;
+  lng: number;
+  category: string;
+  comment: string;
+  reported: boolean;
+  deleted: boolean;
+  visible: boolean;
+  point: number;
+  postType: string;
+  postedby?: string | null;
+}
+
 interface MapComponentProps {
   userPosition: [number, number];
   posts: Post[];
 }
 
-interface PostMarkerProps {
-  post: Post;
-}
-
-const PostMarker: React.FC<PostMarkerProps> = ({ post }) => {
+const PostMarker: React.FC<{ post: Post }> = ({ post }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handlePopupOpen = () => {
@@ -39,12 +50,6 @@ const PostMarker: React.FC<PostMarkerProps> = ({ post }) => {
     setIsModalOpen(false);
   };
 
-  // `imageUrl` が `null` の場合は `undefined` に変換
-  const transformedPost = {
-    ...post,
-    imageUrl: post.imageUrl ?? undefined,
-  };
-
   return (
     <>
       <Marker
@@ -53,16 +58,8 @@ const PostMarker: React.FC<PostMarkerProps> = ({ post }) => {
         eventHandlers={{
           click: handlePopupOpen, // モーダルを開く
         }}
-      >
-        <Popup>
-          <div>
-            <h3>{post.category}</h3>
-            <p>{post.comment}</p>
-            {post.imageUrl && <img src={post.imageUrl} alt="Post Image" style={{ width: '100px' }} />}
-          </div>
-        </Popup>
-      </Marker>
-      <MapModal post={transformedPost} isOpen={isModalOpen} onClose={handleModalClose} />
+      />
+      <MapModal post={post} isOpen={isModalOpen} onClose={handleModalClose} />
     </>
   );
 };
