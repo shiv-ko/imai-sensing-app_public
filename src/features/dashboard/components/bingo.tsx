@@ -10,7 +10,7 @@ import awsExports from '../../../aws-exports';
 import { generateClient } from 'aws-amplify/api';
 import { updateUser } from '../../../graphql/mutations';
 import { UpdateUserMutationVariables } from '../../../API';
-import AnimatedTitle from './animatedTitle'; // インポートの修正（大文字に）
+import AnimatedTitle from './animatedTitle';
 
 Amplify.configure(awsExports);
 const client = generateClient();
@@ -35,7 +35,7 @@ const updateUserScore = async (userId: string, newScore: number) => {
   }
 };
 
-// Button コンポーネントのインライン定義
+// Button コンポーネント
 interface ButtonProps {
   onClick: () => void;
   disabled: boolean;
@@ -48,7 +48,7 @@ const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) => (
   </button>
 );
 
-// 定数とユーティリティ関数
+// ガチャ関連の定数と関数
 const basePointValues = [1, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 30, 50];
 const baseProbabilities = [
   [0.25, 0.30, 0.20, 0.10, 0.05, 0.04, 0.03, 0.02, 0.01, 0.00, 0.00, 0.00, 0.00],
@@ -63,7 +63,7 @@ const baseProbabilities = [
 
 function pullGacha(completedLines: number) {
   if (completedLines < 1 || completedLines > baseProbabilities.length) {
-    completedLines = 1; // デフォルト値を設定
+    completedLines = 1;
   }
   const probabilities = baseProbabilities[completedLines - 1];
   const randomValue = Math.random();
@@ -80,9 +80,7 @@ function pullGacha(completedLines: number) {
 
   const points = basePointValues[selectedIndex];
 
-  return {
-    points
-  };
+  return { points };
 }
 
 // 型定義
@@ -165,32 +163,6 @@ const BingoBoard = React.forwardRef<BingoBoardHandle, BingoBoardProps>(
       </div>
     );
   }
-);
-BingoBoard.displayName = 'BingoBoard';
-
-// ResultPopup コンポーネント
-const ResultPopup: React.FC<{ result: { points: number }; onClose: () => void }> = ({ result, onClose }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    transition={{ duration: 0.4 }}
-    className="bingo-gacha-overlay"
-  >
-    <motion.div
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.8, opacity: 0 }}
-      transition={{ duration: 0.4, ease: "easeInOut" }}
-      className="bingo-gacha-popup"
-    >
-      <h2>ガチャ結果</h2>
-      <p className="result-text">
-        獲得ポイント: <span className="bingo-gacha-bold">{result.points}</span>
-      </p>
-      <Button onClick={onClose} disabled={false}>閉じる</Button>
-    </motion.div>
-  </motion.div>
 );
 
 // BingoGachaPopup コンポーネント
@@ -294,7 +266,6 @@ const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number; a
     </motion.div>
   );
 };
-BingoGachaPopup.displayName = 'BingoGachaPopup';
 
 // Bingo コンポーネント
 interface BingoProps {
@@ -303,7 +274,6 @@ interface BingoProps {
 }
 
 export function Bingo({ userId, initialScore }: BingoProps) {
-  const [showBingo, setShowBingo] = useState(true);
   const [showGachaButton, setShowGachaButton] = useState(false);
   const [showGachaPopup, setShowGachaPopup] = useState(false);
   const [bingoKey, setBingoKey] = useState(0);
@@ -311,7 +281,6 @@ export function Bingo({ userId, initialScore }: BingoProps) {
   const [totalPoints, setTotalPoints] = useState(initialScore);
   const boardRef = useRef<BingoBoardHandle | null>(null);
 
-  // totalPointsを初期スコアに合わせて更新する副作用
   useEffect(() => {
     setTotalPoints(initialScore);
   }, [initialScore]);
@@ -503,11 +472,9 @@ export function Bingo({ userId, initialScore }: BingoProps) {
       </div>
       <div className="total-points">総ポイント: {totalPoints}</div>
 
-      {showBingo && (
-        <div className="bingo-gacha-container">
-          <BingoBoard key={bingoKey} onBingoComplete={handleBingoComplete} ref={boardRef} />
-        </div>
-      )}
+      <div className="bingo-gacha-container">
+        <BingoBoard key={bingoKey} onBingoComplete={handleBingoComplete} ref={boardRef} />
+      </div>
       {showGachaButton && (
         <Button onClick={handleOpenGacha} disabled={false}>
           ガチャを表示
