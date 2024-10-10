@@ -4,7 +4,7 @@ import React from "react";
 
 import Header from '@/shared/components/header'; // Headerコンポーネントのインポート
 import FooterNavBar from '@/shared/components/footer'; // FooterNavBarコンポーネントのインポート
-import Bingo from '@/features/dashboard/components/bingo'; // Bingoコンポーネントのインポート
+import { Bingo } from '@/features/dashboard/components/bingo'; // Bingoコンポーネントのインポート
 
 const HomePage: React.FC = () => {
   return (
