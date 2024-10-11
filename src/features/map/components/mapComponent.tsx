@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -37,9 +37,10 @@ interface Post {
 interface MapComponentProps {
   userPosition: [number, number];
   posts: Post[];
+  userId: string; // ユーザーIDを取得
 }
 
-const PostMarker: React.FC<{ post: Post }> = ({ post }) => {
+const PostMarker: React.FC<{ post: Post; userId: string }> = ({ post, userId }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handlePopupOpen = () => {
@@ -49,6 +50,7 @@ const PostMarker: React.FC<{ post: Post }> = ({ post }) => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+  
 
   return (
     <>
@@ -60,10 +62,8 @@ const PostMarker: React.FC<{ post: Post }> = ({ post }) => {
         }}
       />
       <MapModal 
-        post={{ 
-          ...post, 
-          imageUrl: post.imageUrl ?? undefined // null を undefined に変換
-        }} 
+        post={post} 
+        userId={userId} // ユーザーIDを渡す
         isOpen={isModalOpen} 
         onClose={handleModalClose} 
       />
@@ -71,24 +71,20 @@ const PostMarker: React.FC<{ post: Post }> = ({ post }) => {
   );
 };
 
-const Markers: React.FC<{ posts: Post[] }> = ({ posts }) => {
+const Markers: React.FC<{ posts: Post[]; userId: string }> = ({ posts, userId }) => {
   return (
     <>
       {posts.map((post) => (
-        <PostMarker key={post.id} post={post} />
+        <PostMarker key={post.id} post={post} userId={userId} />
       ))}
     </>
   );
 };
 
-const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts, userId }) => {
   return (
     <div style={mapWrapperStyle}>
-      <MapContainer
-        center={userPosition}
-        zoom={13}
-        style={mapStyle}
-      >
+      <MapContainer center={userPosition} zoom={13} style={mapStyle}>
         <TileLayer
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -96,7 +92,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts }) => {
         <Marker position={userPosition} icon={userIcon}>
           <Popup>あなたの現在地</Popup>
         </Marker>
-        <Markers posts={posts} />
+        <Markers posts={posts} userId={userId} />
       </MapContainer>
     </div>
   );
@@ -104,11 +100,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts }) => {
 
 // スタイル定義
 const mapWrapperStyle: React.CSSProperties = {
-  margin: '0 auto', // 左右に余白を作る
-  border: '5px solid green', // 緑色の枠線
-  width: '90%', // 全体の幅を90%にして左右に余白を作る
-  padding: '10px', // 内側に余白を追加
-  borderRadius: '10px', // 角を少し丸める
+  margin: '0 auto',
+  border: '5px solid green',
+  width: '90%',
+  padding: '10px',
+  borderRadius: '10px',
 };
 
 const mapStyle: React.CSSProperties = {

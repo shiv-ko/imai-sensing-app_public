@@ -24,9 +24,9 @@ type PostData
   @model
   @auth(
     rules: [
-      # createをallow:privateにした
-      { allow: owner, operations: [update, delete] }
-      { allow: private, operations: [create, read] }
+      # create,updateをallow:privateにした
+      { allow: owner, operations: [delete] }
+      { allow: private, operations: [create, read, update] }
       { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
     ]
   ) {

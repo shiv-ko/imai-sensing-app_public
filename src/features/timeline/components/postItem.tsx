@@ -1,8 +1,10 @@
 // PostItem.tsx
 
 import React, { useState } from 'react';
-import LocationModal from '../modal/locationModal'; // 地図モーダルをインポート
-import ImageModal from '../modal/imageModal'; // 画像モーダルをインポート
+import LocationModal from '../modal/locationModal';
+import ImageModal from '../modal/imageModal';
+import LikeButton from '../../../shared/utils/button/likeButton';
+import ReportButton from '../../../shared/utils/button/reportButton'; // 通報ボタンをインポート
 
 interface Post {
   id: string;
@@ -17,14 +19,15 @@ interface Post {
   visible: boolean;
   point: number;
   postType: string;
-  postedby?:string | null;
+  postedby?: string | null;
 }
 
 interface PostItemProps {
   post: Post;
+  currentUserId: string;
 }
 
-const PostItem: React.FC<PostItemProps> = ({ post }) => {
+const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
@@ -38,7 +41,6 @@ const PostItem: React.FC<PostItemProps> = ({ post }) => {
 
   return (
     <li style={styles.container}>
-      {/* 左側：画像部分 */}
       {post.imageUrl && (
         <div style={styles.imageContainer}>
           <img
@@ -51,13 +53,17 @@ const PostItem: React.FC<PostItemProps> = ({ post }) => {
         </div>
       )}
 
-      {/* 右側：テキスト部分 */}
       <div style={styles.textContainer}>
         <h3 style={styles.category}>{post.category}</h3>
         <p style={styles.postedby}>投稿者: {post.postedby}</p>
         <p style={styles.comment}>コメント: {post.comment}</p>
 
-        {/* 場所を確認するボタン */}
+        {/* いいねボタン */}
+        <LikeButton postId={post.id} userId={currentUserId} />
+
+        {/* 通報ボタン */}
+        <ReportButton postId={post.id} />
+
         <button onClick={toggleLocationModal} style={styles.locationButton}>
           場所を確認する
         </button>
@@ -129,8 +135,8 @@ const styles = {
     marginTop: '12px',
     padding: '6px 12px',
     fontSize: '14px',
-    backgroundColor: '#4CAF50', // ボタンの背景色
-    color: 'white', // ボタンのテキスト色
+    backgroundColor: '#4CAF50',
+    color: 'white',
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',

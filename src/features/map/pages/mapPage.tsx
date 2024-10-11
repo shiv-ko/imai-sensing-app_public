@@ -5,10 +5,12 @@ import { generateClient } from 'aws-amplify/api';
 import { Amplify } from 'aws-amplify';
 import awsExports from './../../../aws-exports';
 import dynamic from 'next/dynamic';
-const MapComponent = dynamic(() => import( '../components/mapComponent'), { ssr: false });
+import { getCurrentUser } from 'aws-amplify/auth'; // ユーザー情報取得のためのインポート
+const MapComponent = dynamic(() => import('../components/mapComponent'), { ssr: false });
 import CategoryDropdown from '@/shared/utils/category/categorydownMenu';
 import { categoriesList } from '@/shared/utils/category/categoryList';
 import { getUrl } from 'aws-amplify/storage';
+import { listLikes } from '../../../graphql/queries'; // いいねのリストを取得
 
 Amplify.configure(awsExports);
 
@@ -28,6 +30,7 @@ interface Post {
   point: number;
   postType: string;
   postedby?: string | null;
+  likes?: number;  // いいね数を追加
 }
 
 const PostMapPage: React.FC = () => {
@@ -36,6 +39,7 @@ const PostMapPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [loading, setLoading] = useState<boolean>(true); // ローディング状態を追加
   const [isMoreAvailable, setIsMoreAvailable] = useState<boolean>(true);
+  const [userId, setUserId] = useState<string | null>(null); // ユーザーID用のステート
 
   useEffect(() => {
     fetchPostData(null, true);
@@ -43,7 +47,18 @@ const PostMapPage: React.FC = () => {
 
   useEffect(() => {
     getUserLocation();
+    fetchUserId(); // ユーザーIDを取得
   }, []);
+
+  // ユーザーのIDを取得する関数
+  const fetchUserId = async () => {
+    try {
+      const user = await getCurrentUser();
+      setUserId(user?.username ?? null); // ユーザーIDをセット
+    } catch (error) {
+      console.error('Error fetching user ID:', error);
+    }
+  };
 
   // ユーザーの位置情報を取得する関数
   const getUserLocation = () => {
@@ -89,6 +104,7 @@ const PostMapPage: React.FC = () => {
         postType: 'POST',
         filter: {
           deleted: { eq: false },
+          reported: { eq: false },
         },
       };
     } else {
@@ -96,6 +112,7 @@ const PostMapPage: React.FC = () => {
         postType: 'POST',
         filter: {
           deleted: { eq: false },
+          reported: { eq: false },
           category: { eq: selectedCategory },
         },
       };
@@ -110,13 +127,21 @@ const PostMapPage: React.FC = () => {
       const postsFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.items;
       const nextTokenFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.nextToken;
 
-      // 画像URLの取得処理
+      // いいね数の取得処理を追加
       await Promise.all(
         postsFromAPI.map(async (post: Post) => {
           if (post.imageUrl) {
             const url = await getUrl({ key: post.imageUrl });
             post.imageUrl = url.url.toString();
           }
+          
+          // いいねデータを取得 (listLikesまたはgetLikeを使用)
+          const likesData = await client.graphql({
+            query: listLikes,
+            variables: { filter: { postId: { eq: post.id } } },
+          });
+          post.likes = likesData.data.listLikes.items.length;  // いいね数をセット
+          
           return post;
         })
       );
@@ -143,7 +168,13 @@ const PostMapPage: React.FC = () => {
       {loading ? (
         <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
       ) : (
-        userPosition && <MapComponent userPosition={userPosition} posts={posts} />
+        userPosition && userId && (
+          <MapComponent 
+            userPosition={userPosition} 
+            posts={posts} 
+            userId={userId} // ここでuserIdを渡す
+          />
+        )
       )}
     </div>
   );
