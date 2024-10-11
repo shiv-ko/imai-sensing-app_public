@@ -102,10 +102,10 @@ const updateUserScore = async (userId: string, newScore: number) => {
   };
 
   try {
-    const result = await client.graphql({
+    const result = (await client.graphql({
       query: updateUser,
       variables: { input },
-    }) as { data: { updateUser: { id: string; score: number } | null } };
+    })) as { data: { updateUser: { id: string; score: number } | null } };
 
     console.log('User score updated:', result.data.updateUser);
     return result.data.updateUser;
@@ -320,13 +320,13 @@ const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number; a
 
     const myConfetti = confetti.create(canvas, {
       resize: true,
-      useWorker: true
+      useWorker: true,
     });
 
     myConfetti({
       particleCount: 100,
       spread: 70,
-      origin: { y: 0.6 }
+      origin: { y: 0.6 },
     });
 
     setTimeout(() => {
@@ -451,7 +451,41 @@ export function Bingo({ userId, initialScore }: BingoProps) {
     console.log('Gacha popup opened.');
   }, []);
 
-  const handleCloseGacha = useCallback(() => {
+  // 既存のビンゴシートを使用済みに更新する関数
+  const markBingoSheetAsUsed = useCallback(async () => {
+    console.log('Marking bingo sheet as used.');
+    try {
+      const listResult = (await client.graphql({
+        query: listBingoSheetsCustom,
+        variables: { filter: { userId: { eq: userId }, isUsed: { eq: false } }, limit: 1 },
+      })) as { data: { listBingoSheets: { items: BingoSheet[] } } };
+
+      if (
+        listResult.data.listBingoSheets &&
+        Array.isArray(listResult.data.listBingoSheets.items) &&
+        listResult.data.listBingoSheets.items.length > 0
+      ) {
+        const existingSheetSummary = listResult.data.listBingoSheets.items[0];
+
+        const updateInput: UpdateBingoSheetInput = {
+          id: existingSheetSummary.id,
+          isUsed: true,
+        };
+
+        console.log('Updating bingo sheet isUsed to true:', updateInput);
+
+        await client.graphql({
+          query: updateBingoSheetWithSquares,
+          variables: { input: updateInput },
+        });
+        console.log('Bingo sheet marked as used successfully.');
+      }
+    } catch (error) {
+      console.error('Error marking bingo sheet as used:', error);
+    }
+  }, [userId]);
+
+  const handleCloseGacha = useCallback(async () => {
     console.log('Gacha popup closed.');
     setShowGachaPopup(false);
     setShowGachaButton(false);
@@ -459,7 +493,10 @@ export function Bingo({ userId, initialScore }: BingoProps) {
     setCompletedLines(0);
     setBingoSheet(Array(9).fill('?'));
     setOpenFlags(Array(9).fill(false));
-  }, []);
+
+    // 既存のビンゴシートを使用済みに更新
+    await markBingoSheetAsUsed();
+  }, [markBingoSheetAsUsed]);
 
   // ビンゴ生成ボタンのハンドラー
   const handleGenerateBingo = useCallback(async () => {
@@ -477,93 +514,96 @@ export function Bingo({ userId, initialScore }: BingoProps) {
   }, []);
 
   // ビンゴシートを保存する関数
-  const saveBingoSheet = useCallback(async (sheet: string[], flags: boolean[]) => {
-    console.log('Saving bingo sheet:', { sheet, flags });
-    try {
-      // 既存のビンゴシートを取得
-      const listResult = await client.graphql({
-        query: listBingoSheetsCustom,
-        variables: { filter: { userId: { eq: userId } }, limit: 1 },
-      }) as { data: { listBingoSheets: { items: BingoSheet[] } } };
+  const saveBingoSheet = useCallback(
+    async (sheet: string[], flags: boolean[]) => {
+      console.log('Saving bingo sheet:', { sheet, flags });
+      try {
+        // 未使用のビンゴシートを取得
+        const listResult = (await client.graphql({
+          query: listBingoSheetsCustom,
+          variables: { filter: { userId: { eq: userId }, isUsed: { eq: false } }, limit: 1 },
+        })) as { data: { listBingoSheets: { items: BingoSheet[] } } };
 
-      console.log('Fetched bingo sheets:', listResult.data.listBingoSheets);
+        console.log('Fetched bingo sheets:', listResult.data.listBingoSheets);
 
-      if (
-        listResult.data.listBingoSheets &&
-        Array.isArray(listResult.data.listBingoSheets.items) &&
-        listResult.data.listBingoSheets.items.length > 0
-      ) {
-        // 既存のビンゴシートを更新するために getBingoSheet クエリを実行
-        const existingSheetSummary = listResult.data.listBingoSheets.items[0];
-        console.log('Existing bingo sheet summary:', existingSheetSummary);
+        if (
+          listResult.data.listBingoSheets &&
+          Array.isArray(listResult.data.listBingoSheets.items) &&
+          listResult.data.listBingoSheets.items.length > 0
+        ) {
+          // 既存のビンゴシートを更新するために getBingoSheet クエリを実行
+          const existingSheetSummary = listResult.data.listBingoSheets.items[0];
+          console.log('Existing bingo sheet summary:', existingSheetSummary);
 
-        const getResult = await client.graphql({
-          query: getBingoSheetWithSquares,
-          variables: { id: existingSheetSummary.id },
-        }) as { data: { getBingoSheet: BingoSheet } };
+          const getResult = (await client.graphql({
+            query: getBingoSheetWithSquares,
+            variables: { id: existingSheetSummary.id },
+          })) as { data: { getBingoSheet: BingoSheet } };
 
-        console.log('Fetched detailed bingo sheet:', getResult.data.getBingoSheet);
+          console.log('Fetched detailed bingo sheet:', getResult.data.getBingoSheet);
 
-        const existingSheet = getResult.data.getBingoSheet;
-        if (!existingSheet || !existingSheet.squares) {
-          console.error('Detailed bingo sheet or squares are undefined.');
-          return;
+          const existingSheet = getResult.data.getBingoSheet;
+          if (!existingSheet || !existingSheet.squares) {
+            console.error('Detailed bingo sheet or squares are undefined.');
+            return;
+          }
+
+          const updatedSheetInput: UpdateBingoSheetInput = {
+            id: existingSheet.id,
+            userId: userId,
+            squares: sheet.map((category, index) => ({
+              id: existingSheet.squares[index]?.id || `square-${index}`,
+              number: index + 1,
+              categoryName: category,
+              isOpen: flags[index],
+            })),
+            isUsed: existingSheet.isUsed,
+          };
+
+          console.log('Updating existing bingo sheet:', updatedSheetInput);
+
+          await client.graphql({
+            query: updateBingoSheetWithSquares,
+            variables: { input: updatedSheetInput },
+          });
+          console.log('Bingo sheet updated successfully.');
+        } else {
+          // 新しいビンゴシートを作成
+          const newSheetInput: CreateBingoSheetInput = {
+            userId: userId,
+            squares: sheet.map((category, index) => ({
+              id: `square-${index}`,
+              number: index + 1,
+              categoryName: category,
+              isOpen: flags[index],
+            })),
+            isUsed: false,
+          };
+
+          console.log('Creating new bingo sheet:', newSheetInput);
+
+          await client.graphql({
+            query: createBingoSheetWithSquares,
+            variables: { input: newSheetInput },
+          });
+          console.log('Bingo sheet created successfully.');
         }
-
-        const updatedSheetInput: UpdateBingoSheetInput = {
-          id: existingSheet.id,
-          userId: userId,
-          squares: sheet.map((category, index) => ({
-            id: existingSheet.squares[index]?.id || `square-${index}`,
-            number: index + 1,
-            categoryName: category,
-            isOpen: flags[index],
-          })),
-          isUsed: existingSheet.isUsed,
-        };
-
-        console.log('Updating existing bingo sheet:', updatedSheetInput);
-
-        await client.graphql({
-          query: updateBingoSheetWithSquares,
-          variables: { input: updatedSheetInput },
-        });
-        console.log('Bingo sheet updated successfully.');
-      } else {
-        // 新しいビンゴシートを作成
-        const newSheetInput: CreateBingoSheetInput = {
-          userId: userId,
-          squares: sheet.map((category, index) => ({
-            id: `square-${index}`,
-            number: index + 1,
-            categoryName: category,
-            isOpen: flags[index],
-          })),
-          isUsed: false,
-        };
-
-        console.log('Creating new bingo sheet:', newSheetInput);
-
-        await client.graphql({
-          query: createBingoSheetWithSquares,
-          variables: { input: newSheetInput },
-        });
-        console.log('Bingo sheet created successfully.');
+      } catch (error) {
+        console.error('Error saving bingo sheet:', error);
       }
-    } catch (error) {
-      console.error('Error saving bingo sheet:', error);
-    }
-  }, [userId, client]);
+    },
+    [userId]
+  );
 
   // コンポーネントのマウント時にビンゴシートをロード
   useEffect(() => {
     const loadBingoSheet = async () => {
       console.log('Loading bingo sheet for user:', userId);
       try {
-        const listResult = await client.graphql({
+        const listResult = (await client.graphql({
           query: listBingoSheetsCustom,
-          variables: { filter: { userId: { eq: userId } }, limit: 1 },
-        }) as { data: { listBingoSheets: { items: BingoSheet[] } } };
+          variables: { filter: { userId: { eq: userId }, isUsed: { eq: false } }, limit: 1 },
+        })) as { data: { listBingoSheets: { items: BingoSheet[] } } };
 
         console.log('Fetched bingo sheets on load:', listResult.data.listBingoSheets);
 
@@ -576,17 +616,16 @@ export function Bingo({ userId, initialScore }: BingoProps) {
           console.log('Existing bingo sheet summary:', existingSheetSummary);
 
           // getBingoSheet クエリを実行して詳細を取得
-          const getResult = await client.graphql({
+          const getResult = (await client.graphql({
             query: getBingoSheetWithSquares,
             variables: { id: existingSheetSummary.id },
-          }) as { data: { getBingoSheet: BingoSheet } };
+          })) as { data: { getBingoSheet: BingoSheet } };
 
           console.log('Fetched detailed bingo sheet:', getResult.data.getBingoSheet);
 
           const existingSheet = getResult.data.getBingoSheet;
           if (!existingSheet || !existingSheet.squares) {
             console.error('Detailed bingo sheet or squares are undefined.');
-            handleGenerateBingo();
             return;
           }
 
@@ -617,50 +656,51 @@ export function Bingo({ userId, initialScore }: BingoProps) {
             }
           }
         } else {
-          console.log('No existing bingo sheet found. Generating a new one.');
-          // 既存のシートがない場合、新しいシートを生成
-          handleGenerateBingo();
+          console.log('No existing bingo sheet found.');
+          // 必要に応じて新しいシートを自動生成する処理を追加
         }
       } catch (error) {
         console.error('Error loading bingo sheet:', error);
-        handleGenerateBingo();
       }
     };
 
     loadBingoSheet();
-  }, [handleGenerateBingo, userId, client]);
+  }, [userId]);
 
-   // お題の投稿があった際にビンゴシートのフラグを更新する関数
-   const handleNewPost = useCallback(async (category: string) => {
-    console.log(`New post received for category: ${category}`);
-    const newOpenFlags = bingoSheet.map((sheetCategory, index) =>
-      sheetCategory === category ? true : openFlags[index]
-    );
-    console.log('Updated open flags:', newOpenFlags);
-    setOpenFlags(newOpenFlags);
+  // お題の投稿があった際にビンゴシートのフラグを更新する関数
+  const handleNewPost = useCallback(
+    async (category: string) => {
+      console.log(`New post received for category: ${category}`);
+      const newOpenFlags = bingoSheet.map((sheetCategory, index) =>
+        sheetCategory === category ? true : openFlags[index]
+      );
+      console.log('Updated open flags:', newOpenFlags);
+      setOpenFlags(newOpenFlags);
 
-    // ビンゴのチェック
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
+      // ビンゴのチェック
+      const lines = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
 
-    const completed = lines.filter(line => line.every(index => newOpenFlags[index])).length;
-    console.log('Completed lines after new post:', completed);
+      const completed = lines.filter(line => line.every(index => newOpenFlags[index])).length;
+      console.log('Completed lines after new post:', completed);
 
-    if (completed > 0) {
-      handleBingoComplete(completed);
-    }
+      if (completed > 0) {
+        handleBingoComplete(completed);
+      }
 
-    // ビンゴシートを AWS に保存
-    await saveBingoSheet(bingoSheet, newOpenFlags);
-  }, [bingoSheet, openFlags, handleBingoComplete, saveBingoSheet]);
+      // ビンゴシートを AWS に保存
+      await saveBingoSheet(bingoSheet, newOpenFlags);
+    },
+    [bingoSheet, openFlags, handleBingoComplete, saveBingoSheet]
+  );
 
   return (
     <div className="bingo-gacha-game">
@@ -724,38 +764,36 @@ export function Bingo({ userId, initialScore }: BingoProps) {
           background-color: #e0e0e0;
           border: 1px solid #fbbf24;
           border-radius: 0.5rem;
-          cursor: pointer; /* クリック可能に */
-          font-size: 1rem; /* カテゴリ名表示用にフォントサイズを調整 */
+          cursor: pointer;
+          font-size: 1rem;
           font-weight: bold;
           color: #4a4a4a;
           transition: background-color 0.3s, transform 0.3s;
-          text-align: center; /* テキストを中央揃え */
-          padding: 0.5rem; /* パディングを追加 */
-          position: relative; /* スタンプを配置するために相対位置を設定 */
+          text-align: center;
+          padding: 0.5rem;
+          position: relative;
         }
         .bingo-gacha-board-cell.revealed {
           background-color: #fbbf24;
           transform: scale(1.05);
           color: #ffffff;
         }
-        /* スタンプ風の円形のスタイル */
         .stamp-circle {
           position: absolute;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 3rem; /* 大きさを調整 */
+          width: 3rem;
           height: 3rem;
-          border: 4px solid #ff0000; /* 赤い外枠 */
+          border: 4px solid #ff0000;
           border-radius: 50%;
-          background-color: transparent; /* 背景を透明に */
+          background-color: transparent;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); /* 影を追加してスタンプ感を強調 */
+          box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
           animation: stamp-appear 0.5s ease-out forwards;
         }
-        /* スタンプが現れるアニメーション */
         @keyframes stamp-appear {
           0% {
             transform: translate(-50%, -50%) scale(0);
@@ -854,10 +892,10 @@ export function Bingo({ userId, initialScore }: BingoProps) {
       <div className="total-points">総ポイント: {totalPoints}</div>
 
       <div className="bingo-gacha-container">
-        <BingoBoard 
-          key={bingoKey} 
-          ref={boardRef} 
-          bingoSheet={bingoSheet} 
+        <BingoBoard
+          key={bingoKey}
+          ref={boardRef}
+          bingoSheet={bingoSheet}
           openFlags={openFlags} // フラグを渡す
         />
       </div>
@@ -871,9 +909,9 @@ export function Bingo({ userId, initialScore }: BingoProps) {
       <div style={{ marginTop: '1rem' }}>
         <h3>お題の投稿をシミュレート</h3>
         {['Technology', 'Nature', 'Science', 'Art', 'テスト'].map(category => (
-          <Button 
-            key={category} 
-            onClick={() => handleNewPost(category)} 
+          <Button
+            key={category}
+            onClick={() => handleNewPost(category)}
             disabled={false}
           >
             {category} のお題を投稿
