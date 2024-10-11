@@ -1,22 +1,26 @@
 import React from 'react';
+import LikeButton from '@/shared/utils/button/likeButton'; // いいねボタンをインポート
+import ReportButton from '@/shared/utils/button/reportButton'; // 通報ボタンをインポート
+
 
 interface ModalProps {
   post: {
+    id: string;
     category: string;
     comment: string;
-    imageUrl?: string;
+    imageUrl?: string | null;
     postedby?: string | null;
   };
   isOpen: boolean;
   onClose: () => void;
+  userId: string; // ユーザーIDを追加
 }
 
-const MapModal: React.FC<ModalProps> = ({ post, isOpen, onClose }) => {
+const MapModal: React.FC<ModalProps> = ({ post, isOpen, onClose, userId }) => {
   if (!isOpen) return null;
 
   // オーバーレイをクリックしたときにモーダルを閉じる
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // モーダルの内容をクリックしたときは閉じないようにする
     if (e.target === e.currentTarget) {
       onClose();
     }
@@ -38,10 +42,18 @@ const MapModal: React.FC<ModalProps> = ({ post, isOpen, onClose }) => {
           />
         )}
         <p style={{ fontStyle: 'italic', marginTop: '10px' }}>投稿者: {post.postedby}</p>
+
+        {/* いいねボタンを表示 */}
+        <LikeButton postId={post.id} userId={userId} />
+
+        {/* 通報ボタンを表示 */}
+        <ReportButton postId={post.id} />
       </div>
     </div>
   );
 };
+
+
 
 // スタイルを定義
 const modalOverlayStyle: React.CSSProperties = {
