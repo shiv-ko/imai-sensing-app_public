@@ -32,6 +32,7 @@ const CameraPage: React.FC = () => {
 
   const takePhoto = () => {
     if (videoRef.current) {
+      console.log(capturedImage);
       const video = videoRef.current;
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
