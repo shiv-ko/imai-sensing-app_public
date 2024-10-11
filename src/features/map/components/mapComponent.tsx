@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import MapModal from '../modal/mapModal'; // モーダルコンポーネントをインポート
@@ -39,6 +39,21 @@ interface MapComponentProps {
   posts: Post[];
   userId: string; // ユーザーIDを取得
 }
+
+// マップ上で現在地に移動するためのカスタムフック
+const MoveToCurrentLocationButton: React.FC<{ userPosition: [number, number] }> = ({ userPosition }) => {
+  const map = useMap(); // マップインスタンスを取得
+
+  const handleMoveToCurrentLocation = () => {
+    map.flyTo(userPosition, 13); // 現在地にズーム移動する
+  };
+
+  return (
+    <button onClick={handleMoveToCurrentLocation} style={currentLocationButtonStyle}>
+      現在地に移動
+    </button>
+  );
+};
 
 const PostMarker: React.FC<{ post: Post; userId: string }> = ({ post, userId }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -93,6 +108,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts, userId
           <Popup>あなたの現在地</Popup>
         </Marker>
         <Markers posts={posts} userId={userId} />
+        <MoveToCurrentLocationButton userPosition={userPosition} />
       </MapContainer>
     </div>
   );
@@ -110,6 +126,19 @@ const mapWrapperStyle: React.CSSProperties = {
 const mapStyle: React.CSSProperties = {
   height: '500px',
   width: '100%',
+};
+
+const currentLocationButtonStyle: React.CSSProperties = {
+  position: 'absolute',
+  bottom: '10px',
+  left: '10px',
+  padding: '10px 20px',
+  backgroundColor: '#4CAF50',
+  color: 'white',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  zIndex: 1000, // マップの上にボタンを表示するための優先度
 };
 
 export default MapComponent;
