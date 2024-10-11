@@ -596,6 +596,26 @@ export function Bingo({ userId, initialScore }: BingoProps) {
           setOpenFlags(flags);
           setBingoKey(prevKey => prevKey + 1); // BingoBoardを再レンダリング
           console.log('Loaded existing bingo sheet:', { categories, flags });
+
+          // 既存のビンゴシートがロードされた後にビンゴ判定を行う
+          if (existingSheet && existingSheet.squares) {
+            const newFlags = existingSheet.squares.map(square => square?.isOpen || false);
+            setOpenFlags(newFlags);
+            const lines = [
+              [0, 1, 2],
+              [3, 4, 5],
+              [6, 7, 8],
+              [0, 3, 6],
+              [1, 4, 7],
+              [2, 5, 8],
+              [0, 4, 8],
+              [2, 4, 6],
+            ];
+            const completed = lines.filter(line => line.every(index => newFlags[index])).length;
+            if (completed > 0) {
+              handleBingoComplete(completed); // ビンゴが完成している場合
+            }
+          }
         } else {
           console.log('No existing bingo sheet found. Generating a new one.');
           // 既存のシートがない場合、新しいシートを生成
