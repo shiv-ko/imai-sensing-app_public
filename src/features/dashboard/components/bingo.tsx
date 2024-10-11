@@ -1,5 +1,3 @@
-// src/features/dashboard/components/bingo.tsx
-
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
@@ -11,6 +9,8 @@ import { generateClient } from 'aws-amplify/api';
 import { updateUser } from '../../../graphql/mutations';
 import { UpdateUserMutationVariables } from '../../../API';
 import AnimatedTitle from './animatedTitle';
+import { generateBingoSheet } from '../utils/bingoGenerator'; // パスを修正
+import { useRouter } from 'next/navigation'; // Next.js の useRouter を使用
 
 Amplify.configure(awsExports);
 const client = generateClient();
@@ -40,10 +40,11 @@ interface ButtonProps {
   onClick: () => void;
   disabled: boolean;
   children: React.ReactNode;
+  style?: React.CSSProperties; // 追加
 }
 
-const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) => (
-  <button onClick={onClick} disabled={disabled} className="bingo-gacha-button">
+const Button: React.FC<ButtonProps> = ({ onClick, disabled, children, style }) => (
+  <button onClick={onClick} disabled={disabled} className="bingo-gacha-button" style={style}>
     {children}
   </button>
 );
@@ -86,25 +87,29 @@ function pullGacha(completedLines: number) {
 // 型定義
 interface BingoBoardProps {
   onBingoComplete: (lines: number) => void;
+  bingoSheet: string[]; // カテゴリ名を受け取る
+  openFlags: boolean[]; // 各マスの開閉状態を受け取る
 }
 
 export interface BingoBoardHandle {
   checkBingo: () => number;
   state: {
-    board: { value: number; revealed: boolean }[];
+    board: { value: string; revealed: boolean }[];
   };
 }
 
 // BingoBoard コンポーネント
 const BingoBoard = React.forwardRef<BingoBoardHandle, BingoBoardProps>(
-  ({ onBingoComplete }, ref) => {
+  ({ onBingoComplete, bingoSheet, openFlags }, ref) => {
     const [board, setBoard] = useState(
-      Array(9)
-        .fill(null)
-        .map((_, i) => ({ value: i + 1, revealed: false }))
+      bingoSheet.map((category, index) => ({ value: category, revealed: openFlags[index] }))
     );
 
-    const checkBingo = useCallback((newBoard: { value: number; revealed: boolean }[]) => {
+    useEffect(() => {
+      setBoard(bingoSheet.map((category, index) => ({ value: category, revealed: openFlags[index] })));
+    }, [bingoSheet, openFlags]);
+
+    const checkBingo = useCallback((newBoard: { value: string; revealed: boolean }[]) => {
       const lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -119,48 +124,88 @@ const BingoBoard = React.forwardRef<BingoBoardHandle, BingoBoardProps>(
       return lines.filter(line => line.every(index => newBoard[index].revealed)).length;
     }, []);
 
-    const handleCellClick = useCallback(
-      (index: number) => {
-        setBoard(prevBoard => {
-          const newBoard = prevBoard.map((cell, i) => 
-            i === index ? { ...cell, revealed: true } : cell
-          );
-          const completedLines = checkBingo(newBoard);
-          if (completedLines > 0) {
-            onBingoComplete(completedLines);
-          }
-          return newBoard;
-        });
-      },
-      [checkBingo, onBingoComplete]
-    );
-
     React.useImperativeHandle(ref, () => ({
       checkBingo: () => checkBingo(board),
       state: { board },
     }));
 
+    // Popup用の状態と関数
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [showPostPopup, setShowPostPopup] = useState(false);
+    const router = useRouter();
+
+    const handleCellClick = (category: string) => {
+      if (category !== '?') {
+        setSelectedCategory(category);
+        setShowPostPopup(true);
+      }
+    };
+
+    const handlePost = () => {
+      setShowPostPopup(false);
+      router.push('/camera'); // '/post' を '/camera' に変更
+
+      // セルに⭕️を追加するロジックは既に openFlags が更新されているため、
+      // CSSでスタンプ風の円形が表示されます。
+    };
+
     return (
-      <div className="bingo-gacha-board">
-        {board.map((cell, index) => (
-          <motion.div
-            key={index}
-            className={`bingo-gacha-board-cell ${cell.revealed ? 'revealed' : ''}`}
-            onClick={() => handleCellClick(index)}
-            animate={{
-              scale: cell.revealed ? [1, 1.1, 1] : 1,
-              backgroundColor: cell.revealed ? ['#fbbf24', '#f6ad55', '#f6ad55'] : '#e0e0e0',
-            }}
-            transition={{
-              duration: 0.3,
-              ease: "easeInOut",
-              times: [0, 0.5, 1],
-            }}
-          >
-            {cell.revealed ? cell.value : '?'}
-          </motion.div>
-        ))}
-      </div>
+      <>
+        <div className="bingo-gacha-board">
+          {board.map((cell, index) => (
+            <motion.div
+              key={index}
+              className={`bingo-gacha-board-cell ${cell.revealed ? 'revealed' : ''}`}
+              onClick={() => handleCellClick(cell.value)}
+              animate={{
+                scale: cell.revealed ? [1, 1.05, 1] : 1,
+                backgroundColor: cell.revealed ? ['#fbbf24', '#f6ad55', '#f6ad55'] : '#e0e0e0',
+              }}
+              transition={{
+                duration: 0.3,
+                ease: "easeInOut",
+                times: [0, 0.5, 1],
+              }}
+            >
+              {cell.value}
+              {cell.revealed && (
+                <div className="stamp-circle"></div> 
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* お題投稿のポップアップ */}
+        <AnimatePresence>
+          {showPostPopup && selectedCategory && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="bingo-gacha-overlay"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bingo-gacha-popup"
+              >
+                <h2>お題の投稿</h2>
+                <p>カテゴリ: <strong>{selectedCategory}</strong></p>
+                <div className="bingo-gacha-button-container">
+                  <Button onClick={handlePost} disabled={false}>
+                    投稿する
+                  </Button>
+                  <Button onClick={() => setShowPostPopup(false)} disabled={false} style={{ marginLeft: '1rem' }}>
+                    キャンセル
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </>
     );
   }
 );
@@ -282,6 +327,8 @@ export function Bingo({ userId, initialScore }: BingoProps) {
   const [completedLines, setCompletedLines] = useState(0);
   const [totalPoints, setTotalPoints] = useState(initialScore);
   const boardRef = useRef<BingoBoardHandle | null>(null);
+  const [bingoSheet, setBingoSheet] = useState<string[]>(Array(9).fill('?'));
+  const [openFlags, setOpenFlags] = useState<boolean[]>(Array(9).fill(false));
 
   useEffect(() => {
     setTotalPoints(initialScore);
@@ -320,7 +367,45 @@ export function Bingo({ userId, initialScore }: BingoProps) {
     setShowGachaButton(false);
     setBingoKey(prevKey => prevKey + 1);
     setCompletedLines(0);
+    setBingoSheet(Array(9).fill('?'));
+    setOpenFlags(Array(9).fill(false));
   }, []);
+
+  // ビンゴ生成ボタンのハンドラー
+  const handleGenerateBingo = useCallback(() => {
+    const newSheet = generateBingoSheet();
+    setBingoSheet(newSheet);
+    setOpenFlags(Array(9).fill(false)); // 新しいビンゴシート生成時にフラグをリセット
+    setBingoKey(prevKey => prevKey + 1); // BingoBoardを再レンダリング
+    setShowGachaButton(false);
+    setCompletedLines(0);
+  }, []);
+
+  // お題の投稿があった際にビンゴシートのフラグを更新する関数
+  const handleNewPost = useCallback((category: string) => {
+    const newOpenFlags = bingoSheet.map((sheetCategory, index) =>
+      sheetCategory === category ? true : openFlags[index]
+    );
+    setOpenFlags(newOpenFlags);
+
+    // ビンゴのチェック
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    const completed = lines.filter(line => line.every(index => newOpenFlags[index])).length;
+
+    if (completed > 0) {
+      handleBingoComplete(completed);
+    }
+  }, [bingoSheet, openFlags, handleBingoComplete]);
 
   return (
     <div className="bingo-gacha-game">
@@ -384,16 +469,51 @@ export function Bingo({ userId, initialScore }: BingoProps) {
           background-color: #e0e0e0;
           border: 1px solid #fbbf24;
           border-radius: 0.5rem;
-          cursor: pointer;
-          font-size: 1.5rem;
+          cursor: pointer; /* クリック可能に */
+          font-size: 1rem; /* カテゴリ名表示用にフォントサイズを調整 */
           font-weight: bold;
           color: #4a4a4a;
           transition: background-color 0.3s, transform 0.3s;
+          text-align: center; /* テキストを中央揃え */
+          padding: 0.5rem; /* パディングを追加 */
+          position: relative; /* スタンプを配置するために相対位置を設定 */
         }
         .bingo-gacha-board-cell.revealed {
           background-color: #fbbf24;
           transform: scale(1.05);
           color: #ffffff;
+        }
+        /* スタンプ風の円形のスタイル */
+        .stamp-circle {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 3rem; /* 大きさを調整 */
+          height: 3rem;
+          border: 4px solid #ff0000; /* 赤い外枠 */
+          border-radius: 50%;
+          background-color: transparent; /* 背景を透明に */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); /* 影を追加してスタンプ感を強調 */
+          animation: stamp-appear 0.5s ease-out forwards;
+        }
+        /* スタンプが現れるアニメーション */
+        @keyframes stamp-appear {
+          0% {
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+          }
+          80% {
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 1;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
         }
         .bingo-gacha-overlay {
           position: fixed;
@@ -462,9 +582,13 @@ export function Bingo({ userId, initialScore }: BingoProps) {
         .bingo-gacha-button-container {
           display: flex;
           justify-content: center;
+          margin-top: 1rem;
         }
         .bingo-gacha-bold {
           font-weight: bold;
+        }
+        .bingo-gacha-container {
+          margin-bottom: 2rem;
         }
       `}</style>
 
@@ -475,8 +599,34 @@ export function Bingo({ userId, initialScore }: BingoProps) {
       <div className="total-points">総ポイント: {totalPoints}</div>
 
       <div className="bingo-gacha-container">
-        <BingoBoard key={bingoKey} onBingoComplete={handleBingoComplete} ref={boardRef} />
+        <BingoBoard 
+          key={bingoKey} 
+          onBingoComplete={handleBingoComplete} 
+          ref={boardRef} 
+          bingoSheet={bingoSheet} 
+          openFlags={openFlags} // フラグを渡す
+        />
       </div>
+
+      {/* ビンゴ生成ボタンの追加 */}
+      <Button onClick={handleGenerateBingo} disabled={false}>
+        ビンゴを生成
+      </Button>
+
+      {/* お題の投稿をシミュレートするボタン */}
+      <div style={{ marginTop: '1rem' }}>
+        <h3>お題の投稿をシミュレート</h3>
+        {['Technology', 'Nature', 'Science', 'Art', 'テスト'].map(category => (
+          <Button 
+            key={category} 
+            onClick={() => handleNewPost(category)} 
+            disabled={false}
+          >
+            {category} のお題を投稿
+          </Button>
+        ))}
+      </div>
+
       {showGachaButton && (
         <Button onClick={handleOpenGacha} disabled={false}>
           ガチャを表示
