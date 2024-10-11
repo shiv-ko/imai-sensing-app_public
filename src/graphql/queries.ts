@@ -31,6 +31,10 @@ export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
       nextToken
       __typename
     }
+    bingoSheets {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -201,6 +205,61 @@ export const listCategories = /* GraphQL */ `query ListCategories(
   APITypes.ListCategoriesQueryVariables,
   APITypes.ListCategoriesQuery
 >;
+export const getBingoSheet = /* GraphQL */ `query GetBingoSheet($id: ID!) {
+  getBingoSheet(id: $id) {
+    id
+    userId
+    user {
+      id
+      displayName
+      score
+      createdAt
+      updatedAt
+      currentCategoryId
+      owner
+      __typename
+    }
+    squares {
+      id
+      number
+      categoryName
+      isOpen
+      __typename
+    }
+    createdAt
+    isUsed
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetBingoSheetQueryVariables,
+  APITypes.GetBingoSheetQuery
+>;
+export const listBingoSheets = /* GraphQL */ `query ListBingoSheets(
+  $filter: ModelBingoSheetFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listBingoSheets(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      createdAt
+      isUsed
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListBingoSheetsQueryVariables,
+  APITypes.ListBingoSheetsQuery
+>;
 export const usersByCurrentCategoryId = /* GraphQL */ `query UsersByCurrentCategoryId(
   $currentCategoryId: ID!
   $sortDirection: ModelSortDirection
@@ -350,4 +409,37 @@ export const likesByPostId = /* GraphQL */ `query LikesByPostId(
 ` as GeneratedQuery<
   APITypes.LikesByPostIdQueryVariables,
   APITypes.LikesByPostIdQuery
+>;
+export const bingoSheetsByUserIdAndCreatedAt = /* GraphQL */ `query BingoSheetsByUserIdAndCreatedAt(
+  $userId: ID!
+  $createdAt: ModelStringKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelBingoSheetFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  bingoSheetsByUserIdAndCreatedAt(
+    userId: $userId
+    createdAt: $createdAt
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      userId
+      createdAt
+      isUsed
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.BingoSheetsByUserIdAndCreatedAtQueryVariables,
+  APITypes.BingoSheetsByUserIdAndCreatedAtQuery
 >;
