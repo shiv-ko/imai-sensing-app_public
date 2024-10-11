@@ -18,14 +18,16 @@ type User
   currentCategory: Category @belongsTo(fields: ["currentCategoryId"])
   posts: [PostData] @hasMany(indexName: "postByUser", fields: ["id"])
   likes: [Like] @hasMany
+  bingoSheets: [BingoSheet] @hasMany(indexName: "bingoByUser", fields: ["id"])
 }
 
 type PostData
   @model
   @auth(
     rules: [
-      { allow: owner, operations: [create, update, delete] }
-      { allow: private, operations: [read] }
+      # createをallow:privateにした
+      { allow: owner, operations: [delete] }
+      { allow: private, operations: [create, read, update] }
       { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
     ]
   ) {
@@ -33,6 +35,7 @@ type PostData
   imageUrl: String
   userId: ID! @index(name: "postByUser", sortKeyFields: ["updatedAt"])
   user: User @belongsTo(fields: ["userId"])
+  postedby: String
   lat: Float!
   lng: Float!
   category: String!
@@ -79,4 +82,28 @@ type Category
   id: ID!
   name: String!
   users: [User] @hasMany(indexName: "usersByCategoryIndex", fields: ["id"])
+}
+
+type BingoSheet
+  @model
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, update, delete] }
+      { allow: private, operations: [read] }
+      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+    ]
+  ) {
+  id: ID!
+  userId: ID! @index(name: "bingoByUser", sortKeyFields: ["createdAt"])
+  user: User @belongsTo(fields: ["userId"])
+  squares: [BingoSquare]!
+  createdAt: AWSDateTime!
+  isUsed: Boolean!
+}
+
+type BingoSquare {
+  id: ID!
+  number: Int!
+  categoryName: String!
+  isOpen: Boolean!
 }

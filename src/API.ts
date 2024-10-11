@@ -102,6 +102,7 @@ export type User = {
   currentCategory?: Category | null,
   posts?: ModelPostDataConnection | null,
   likes?: ModelLikeConnection | null,
+  bingoSheets?: ModelBingoSheetConnection | null,
   owner?: string | null,
 };
 
@@ -163,6 +164,32 @@ export type Like = {
   updatedAt: string,
   userLikesId?: string | null,
   owner?: string | null,
+};
+
+export type ModelBingoSheetConnection = {
+  __typename: "ModelBingoSheetConnection",
+  items:  Array<BingoSheet | null >,
+  nextToken?: string | null,
+};
+
+export type BingoSheet = {
+  __typename: "BingoSheet",
+  id: string,
+  userId: string,
+  user?: User | null,
+  squares:  Array<BingoSquare | null >,
+  createdAt: string,
+  isUsed: boolean,
+  updatedAt: string,
+  owner?: string | null,
+};
+
+export type BingoSquare = {
+  __typename: "BingoSquare",
+  id: string,
+  number: number,
+  categoryName: string,
+  isOpen: boolean,
 };
 
 export type UpdateUserInput = {
@@ -313,6 +340,44 @@ export type DeleteCategoryInput = {
   id: string,
 };
 
+export type CreateBingoSheetInput = {
+  id?: string | null,
+  userId: string,
+  squares: Array< BingoSquareInput | null >,
+  createdAt?: string | null,
+  isUsed: boolean,
+};
+
+export type BingoSquareInput = {
+  id: string,
+  number: number,
+  categoryName: string,
+  isOpen: boolean,
+};
+
+export type ModelBingoSheetConditionInput = {
+  userId?: ModelIDInput | null,
+  createdAt?: ModelStringInput | null,
+  isUsed?: ModelBooleanInput | null,
+  and?: Array< ModelBingoSheetConditionInput | null > | null,
+  or?: Array< ModelBingoSheetConditionInput | null > | null,
+  not?: ModelBingoSheetConditionInput | null,
+  updatedAt?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
+};
+
+export type UpdateBingoSheetInput = {
+  id: string,
+  userId?: string | null,
+  squares?: Array< BingoSquareInput | null > | null,
+  createdAt?: string | null,
+  isUsed?: boolean | null,
+};
+
+export type DeleteBingoSheetInput = {
+  id: string,
+};
+
 export type ModelUserFilterInput = {
   id?: ModelIDInput | null,
   displayName?: ModelStringInput | null,
@@ -375,6 +440,18 @@ export type ModelCategoryConnection = {
   __typename: "ModelCategoryConnection",
   items:  Array<Category | null >,
   nextToken?: string | null,
+};
+
+export type ModelBingoSheetFilterInput = {
+  id?: ModelIDInput | null,
+  userId?: ModelIDInput | null,
+  createdAt?: ModelStringInput | null,
+  isUsed?: ModelBooleanInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelBingoSheetFilterInput | null > | null,
+  or?: Array< ModelBingoSheetFilterInput | null > | null,
+  not?: ModelBingoSheetFilterInput | null,
+  owner?: ModelStringInput | null,
 };
 
 export enum ModelSortDirection {
@@ -506,6 +583,17 @@ export type ModelSubscriptionCategoryFilterInput = {
   or?: Array< ModelSubscriptionCategoryFilterInput | null > | null,
 };
 
+export type ModelSubscriptionBingoSheetFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  userId?: ModelSubscriptionIDInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  isUsed?: ModelSubscriptionBooleanInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionBingoSheetFilterInput | null > | null,
+  or?: Array< ModelSubscriptionBingoSheetFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+};
+
 export type CreateUserMutationVariables = {
   input: CreateUserInput,
   condition?: ModelUserConditionInput | null,
@@ -533,6 +621,10 @@ export type CreateUserMutation = {
     } | null,
     likes?:  {
       __typename: "ModelLikeConnection",
+      nextToken?: string | null,
+    } | null,
+    bingoSheets?:  {
+      __typename: "ModelBingoSheetConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -568,6 +660,10 @@ export type UpdateUserMutation = {
       __typename: "ModelLikeConnection",
       nextToken?: string | null,
     } | null,
+    bingoSheets?:  {
+      __typename: "ModelBingoSheetConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
   } | null,
 };
@@ -599,6 +695,10 @@ export type DeleteUserMutation = {
     } | null,
     likes?:  {
       __typename: "ModelLikeConnection",
+      nextToken?: string | null,
+    } | null,
+    bingoSheets?:  {
+      __typename: "ModelBingoSheetConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -839,6 +939,108 @@ export type DeleteCategoryMutation = {
   } | null,
 };
 
+export type CreateBingoSheetMutationVariables = {
+  input: CreateBingoSheetInput,
+  condition?: ModelBingoSheetConditionInput | null,
+};
+
+export type CreateBingoSheetMutation = {
+  createBingoSheet?:  {
+    __typename: "BingoSheet",
+    id: string,
+    userId: string,
+    user?:  {
+      __typename: "User",
+      id: string,
+      displayName: string,
+      score: number,
+      createdAt: string,
+      updatedAt: string,
+      currentCategoryId?: string | null,
+      owner?: string | null,
+    } | null,
+    squares:  Array< {
+      __typename: "BingoSquare",
+      id: string,
+      number: number,
+      categoryName: string,
+      isOpen: boolean,
+    } | null >,
+    createdAt: string,
+    isUsed: boolean,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type UpdateBingoSheetMutationVariables = {
+  input: UpdateBingoSheetInput,
+  condition?: ModelBingoSheetConditionInput | null,
+};
+
+export type UpdateBingoSheetMutation = {
+  updateBingoSheet?:  {
+    __typename: "BingoSheet",
+    id: string,
+    userId: string,
+    user?:  {
+      __typename: "User",
+      id: string,
+      displayName: string,
+      score: number,
+      createdAt: string,
+      updatedAt: string,
+      currentCategoryId?: string | null,
+      owner?: string | null,
+    } | null,
+    squares:  Array< {
+      __typename: "BingoSquare",
+      id: string,
+      number: number,
+      categoryName: string,
+      isOpen: boolean,
+    } | null >,
+    createdAt: string,
+    isUsed: boolean,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type DeleteBingoSheetMutationVariables = {
+  input: DeleteBingoSheetInput,
+  condition?: ModelBingoSheetConditionInput | null,
+};
+
+export type DeleteBingoSheetMutation = {
+  deleteBingoSheet?:  {
+    __typename: "BingoSheet",
+    id: string,
+    userId: string,
+    user?:  {
+      __typename: "User",
+      id: string,
+      displayName: string,
+      score: number,
+      createdAt: string,
+      updatedAt: string,
+      currentCategoryId?: string | null,
+      owner?: string | null,
+    } | null,
+    squares:  Array< {
+      __typename: "BingoSquare",
+      id: string,
+      number: number,
+      categoryName: string,
+      isOpen: boolean,
+    } | null >,
+    createdAt: string,
+    isUsed: boolean,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
 export type GetUserQueryVariables = {
   id: string,
 };
@@ -865,6 +1067,10 @@ export type GetUserQuery = {
     } | null,
     likes?:  {
       __typename: "ModelLikeConnection",
+      nextToken?: string | null,
+    } | null,
+    bingoSheets?:  {
+      __typename: "ModelBingoSheetConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -1044,6 +1250,61 @@ export type ListCategoriesQuery = {
   } | null,
 };
 
+export type GetBingoSheetQueryVariables = {
+  id: string,
+};
+
+export type GetBingoSheetQuery = {
+  getBingoSheet?:  {
+    __typename: "BingoSheet",
+    id: string,
+    userId: string,
+    user?:  {
+      __typename: "User",
+      id: string,
+      displayName: string,
+      score: number,
+      createdAt: string,
+      updatedAt: string,
+      currentCategoryId?: string | null,
+      owner?: string | null,
+    } | null,
+    squares:  Array< {
+      __typename: "BingoSquare",
+      id: string,
+      number: number,
+      categoryName: string,
+      isOpen: boolean,
+    } | null >,
+    createdAt: string,
+    isUsed: boolean,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type ListBingoSheetsQueryVariables = {
+  filter?: ModelBingoSheetFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListBingoSheetsQuery = {
+  listBingoSheets?:  {
+    __typename: "ModelBingoSheetConnection",
+    items:  Array< {
+      __typename: "BingoSheet",
+      id: string,
+      userId: string,
+      createdAt: string,
+      isUsed: boolean,
+      updatedAt: string,
+      owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type UsersByCurrentCategoryIdQueryVariables = {
   currentCategoryId: string,
   sortDirection?: ModelSortDirection | null,
@@ -1164,6 +1425,31 @@ export type LikesByPostIdQuery = {
   } | null,
 };
 
+export type BingoSheetsByUserIdAndCreatedAtQueryVariables = {
+  userId: string,
+  createdAt?: ModelStringKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelBingoSheetFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type BingoSheetsByUserIdAndCreatedAtQuery = {
+  bingoSheetsByUserIdAndCreatedAt?:  {
+    __typename: "ModelBingoSheetConnection",
+    items:  Array< {
+      __typename: "BingoSheet",
+      id: string,
+      userId: string,
+      createdAt: string,
+      isUsed: boolean,
+      updatedAt: string,
+      owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type OnCreateUserSubscriptionVariables = {
   filter?: ModelSubscriptionUserFilterInput | null,
 };
@@ -1190,6 +1476,10 @@ export type OnCreateUserSubscription = {
     } | null,
     likes?:  {
       __typename: "ModelLikeConnection",
+      nextToken?: string | null,
+    } | null,
+    bingoSheets?:  {
+      __typename: "ModelBingoSheetConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -1224,6 +1514,10 @@ export type OnUpdateUserSubscription = {
       __typename: "ModelLikeConnection",
       nextToken?: string | null,
     } | null,
+    bingoSheets?:  {
+      __typename: "ModelBingoSheetConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
   } | null,
 };
@@ -1254,6 +1548,10 @@ export type OnDeleteUserSubscription = {
     } | null,
     likes?:  {
       __typename: "ModelLikeConnection",
+      nextToken?: string | null,
+    } | null,
+    bingoSheets?:  {
+      __typename: "ModelBingoSheetConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -1482,5 +1780,104 @@ export type OnDeleteCategorySubscription = {
     } | null,
     createdAt: string,
     updatedAt: string,
+  } | null,
+};
+
+export type OnCreateBingoSheetSubscriptionVariables = {
+  filter?: ModelSubscriptionBingoSheetFilterInput | null,
+};
+
+export type OnCreateBingoSheetSubscription = {
+  onCreateBingoSheet?:  {
+    __typename: "BingoSheet",
+    id: string,
+    userId: string,
+    user?:  {
+      __typename: "User",
+      id: string,
+      displayName: string,
+      score: number,
+      createdAt: string,
+      updatedAt: string,
+      currentCategoryId?: string | null,
+      owner?: string | null,
+    } | null,
+    squares:  Array< {
+      __typename: "BingoSquare",
+      id: string,
+      number: number,
+      categoryName: string,
+      isOpen: boolean,
+    } | null >,
+    createdAt: string,
+    isUsed: boolean,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type OnUpdateBingoSheetSubscriptionVariables = {
+  filter?: ModelSubscriptionBingoSheetFilterInput | null,
+};
+
+export type OnUpdateBingoSheetSubscription = {
+  onUpdateBingoSheet?:  {
+    __typename: "BingoSheet",
+    id: string,
+    userId: string,
+    user?:  {
+      __typename: "User",
+      id: string,
+      displayName: string,
+      score: number,
+      createdAt: string,
+      updatedAt: string,
+      currentCategoryId?: string | null,
+      owner?: string | null,
+    } | null,
+    squares:  Array< {
+      __typename: "BingoSquare",
+      id: string,
+      number: number,
+      categoryName: string,
+      isOpen: boolean,
+    } | null >,
+    createdAt: string,
+    isUsed: boolean,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type OnDeleteBingoSheetSubscriptionVariables = {
+  filter?: ModelSubscriptionBingoSheetFilterInput | null,
+};
+
+export type OnDeleteBingoSheetSubscription = {
+  onDeleteBingoSheet?:  {
+    __typename: "BingoSheet",
+    id: string,
+    userId: string,
+    user?:  {
+      __typename: "User",
+      id: string,
+      displayName: string,
+      score: number,
+      createdAt: string,
+      updatedAt: string,
+      currentCategoryId?: string | null,
+      owner?: string | null,
+    } | null,
+    squares:  Array< {
+      __typename: "BingoSquare",
+      id: string,
+      number: number,
+      categoryName: string,
+      isOpen: boolean,
+    } | null >,
+    createdAt: string,
+    isUsed: boolean,
+    updatedAt: string,
+    owner?: string | null,
   } | null,
 };
