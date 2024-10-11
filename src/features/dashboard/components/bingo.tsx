@@ -86,7 +86,6 @@ function pullGacha(completedLines: number) {
 
 // 型定義
 interface BingoBoardProps {
-  onBingoComplete: (lines: number) => void;
   bingoSheet: string[]; // カテゴリ名を受け取る
   openFlags: boolean[]; // 各マスの開閉状態を受け取る
 }
@@ -100,7 +99,7 @@ export interface BingoBoardHandle {
 
 // BingoBoard コンポーネント
 const BingoBoard = React.forwardRef<BingoBoardHandle, BingoBoardProps>(
-  ({ onBingoComplete, bingoSheet, openFlags }, ref) => {
+  ({ bingoSheet, openFlags }, ref) => {
     const [board, setBoard] = useState(
       bingoSheet.map((category, index) => ({ value: category, revealed: openFlags[index] }))
     );
@@ -601,7 +600,6 @@ export function Bingo({ userId, initialScore }: BingoProps) {
       <div className="bingo-gacha-container">
         <BingoBoard 
           key={bingoKey} 
-          onBingoComplete={handleBingoComplete} 
           ref={boardRef} 
           bingoSheet={bingoSheet} 
           openFlags={openFlags} // フラグを渡す
