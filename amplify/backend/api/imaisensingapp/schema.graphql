@@ -101,7 +101,15 @@ type BingoSheet
   isUsed: Boolean!
 }
 
-type BingoSquare {
+type BingoSquare
+  @model
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, update, delete] }
+      { allow: private, operations: [read] }
+      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+    ]
+  ) {
   id: ID!
   number: Int!
   categoryName: String!

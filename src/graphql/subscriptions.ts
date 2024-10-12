@@ -350,6 +350,9 @@ export const onCreateBingoSheet = /* GraphQL */ `subscription OnCreateBingoSheet
       number
       categoryName
       isOpen
+      createdAt
+      updatedAt
+      owner
       __typename
     }
     createdAt
@@ -384,6 +387,9 @@ export const onUpdateBingoSheet = /* GraphQL */ `subscription OnUpdateBingoSheet
       number
       categoryName
       isOpen
+      createdAt
+      updatedAt
+      owner
       __typename
     }
     createdAt
@@ -418,6 +424,9 @@ export const onDeleteBingoSheet = /* GraphQL */ `subscription OnDeleteBingoSheet
       number
       categoryName
       isOpen
+      createdAt
+      updatedAt
+      owner
       __typename
     }
     createdAt
@@ -430,4 +439,58 @@ export const onDeleteBingoSheet = /* GraphQL */ `subscription OnDeleteBingoSheet
 ` as GeneratedSubscription<
   APITypes.OnDeleteBingoSheetSubscriptionVariables,
   APITypes.OnDeleteBingoSheetSubscription
+>;
+export const onCreateBingoSquare = /* GraphQL */ `subscription OnCreateBingoSquare(
+  $filter: ModelSubscriptionBingoSquareFilterInput
+) {
+  onCreateBingoSquare(filter: $filter) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateBingoSquareSubscriptionVariables,
+  APITypes.OnCreateBingoSquareSubscription
+>;
+export const onUpdateBingoSquare = /* GraphQL */ `subscription OnUpdateBingoSquare(
+  $filter: ModelSubscriptionBingoSquareFilterInput
+) {
+  onUpdateBingoSquare(filter: $filter) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateBingoSquareSubscriptionVariables,
+  APITypes.OnUpdateBingoSquareSubscription
+>;
+export const onDeleteBingoSquare = /* GraphQL */ `subscription OnDeleteBingoSquare(
+  $filter: ModelSubscriptionBingoSquareFilterInput
+) {
+  onDeleteBingoSquare(filter: $filter) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteBingoSquareSubscriptionVariables,
+  APITypes.OnDeleteBingoSquareSubscription
 >;
