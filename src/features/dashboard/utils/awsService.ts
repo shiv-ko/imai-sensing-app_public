@@ -10,6 +10,8 @@ import { UpdateUserMutationVariables } from '../../../API';
 
 // Amplifyの設定
 Amplify.configure(awsExports);
+
+// APIクライアントの生成
 const client = generateClient();
 
 /**
@@ -82,3 +84,15 @@ export async function addPointsToUser(userId: string, points: number): Promise<v
     throw new Error('ポイントの追加に失敗しました。');
   }
 }
+
+export const updateUserData = async (input: UpdateUserMutationVariables['input']): Promise<void> => {
+  try {
+    await client.graphql({
+      query: updateUser,
+      variables: { input }
+    });
+  } catch (error) {
+    console.error('ユーザーデータの更新に失敗しました', error);
+    throw error;
+  }
+};
