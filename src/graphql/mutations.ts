@@ -387,12 +387,13 @@ export const createBingoSheet = /* GraphQL */ `mutation CreateBingoSheet(
       number
       categoryName
       isOpen
+      createdAt
+      updatedAt
       __typename
     }
     createdAt
     isUsed
     updatedAt
-    owner
     __typename
   }
 }
@@ -422,12 +423,13 @@ export const updateBingoSheet = /* GraphQL */ `mutation UpdateBingoSheet(
       number
       categoryName
       isOpen
+      createdAt
+      updatedAt
       __typename
     }
     createdAt
     isUsed
     updatedAt
-    owner
     __typename
   }
 }
@@ -457,16 +459,71 @@ export const deleteBingoSheet = /* GraphQL */ `mutation DeleteBingoSheet(
       number
       categoryName
       isOpen
+      createdAt
+      updatedAt
       __typename
     }
     createdAt
     isUsed
     updatedAt
-    owner
     __typename
   }
 }
 ` as GeneratedMutation<
   APITypes.DeleteBingoSheetMutationVariables,
   APITypes.DeleteBingoSheetMutation
+>;
+export const createBingoSquare = /* GraphQL */ `mutation CreateBingoSquare(
+  $input: CreateBingoSquareInput!
+  $condition: ModelBingoSquareConditionInput
+) {
+  createBingoSquare(input: $input, condition: $condition) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateBingoSquareMutationVariables,
+  APITypes.CreateBingoSquareMutation
+>;
+export const updateBingoSquare = /* GraphQL */ `mutation UpdateBingoSquare(
+  $input: UpdateBingoSquareInput!
+  $condition: ModelBingoSquareConditionInput
+) {
+  updateBingoSquare(input: $input, condition: $condition) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateBingoSquareMutationVariables,
+  APITypes.UpdateBingoSquareMutation
+>;
+export const deleteBingoSquare = /* GraphQL */ `mutation DeleteBingoSquare(
+  $input: DeleteBingoSquareInput!
+  $condition: ModelBingoSquareConditionInput
+) {
+  deleteBingoSquare(input: $input, condition: $condition) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteBingoSquareMutationVariables,
+  APITypes.DeleteBingoSquareMutation
 >;

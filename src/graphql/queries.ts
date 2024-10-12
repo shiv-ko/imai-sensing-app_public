@@ -224,12 +224,13 @@ export const getBingoSheet = /* GraphQL */ `query GetBingoSheet($id: ID!) {
       number
       categoryName
       isOpen
+      createdAt
+      updatedAt
       __typename
     }
     createdAt
     isUsed
     updatedAt
-    owner
     __typename
   }
 }
@@ -249,7 +250,6 @@ export const listBingoSheets = /* GraphQL */ `query ListBingoSheets(
       createdAt
       isUsed
       updatedAt
-      owner
       __typename
     }
     nextToken
@@ -259,6 +259,44 @@ export const listBingoSheets = /* GraphQL */ `query ListBingoSheets(
 ` as GeneratedQuery<
   APITypes.ListBingoSheetsQueryVariables,
   APITypes.ListBingoSheetsQuery
+>;
+export const getBingoSquare = /* GraphQL */ `query GetBingoSquare($id: ID!) {
+  getBingoSquare(id: $id) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetBingoSquareQueryVariables,
+  APITypes.GetBingoSquareQuery
+>;
+export const listBingoSquares = /* GraphQL */ `query ListBingoSquares(
+  $filter: ModelBingoSquareFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listBingoSquares(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      number
+      categoryName
+      isOpen
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListBingoSquaresQueryVariables,
+  APITypes.ListBingoSquaresQuery
 >;
 export const usersByCurrentCategoryId = /* GraphQL */ `query UsersByCurrentCategoryId(
   $currentCategoryId: ID!
@@ -432,7 +470,6 @@ export const bingoSheetsByUserIdAndCreatedAt = /* GraphQL */ `query BingoSheetsB
       createdAt
       isUsed
       updatedAt
-      owner
       __typename
     }
     nextToken

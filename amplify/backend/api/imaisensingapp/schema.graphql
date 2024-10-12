@@ -26,8 +26,8 @@ type PostData
   @auth(
     rules: [
       # createをallow:privateにした
-      { allow: owner, operations: [update, delete] }
-      { allow: private, operations: [create, read] }
+      { allow: owner, operations: [delete] }
+      { allow: private, operations: [create, read, update] }
       { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
     ]
   ) {
@@ -88,9 +88,7 @@ type BingoSheet
   @model
   @auth(
     rules: [
-      { allow: owner, operations: [create, update, delete] }
-      { allow: private, operations: [read] }
-      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+      { allow: private, operations: [create, read, update, delete] }
     ]
   ) {
   id: ID!
@@ -101,9 +99,16 @@ type BingoSheet
   isUsed: Boolean!
 }
 
-type BingoSquare {
+type BingoSquare
+  @model
+  @auth(
+    rules: [
+      { allow: private, operations: [create, read, update, delete] }
+    ]
+  ) {
   id: ID!
   number: Int!
   categoryName: String!
   isOpen: Boolean!
 }
+
