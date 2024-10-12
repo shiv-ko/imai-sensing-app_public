@@ -1,4 +1,5 @@
-'use client'
+// pages/post/index.tsx
+'use client';
 import React, { useState, useEffect } from 'react';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import { createPostData } from '../../../graphql/mutations';
@@ -11,7 +12,8 @@ import PostForm from '../components/postForm';
 import imageCompression from '../../../shared/utils/image/compressImage'; 
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-
+import { useRecoilValue } from 'recoil';
+import { capturedImageAtom } from '../states/imageAtom';
 
 Amplify.configure(awsExports);
 
@@ -32,6 +34,8 @@ const PostPage: React.FC = () => {
   const searchParams = useSearchParams();
   const theme = searchParams.get('theme');
   const router = useRouter();
+
+  const capturedImage = useRecoilValue(capturedImageAtom);
 
   const [formData, setFormData] = useState({
     userId: '',
@@ -58,6 +62,7 @@ const PostPage: React.FC = () => {
     handleFetchUserAttributes();
   }, []);
 
+  // テーマと画像を設定
   useEffect(() => {
     if (theme && typeof theme === 'string') {
       setFormData((prevData) => ({
@@ -65,7 +70,25 @@ const PostPage: React.FC = () => {
         category: theme,
       }));
     }
-  }, [theme]);
+
+    if (capturedImage) {
+      // 画像を圧縮してformDataに設定
+      compressImage(capturedImage)
+        .then((compressedFile) => {
+          setFormData((prevData) => ({
+            ...prevData,
+            image: compressedFile,
+          }));
+        })
+        .catch((error) => {
+          console.error('Error compressing image:', error);
+        });
+    } else {
+      // 画像がない場合はカメラページに戻す
+      alert('画像がありません。もう一度撮影してください。');
+      router.push(`/camera?theme=${theme}`);
+    }
+  }, [theme, capturedImage]);
 
   //ユーザの認証情報を取得する関数
   const getCurrentUserAsync = async () => {
@@ -75,15 +98,15 @@ const PostPage: React.FC = () => {
   };
   //ユーザの属性を取得する関数
   async function handleFetchUserAttributes() {
-  try {
-    const userAttributes = await fetchUserAttributes();
-    setNickName(userAttributes.nickname || '');
-    console.log('userAttributes:',userAttributes);
-    console.log('userNickName',userAttributes.nickname);
-  } catch (error) {
-    console.log(error);
+    try {
+      const userAttributes = await fetchUserAttributes();
+      setNickName(userAttributes.nickname || '');
+      console.log('userAttributes:',userAttributes);
+      console.log('userNickName',userAttributes.nickname);
+    } catch (error) {
+      console.log(error);
+    }
   }
-}
 
   //ユーザの位置情報を取得する関数
   const getUserLocation = () => {
@@ -174,20 +197,6 @@ const PostPage: React.FC = () => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   }
-  //画像を圧縮してセット
-  function setImage(file: File | null) {
-    if (file) {
-      compressImage(file)
-        .then((compressedFile) => {
-          setFormData({ ...formData, image: compressedFile });
-        })
-        .catch((error) => {
-          console.error('Error compressing image:', error);
-        });
-    } else {
-      setFormData({ ...formData, image: null });
-    }
-  }
 
   return (
     <div style={styles.container}>
@@ -196,11 +205,11 @@ const PostPage: React.FC = () => {
         <p>位置情報を取得中...</p>
       ) : (
         <PostForm
-          formData={formData}
-          handleInputChange={handleInputChange}
-          createPost={createPost}
-          setImage={setImage}
-        />
+        formData={formData}
+        handleInputChange={handleInputChange}
+        createPost={createPost}
+      />
+
       )}
     </div>
   );
