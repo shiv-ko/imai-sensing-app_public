@@ -248,10 +248,9 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     [totalPoints, userId]
   );
 
-  const handleBingoComplete = useCallback((lines: number) => {
-    setCompletedLines(lines);
-    setShowGachaButton(true);
-  }, []);
+  const handleBingoComplete = () => {
+    console.log('ビンゴ完了！');
+  };
 
   const handleOpenGacha = useCallback(() => {
     if (boardRef.current && boardRef.current.checkBingo) {
