@@ -1,19 +1,15 @@
+// src/pages/home.tsx
+
 'use client';
 
-import React, { useEffect, useState } from "react";
-import { fetchAuthSession } from 'aws-amplify/auth';
-import { generateClient } from 'aws-amplify/api';
-import { getUser } from '../../../graphql/queries';  // GraphQL クエリをインポート
+import React, { useEffect, useState } from 'react';
 import Header from '@/shared/components/header';
 import FooterNavBar from '@/shared/components/footer';
-import { Bingo } from '@/features/dashboard/components/bingo';
-
-type UserSessionType = Awaited<ReturnType<typeof fetchAuthSession>>;
-
-const client = generateClient();
+import { Bingo } from '@/features/dashboard/components/bingoUI';
+import { getUserSession, getUserData } from '@/features/dashboard/utils/awsService';
 
 const HomePage: React.FC = () => {
-  const [userSession, setUserSession] = useState<UserSessionType | null>(null);
+  const [userSession, setUserSession] = useState<any | null>(null);
   const [userScore, setUserScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,22 +17,17 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const session = await fetchAuthSession();
+        const session = await getUserSession();
         setUserSession(session);
 
         const userId = session.tokens?.idToken?.payload?.sub;
         if (userId) {
-          // ユーザーのスコアを取得
-          const userData = await client.graphql({
-            query: getUser,
-            variables: { id: userId }
-          });
-          const userScore = userData.data.getUser?.score || 0;
-          setUserScore(userScore);
+          const userData = await getUserData(userId);
+          setUserScore(userData?.score || 0);
         }
       } catch (err) {
-        console.error("データ取得エラー", err);
-        setError("認証エラーが発生しました。");
+        console.error('データ取得エラー', err);
+        setError('エラーが発生しました。');
       } finally {
         setLoading(false);
       }
@@ -46,7 +37,7 @@ const HomePage: React.FC = () => {
 
   const userId = userSession?.tokens?.idToken?.payload?.sub;
   const nickname = userSession?.tokens?.idToken?.payload?.nickname;
-  const displayName = typeof nickname === "string" ? nickname : "ユーザー";
+  const displayName = typeof nickname === 'string' ? nickname : 'ユーザー';
 
   if (loading) {
     return <div>読み込み中...</div>;
@@ -61,6 +52,7 @@ const HomePage: React.FC = () => {
       <Header />
       <h1>ようこそ、{displayName}さん！</h1>
       {userId ? (
+        // Bingo コンポーネントを表示
         <Bingo userId={userId} initialScore={userScore} />
       ) : (
         <p>ユーザーIDを取得できませんでした。</p>
