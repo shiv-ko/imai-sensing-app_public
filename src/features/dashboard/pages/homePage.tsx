@@ -10,7 +10,8 @@ import { getUserSession, getUserData } from '@/features/dashboard/utils/awsServi
 import { User } from '../../../API'; // APIから生成された型をインポート
 import { UserSession } from '../utils/bingoTypes'; 
 
-type UserData = Pick<User, 'id' | 'displayName' | 'score' | 'currentCategoryId' | 'currentCategory'>;
+// 現在使用されていないため、削除
+// type UserData = Pick<User, 'id' | 'displayName' | 'score' | 'currentCategoryId' | 'currentCategory'>;
 
 const HomePage: React.FC = () => {
   // useStateの型をUserSession | nullに変更
