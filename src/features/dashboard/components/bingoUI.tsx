@@ -128,12 +128,21 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps> = ({ onClose, compl
   const [result, setResult] = useState<{ points: number } | null>(null);
   const [stage, setStage] = useState<'idle' | 'result'>('idle');
   const confettiCanvasRef = useRef<HTMLDivElement>(null);
+  const [isAddingPoints, setIsAddingPoints] = useState<boolean>(false);
 
   const handlePullGacha = useCallback(() => {
+    if (isAddingPoints) return;
+    setIsAddingPoints(true);
+
     const newResult = pullGacha(completedLines);
     setResult(newResult);
-    addPoints(newResult.points);
-    setStage('result');
+    addPoints(newResult.points)
+      .then(() => {
+        setStage('result');
+      })
+      .finally(() => {
+        setIsAddingPoints(false);
+      });
 
     // Confettiの表示
     const canvas = document.createElement('canvas');
@@ -160,7 +169,7 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps> = ({ onClose, compl
     setTimeout(() => {
       canvas.remove();
     }, 3000);
-  }, [completedLines, addPoints]);
+  }, [completedLines, addPoints, isAddingPoints]);
 
   return (
     <motion.div
@@ -215,9 +224,9 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps> = ({ onClose, compl
         <div className="bingo-gacha-button-container popup-buttons">
           <Button
             onClick={stage === 'idle' ? handlePullGacha : onClose}
-            disabled={false}
+            disabled={isAddingPoints}
           >
-            {stage === 'idle' ? 'ガチャを回す' : '閉じる'}
+            {stage === 'idle' ? (isAddingPoints ? '処理中...' : 'ガチャを回す') : '閉じる'}
           </Button>
         </div>
       </motion.div>
@@ -241,9 +250,14 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
 
   const addPoints = useCallback(
     async (points: number) => {
-      const newScore = totalPoints + points;
-      setTotalPoints(newScore);
-      await addPointsToUser(userId, newScore);
+      try {
+        const newScore = totalPoints + points;
+        setTotalPoints(newScore);
+        await addPointsToUser(userId, points); // 修正: newScore ではなく points を渡す
+      } catch (error) {
+        console.error('ポイント追加エラー:', error);
+        // エラーメッセージをユーザーに表示
+      }
     },
     [totalPoints, userId]
   );

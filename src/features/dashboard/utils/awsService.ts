@@ -7,6 +7,9 @@ import awsExports from '../../../aws-exports';
 import { updateUser } from '../../../graphql/mutations';
 import { getUser } from '../../../graphql/queries';
 import { UpdateUserMutationVariables } from '../../../API';
+import { UpdateUserMutation } from '../../../API';
+import { GraphQLResult } from '@aws-amplify/api-graphql';
+import { GetUserQuery } from '../../../API';
 
 // Amplifyの設定
 Amplify.configure(awsExports);
@@ -31,13 +34,18 @@ export async function getUserSession() {
  * @param userId ユーザーID
  * @returns ユーザーのデータ
  */
-export async function getUserData(userId: string) {
+export async function getUserData(userId: string): Promise<GetUserQuery['getUser']> {
   try {
-    const userData = await client.graphql({
+    const userData = await client.graphql<GraphQLResult<GetUserQuery>>({
       query: getUser,
       variables: { id: userId }
     });
-    return userData.data.getUser;
+
+    if ('data' in userData && userData.data) {
+      return userData.data.getUser;
+    } else {
+      throw new Error('有効なユーザーデータが取得できませんでした。');
+    }
   } catch (error) {
     console.error('ユーザーデータ取得エラー:', error);
     throw new Error('ユーザーデータの取得に失敗しました。');
@@ -50,19 +58,20 @@ export async function getUserData(userId: string) {
  * @param newScore 新しいスコア
  * @returns 更新されたユーザー情報
  */
-export async function updateUserScore(userId: string, newScore: number): Promise<any> {
+export async function updateUserScore(userId: string, newScore: number): Promise<UpdateUserMutation['updateUser']> {
   const input: UpdateUserMutationVariables['input'] = {
     id: userId,
     score: newScore,
   };
 
   try {
-    const result = await client.graphql({
+    const result = await client.graphql<GraphQLResult<UpdateUserMutation>>({
       query: updateUser,
       variables: { input },
-    });
+    }) as GraphQLResult<UpdateUserMutation>;
+
     console.log('ユーザースコア更新:', result.data?.updateUser);
-    return result.data?.updateUser || null;
+    return result.data.updateUser;
   } catch (error) {
     console.error('ユーザースコア更新エラー:', error);
     throw new Error('ポイントの更新に失敗しました。');

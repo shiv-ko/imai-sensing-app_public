@@ -18,7 +18,6 @@ const HomePage: React.FC = () => {
   const [userScore, setUserScore] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -31,15 +30,6 @@ const HomePage: React.FC = () => {
           const fetchedUserData = await getUserData(userId);
           if (fetchedUserData) {
             setUserScore(fetchedUserData.score || 0);
-            // 必要なプロパティのみを抽出してUserData型に変換
-            const userDataToSet: UserData = {
-              id: fetchedUserData.id,
-              displayName: fetchedUserData.displayName,
-              score: fetchedUserData.score,
-              currentCategoryId: fetchedUserData.currentCategoryId,
-              currentCategory: fetchedUserData.currentCategory,
-            };
-            setUserData(userDataToSet);
           }
         }
       } catch (err) {

@@ -21,7 +21,7 @@ export interface BingoProps {
   export interface BingoGachaPopupProps {
     onClose: () => void;
     completedLines: number;
-    addPoints: (points: number) => void;
+    addPoints: (points: number) => Promise<void>; // 型を Promise<void> に変更
   }
   export interface BingoBoardProps {
     bingoSheet: { category: string; isCompleted: boolean }[];
