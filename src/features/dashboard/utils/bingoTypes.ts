@@ -1,5 +1,3 @@
-// src/features/dashboard/types/bingoTypes.ts
-
 export interface BingoProps {
     userId: string;
     initialScore: number;
@@ -21,11 +19,11 @@ export interface BingoProps {
   export interface BingoGachaPopupProps {
     onClose: () => void;
     completedLines: number;
-    addPoints: (points: number) => Promise<void>; // 型を Promise<void> に変更
+    addPoints: (points: number) => Promise<void>; 
   }
   export interface BingoBoardProps {
     bingoSheet: { category: string; isCompleted: boolean }[];
-    // onBingoComplete?: () => void; // いらない
+    onCellClick?: (index: number) => void; // オプショナルに変更
   }
 
 export interface UserSession {
@@ -34,7 +32,6 @@ export interface UserSession {
       payload?: {
         sub?: string;
         nickname?: string;
-        // 必要に応じて他のフィールドも追加してください
       };
     };
   };

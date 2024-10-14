@@ -9,7 +9,10 @@ export const generateBingoSheet = () => {
   // ランダムにカテゴリを選択して9マスに配置する
   const newBingoSheet = Array(9).fill(null).map(() => {
     const randomIndex = Math.floor(Math.random() * filteredCategories.length);
-    return filteredCategories[randomIndex];
+    return {
+      category: filteredCategories[randomIndex],
+      isCompleted: false,
+    };
   });
 
   return newBingoSheet;
