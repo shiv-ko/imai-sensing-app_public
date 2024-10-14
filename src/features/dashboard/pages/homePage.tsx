@@ -7,7 +7,7 @@ import Header from '@/shared/components/header';
 import FooterNavBar from '@/shared/components/footer';
 import { Bingo } from '@/features/dashboard/components/bingoUI';
 import { getUserSession, getUserData } from '@/features/dashboard/utils/awsService';
-import { User } from '../../../API'; // APIから生成された型をインポート
+// import { User } from '../../../API'; 
 import { UserSession } from '../utils/bingoTypes'; 
 
 // 現在使用されていないため、削除
