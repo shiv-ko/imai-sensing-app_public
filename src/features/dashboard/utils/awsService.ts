@@ -1,4 +1,5 @@
 // src/features/dashboard/utils/awsService.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
