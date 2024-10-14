@@ -61,7 +61,7 @@ const PostCategoryForm: React.FC<{
 
 // BingoBoard コンポーネント
 export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
-  ({ bingoSheet, onBingoComplete }, ref) => {
+  ({ bingoSheet }, ref) => { // onBingoComplete を削除
     const [board, setBoard] = useState(
       bingoSheet.map(cell => ({ ...cell }))
     );
@@ -248,9 +248,10 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     [totalPoints, userId]
   );
 
-  const handleBingoComplete = () => {
-    console.log('ビンゴ完了！');
-  };
+  // 不要な関数を削除またはリファクタリング
+  // const handleBingoComplete = () => {
+  //   console.log('ビンゴ完了！');
+  // };
 
   const handleOpenGacha = useCallback(() => {
     if (boardRef.current && boardRef.current.checkBingo) {
@@ -588,8 +589,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         <div className="bingo-gacha-container">
           <BingoBoard 
             key={bingoKey} 
-            bingoSheet={bingoSheet} 
-            onBingoComplete={handleBingoComplete} 
+            bingoSheet={bingoSheet} // 'bingoheet' を 'bingoSheet' に修正
             ref={boardRef} 
           />
         </div>
@@ -597,13 +597,16 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
 
       <AnimatePresence>
         {showGachaPopup && (
-          <BingoGachaPopup 
+          <BingoGachaPopup
             onClose={handleCloseGacha} 
             completedLines={completedLines} 
             addPoints={addPoints} 
           />
         )}
       </AnimatePresence>
+
+      {/* 不要なボタンを削除 */}
+      {/* <button onClick={onBingoComplete}>ビンゴを完了する</button> */}
     </div>
   );
 };

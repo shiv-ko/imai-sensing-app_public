@@ -23,9 +23,19 @@ export interface BingoProps {
     completedLines: number;
     addPoints: (points: number) => void;
   }
-  
   export interface BingoBoardProps {
     bingoSheet: { category: string; isCompleted: boolean }[];
-    onBingoComplete: (lines: number) => void;
+    // onBingoComplete?: () => void; // いらない
   }
-  
+
+export interface UserSession {
+  tokens?: {
+    idToken?: {
+      payload?: {
+        sub?: string;
+        nickname?: string;
+        // 必要に応じて他のフィールドも追加してください
+      };
+    };
+  };
+}

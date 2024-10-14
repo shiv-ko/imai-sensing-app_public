@@ -8,21 +8,22 @@ import FooterNavBar from '@/shared/components/footer';
 import { Bingo } from '@/features/dashboard/components/bingoUI';
 import { getUserSession, getUserData } from '@/features/dashboard/utils/awsService';
 import { User } from '../../../API'; // APIから生成された型をインポート
+import { UserSession } from '../utils/bingoTypes'; 
 
-// UserData型を定義（必要に応じて調整してください）
 type UserData = Pick<User, 'id' | 'displayName' | 'score' | 'currentCategoryId' | 'currentCategory'>;
 
 const HomePage: React.FC = () => {
-  const [userSession, setUserSession] = useState<any | null>(null);
-  const [userScore, setUserScore] = useState(0);
-  const [loading, setLoading] = useState(true);
+  // useStateの型をUserSession | nullに変更
+  const [userSession, setUserSession] = useState<UserSession | null>(null);
+  const [userScore, setUserScore] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const session = await getUserSession();
+        const session: UserSession = await getUserSession();
         setUserSession(session);
 
         const userId = session.tokens?.idToken?.payload?.sub;
