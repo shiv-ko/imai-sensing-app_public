@@ -124,26 +124,32 @@ export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
 
 BingoBoard.displayName = 'BingoBoard';
 
-// BingoGachaPopup コンポーネント
-export const BingoGachaPopup: React.FC<BingoGachaPopupProps> = ({ onClose, completedLines, addPoints }) => {
+// BingoGachaPopup コンポーネントの props に handleGenerateBingo を追加
+export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBingo: () => Promise<void> }> = ({ onClose, completedLines, addPoints, handleGenerateBingo }) => {
   const [result, setResult] = useState<{ points: number } | null>(null);
   const [stage, setStage] = useState<'idle' | 'result'>('idle');
   const confettiCanvasRef = useRef<HTMLDivElement>(null);
   const [isAddingPoints, setIsAddingPoints] = useState<boolean>(false);
 
-  const handlePullGacha = useCallback(() => {
+  const handlePullGacha = useCallback(async () => {
     if (isAddingPoints) return;
     setIsAddingPoints(true);
 
     const newResult = pullGacha(completedLines);
     setResult(newResult);
-    addPoints(newResult.points)
-      .then(() => {
-        setStage('result');
-      })
-      .finally(() => {
-        setIsAddingPoints(false);
-      });
+    
+    try {
+      await addPoints(newResult.points);
+      setStage('result');
+      
+      // 新しいビンゴシートを生成
+      await handleGenerateBingo();
+      
+    } catch (error) {
+      console.error('ポイント追加またはビンゴシート生成中にエラーが発生しました:', error);
+    } finally {
+      setIsAddingPoints(false);
+    }
 
     // Confettiの表示
     const canvas = document.createElement('canvas');
@@ -170,7 +176,7 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps> = ({ onClose, compl
     setTimeout(() => {
       canvas.remove();
     }, 3000);
-  }, [completedLines, addPoints, isAddingPoints]);
+  }, [completedLines, addPoints, isAddingPoints, handleGenerateBingo]);
 
   return (
     <motion.div
@@ -337,12 +343,11 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
    * handleCloseGacha 関数を修正
    * ガチャポップアップを閉じた後に新しいビンゴシートを生成する
    */
-  const handleCloseGacha = useCallback(async () => {
+  const handleCloseGacha = useCallback(() => {
     setShowGachaPopup(false);
     setShowGachaButton(false);
     console.log('ガチャポップアップを閉じました');
-    await handleGenerateBingo(); // ポップアップを閉じた後に新しいビンゴシートを生成
-  }, [handleGenerateBingo]);
+  }, []);
 
   /**
    * ビンゴシートをロードする関数を修正
@@ -678,7 +683,8 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           <BingoGachaPopup
             onClose={handleCloseGacha} 
             completedLines={completedLines} 
-            addPoints={addPoints} 
+            addPoints={addPoints}
+            handleGenerateBingo={handleGenerateBingo}
           />
         )}
       </AnimatePresence>
