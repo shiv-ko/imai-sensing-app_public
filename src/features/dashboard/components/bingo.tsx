@@ -1,40 +1,70 @@
-// bingo.tsx
+// src/features/dashboard/components/bingo.tsx
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+'use client';
+
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import { Amplify } from 'aws-amplify';
+import awsExports from '../../../aws-exports';
+import { generateClient } from 'aws-amplify/api';
+import { updateUser } from '../../../graphql/mutations';
+import { UpdateUserMutationVariables } from '../../../API';
+import AnimatedTitle from './animatedTitle';
 
-// Constants
+Amplify.configure(awsExports);
+const client = generateClient();
+
+// ユーザーのスコアを更新する関数
+const updateUserScore = async (userId: string, newScore: number) => {
+  const input: UpdateUserMutationVariables['input'] = {
+    id: userId,
+    score: newScore,
+  };
+
+  try {
+    const result = await client.graphql({
+      query: updateUser,
+      variables: { input },
+    });
+    console.log('User score updated:', result.data?.updateUser);
+    return result.data?.updateUser || null;
+  } catch (error) {
+    console.error('Error updating user score:', error);
+    throw new Error('ポイントの更新に失敗しました。');
+  }
+};
+
+// Button コンポーネント
+interface ButtonProps {
+  onClick: () => void;
+  disabled: boolean;
+  children: React.ReactNode;
+}
+
+const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) => (
+  <button onClick={onClick} disabled={disabled} className="bingo-gacha-button">
+    {children}
+  </button>
+);
+
+// ガチャ関連の定数と関数
 const basePointValues = [1, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 30, 50];
 const baseProbabilities = [
-  [0.25, 0.30, 0.20, 0.10, 0.05, 0.04, 0.03, 0.02, 0.01, 0.00, 0.00, 0.00, 0.00], // 1 line
-  [0.20, 0.25, 0.20, 0.15, 0.08, 0.05, 0.03, 0.02, 0.01, 0.01, 0.00, 0.00, 0.00], // 2 lines
-  [0.15, 0.20, 0.20, 0.15, 0.10, 0.08, 0.05, 0.03, 0.02, 0.01, 0.01, 0.00, 0.00], // 3 lines
-  [0.10, 0.15, 0.20, 0.15, 0.12, 0.10, 0.07, 0.05, 0.03, 0.02, 0.01, 0.00, 0.00], // 4 lines
-  [0.05, 0.10, 0.15, 0.20, 0.15, 0.12, 0.08, 0.06, 0.04, 0.03, 0.01, 0.01, 0.00], // 5 lines
-  [0.03, 0.07, 0.12, 0.15, 0.18, 0.15, 0.10, 0.08, 0.05, 0.04, 0.02, 0.01, 0.00], // 6 lines
-  [0.02, 0.05, 0.08, 0.12, 0.15, 0.18, 0.15, 0.10, 0.07, 0.05, 0.02, 0.01, 0.00], // 7 lines
-  [0.01, 0.03, 0.05, 0.08, 0.12, 0.15, 0.18, 0.15, 0.10, 0.07, 0.04, 0.02, 0.00]  // 8 lines
+  [0.25, 0.30, 0.20, 0.10, 0.05, 0.04, 0.03, 0.02, 0.01, 0.00, 0.00, 0.00, 0.00],
+  [0.20, 0.25, 0.20, 0.15, 0.08, 0.05, 0.03, 0.02, 0.01, 0.01, 0.00, 0.00, 0.00],
+  [0.15, 0.20, 0.20, 0.15, 0.10, 0.08, 0.05, 0.03, 0.02, 0.01, 0.01, 0.00, 0.00],
+  [0.10, 0.15, 0.20, 0.15, 0.12, 0.10, 0.07, 0.05, 0.03, 0.02, 0.01, 0.00, 0.00],
+  [0.05, 0.10, 0.15, 0.20, 0.15, 0.12, 0.08, 0.06, 0.04, 0.03, 0.01, 0.01, 0.00],
+  [0.03, 0.07, 0.12, 0.15, 0.18, 0.15, 0.10, 0.08, 0.05, 0.04, 0.02, 0.01, 0.00],
+  [0.02, 0.05, 0.08, 0.12, 0.15, 0.18, 0.15, 0.10, 0.07, 0.05, 0.02, 0.01, 0.00],
+  [0.01, 0.03, 0.05, 0.08, 0.12, 0.15, 0.18, 0.15, 0.10, 0.07, 0.04, 0.02, 0.00]
 ];
 
-const fillProbabilities = [
-  { min: 3, max: 5 },   // 1 point
-  { min: 4, max: 7 },   // 2 points
-  { min: 5, max: 9 },   // 3 points
-  { min: 6, max: 11 },  // 4 points
-  { min: 7, max: 13 },  // 5 points
-  { min: 8, max: 15 },  // 6 points
-  { min: 9, max: 17 },  // 7 points
-  { min: 10, max: 19 }, // 8 points
-  { min: 12, max: 21 }, // 10 points
-  { min: 15, max: 22 }, // 15 points
-  { min: 18, max: 23 }, // 20 points
-  { min: 21, max: 24 }, // 30 points
-  { min: 25, max: 25 }  // 50 points
-];
-
-// Utility Functions
 function pullGacha(completedLines: number) {
+  if (completedLines < 1 || completedLines > baseProbabilities.length) {
+    completedLines = 1;
+  }
   const probabilities = baseProbabilities[completedLines - 1];
   const randomValue = Math.random();
   let cumulativeProbability = 0;
@@ -49,212 +79,107 @@ function pullGacha(completedLines: number) {
   }
 
   const points = basePointValues[selectedIndex];
-  const fillProbability = fillProbabilities[selectedIndex];
-  const fillAmount = Math.floor(Math.random() * (fillProbability.max - fillProbability.min + 1)) + fillProbability.min;
 
-  return {
-    points,
-    fillAmount
+  return { points };
+}
+
+// 型定義
+interface BingoBoardProps {
+  onBingoComplete: (lines: number) => void;
+}
+
+export interface BingoBoardHandle {
+  checkBingo: () => number;
+  state: {
+    board: { value: number; revealed: boolean }[];
   };
 }
 
-// Components
-const Button: React.FC<{ onClick: () => void; disabled: boolean; children: React.ReactNode }> = ({ onClick, disabled, children }) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    className="bingo-gacha-button"
-  >
-    {children}
-  </button>
+// BingoBoard コンポーネント
+const BingoBoard = React.forwardRef<BingoBoardHandle, BingoBoardProps>(
+  ({ onBingoComplete }, ref) => {
+    const [board, setBoard] = useState(
+      Array(9)
+        .fill(null)
+        .map((_, i) => ({ value: i + 1, revealed: false }))
+    );
+
+    const checkBingo = useCallback((newBoard: { value: number; revealed: boolean }[]) => {
+      const lines = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      return lines.filter(line => line.every(index => newBoard[index].revealed)).length;
+    }, []);
+
+    const handleCellClick = useCallback(
+      (index: number) => {
+        setBoard(prevBoard => {
+          const newBoard = prevBoard.map((cell, i) => 
+            i === index ? { ...cell, revealed: true } : cell
+          );
+          const completedLines = checkBingo(newBoard);
+          if (completedLines > 0) {
+            onBingoComplete(completedLines);
+          }
+          return newBoard;
+        });
+      },
+      [checkBingo, onBingoComplete]
+    );
+
+    React.useImperativeHandle(ref, () => ({
+      checkBingo: () => checkBingo(board),
+      state: { board },
+    }));
+
+    return (
+      <div className="bingo-gacha-board">
+        {board.map((cell, index) => (
+          <motion.div
+            key={index}
+            className={`bingo-gacha-board-cell ${cell.revealed ? 'revealed' : ''}`}
+            onClick={() => handleCellClick(index)}
+            animate={{
+              scale: cell.revealed ? [1, 1.1, 1] : 1,
+              backgroundColor: cell.revealed ? ['#fbbf24', '#f6ad55', '#f6ad55'] : '#e0e0e0',
+            }}
+            transition={{
+              duration: 0.3,
+              ease: "easeInOut",
+              times: [0, 0.5, 1],
+            }}
+          >
+            {cell.revealed ? cell.value : '?'}
+          </motion.div>
+        ))}
+      </div>
+    );
+  }
 );
 
-const BingoCard: React.FC<{ onComplete: () => void; fillAmount: number }> = ({ onComplete, fillAmount }) => {
-  const [highlighted, setHighlighted] = useState<number[]>([]);
-  const [isPaused, setIsPaused] = useState(false);
+BingoBoard.displayName = 'BingoBoard';  // この行を追加
 
-  const getAnimationPattern = useCallback(() => {
-    const patterns = [
-      { name: 'normal', fillInterval: 140, pauseAt: [], pauseDuration: 0 },
-      { name: 'quick', fillInterval: 50, pauseAt: [], pauseDuration: 0 },
-      { name: 'pauseOnce', fillInterval: 140, pauseAt: [Math.floor(fillAmount / 2)], pauseDuration: 800 },
-      { name: 'pauseTwice', fillInterval: 140, pauseAt: [Math.floor(fillAmount / 3), Math.floor(fillAmount * 2 / 3)], pauseDuration: 600 },
-      { name: 'slowStart', fillInterval: 200, pauseAt: [Math.floor(fillAmount / 4)], pauseDuration: 400, secondInterval: 100 },
-      { name: 'quickEnd', fillInterval: 180, pauseAt: [Math.floor(fillAmount * 3 / 4)], pauseDuration: 400, secondInterval: 60 },
-    ];
-
-    return patterns[Math.floor(Math.random() * patterns.length)];
-  }, [fillAmount]);
-
-  useEffect(() => {
-    const pattern = getAnimationPattern();
-    let currentInterval = pattern.fillInterval;
-
-    const interval = setInterval(() => {
-      if (highlighted.length < fillAmount) {
-        if (pattern.pauseAt.includes(highlighted.length) && !isPaused) {
-          setIsPaused(true);
-          setTimeout(() => {
-            setIsPaused(false);
-            if (pattern.secondInterval) {
-              currentInterval = pattern.secondInterval;
-              clearInterval(interval);
-              // Restart the interval with the new interval time
-              const newInterval = setInterval(() => {
-                if (highlighted.length < fillAmount && !isPaused) {
-                  setHighlighted(prev => {
-                    const availableSquares = Array.from({ length: 25 }, (_, i) => i).filter(i => !prev.includes(i));
-                    const newSquare = availableSquares[Math.floor(Math.random() * availableSquares.length)];
-                    return [...prev, newSquare];
-                  });
-                } else {
-                  clearInterval(newInterval);
-                  setTimeout(onComplete, 1400);
-                }
-              }, currentInterval);
-              return;
-            }
-          }, pattern.pauseDuration);
-        }
-        if (!isPaused) {
-          setHighlighted(prev => {
-            const availableSquares = Array.from({ length: 25 }, (_, i) => i).filter(i => !prev.includes(i));
-            const newSquare = availableSquares[Math.floor(Math.random() * availableSquares.length)];
-            return [...prev, newSquare];
-          });
-        }
-      } else {
-        clearInterval(interval);
-        setTimeout(onComplete, 1400);
-      }
-    }, currentInterval);
-
-    return () => clearInterval(interval);
-  }, [highlighted, onComplete, fillAmount, isPaused, getAnimationPattern]);
-
-  return (
-    <div className="bingo-gacha-card">
-      {Array.from({ length: 25 }, (_, i) => i + 1).map((num, index) => (
-        <motion.div
-          key={index}
-          className={`bingo-gacha-cell ${highlighted.includes(index) ? 'highlighted' : ''}`}
-          animate={{ 
-            scale: highlighted.includes(index) ? [1, 1.1, 1] : 1,
-            backgroundColor: highlighted.includes(index) ? ['#E5E7EB', '#FBBF24', '#FBBF24'] : '#E5E7EB'
-          }}
-          transition={{ 
-            duration: 0.3,
-            ease: "easeInOut",
-            times: [0, 0.5, 1]
-          }}
-        >
-          {num}
-        </motion.div>
-      ))}
-    </div>
-  );
-};
-
-const ResultPopup: React.FC<{ result: { points: number; fillAmount: number }; onClose: () => void }> = ({ result, onClose }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    transition={{ duration: 0.4 }}
-    className="bingo-gacha-overlay"
-  >
-    <motion.div
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.8, opacity: 0 }}
-      transition={{ duration: 0.4, ease: "easeInOut" }}
-      className="bingo-gacha-popup"
-    >
-      <h2>ガチャ結果</h2>
-      <p>
-        獲得ポイント: <span className="bingo-gacha-bold">{result.points}</span>
-      </p>
-      <Button onClick={onClose} disabled={false}>閉じる</Button>
-    </motion.div>
-  </motion.div>
-);
-
-const BingoBoard = React.forwardRef<
-  { checkBingo: () => number; state: { board: { value: number; revealed: boolean }[] } },
-  { onBingoComplete: (lines: number) => void }
->(({ onBingoComplete }, ref) => {
-  const [board, setBoard] = useState(Array(9).fill(null).map((_, i) => ({ value: i, revealed: false })));
-
-  const checkBingo = useCallback((newBoard: { value: number; revealed: boolean }[]) => {
-    const lines = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-      [0, 4, 8], [2, 4, 6] // Diagonals
-    ];
-
-    const completedLines = lines.filter(line => line.every(index => newBoard[index].revealed)).length;
-    return completedLines;
-  }, []);
-
-  const handleCellClick = useCallback((index: number) => {
-    setBoard(prevBoard => {
-      const newBoard = [...prevBoard];
-      newBoard[index] = { ...newBoard[index], revealed: true };
-      
-      const completedLines = checkBingo(newBoard);
-      if (completedLines > 0) {
-        onBingoComplete(completedLines);
-      }
-      
-      return newBoard;
-    });
-  }, [checkBingo, onBingoComplete]);
-
-  React.useImperativeHandle(ref, () => ({
-    checkBingo: () => checkBingo(board),
-    state: { board }
-  }));
-
-  return (
-    <div className="bingo-gacha-board">
-      {board.map((cell, index) => (
-        <motion.div
-          key={index}
-          className={`bingo-gacha-board-cell ${cell.revealed ? 'revealed' : ''}`}
-          onClick={() => handleCellClick(index)}
-          animate={{ 
-            scale: cell.revealed ? [1, 1.1, 1] : 1,
-            backgroundColor: cell.revealed ? ['#E5E7EB', '#FBBF24', '#FBBF24'] : '#E5E7EB'
-          }}
-          transition={{ 
-            duration: 0.3,
-            ease: "easeInOut",
-            times: [0, 0.5, 1]
-          }}
-        >
-          {cell.revealed ? cell.value : '?'}
-        </motion.div>
-      ))}
-    </div>
-  );
-});
-BingoBoard.displayName = 'BingoBoard';
-
-const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number }> = ({ onClose, completedLines }) => {
-  const [result, setResult] = useState<{ points: number; fillAmount: number } | null>(null);
-  const [stage, setStage] = useState<'idle' | 'bingo' | 'bingoText' | 'result' | 'popup'>('idle');
+// BingoGachaPopup コンポーネント
+const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number; addPoints: (points: number) => void }> = ({ onClose, completedLines, addPoints }) => {
+  const [result, setResult] = useState<{ points: number } | null>(null);
+  const [stage, setStage] = useState<'idle' | 'result'>('idle');
   const confettiCanvasRef = useRef<HTMLDivElement>(null);
 
   const handlePullGacha = useCallback(() => {
     const newResult = pullGacha(completedLines);
     setResult(newResult);
-    setStage('bingo');
-  }, [completedLines]);
+    addPoints(newResult.points);
+    setStage('result');
 
-  const handleBingoComplete = useCallback(() => {
-    setStage('bingoText');
-    
-    // Create a new canvas for confetti
+    // Confettiの表示
     const canvas = document.createElement('canvas');
     canvas.style.position = 'absolute';
     canvas.style.inset = '0';
@@ -277,21 +202,9 @@ const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number }>
     });
 
     setTimeout(() => {
-      setStage('result');
-      // Remove the confetti canvas after the animation
       canvas.remove();
     }, 3000);
-  }, []);
-
-  const handleShowPopup = useCallback(() => {
-    setStage('popup');
-  }, []);
-
-  const handleClosePopup = useCallback(() => {
-    setStage('idle');
-    setResult(null);
-    onClose();
-  }, [onClose]);
+  }, [completedLines, addPoints]);
 
   return (
     <motion.div
@@ -306,39 +219,15 @@ const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number }>
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="bingo-gacha-popup gacha-popup"
+        className="bingo-gacha-popup"
         ref={confettiCanvasRef}
       >
         <h2>ビンゴガチャ</h2>
-        <p>完成したライン数: {completedLines}</p>
+        <p className="result-text">
+          完成したライン数: {completedLines}
+        </p>
         <div className="bingo-gacha-content">
           <AnimatePresence mode="wait">
-            {stage === 'bingo' && result && (
-              <motion.div
-                key="bingo"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                <BingoCard 
-                  onComplete={handleBingoComplete} 
-                  fillAmount={result.fillAmount}
-                />
-              </motion.div>
-            )}
-            {(stage === 'bingoText' || stage === 'result') && (
-              <motion.div
-                key="bingoText"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ duration: 0.7, ease: "easeInOut" }}
-                className="bingo-gacha-text"
-              >
-                BINGO
-              </motion.div>
-            )}
             {stage === 'result' && result && (
               <motion.div
                 key="result"
@@ -369,30 +258,49 @@ const BingoGachaPopup: React.FC<{ onClose: () => void; completedLines: number }>
         </div>
         <div className="bingo-gacha-button-container">
           <Button
-            onClick={stage === 'result' ? handleShowPopup : handlePullGacha}
-            disabled={stage !== 'idle' && stage !== 'result'}
+            onClick={stage === 'idle' ? handlePullGacha : onClose}
+            disabled={false}
           >
-            {stage === 'idle' ? 'ガチャを回す' : stage === 'result' ? '結果を確認' : 'ガチャ実行中...'}
+            {stage === 'idle' ? 'ガチャを回す' : '閉じる'}
           </Button>
         </div>
-        <AnimatePresence>
-          {stage === 'popup' && result && (
-            <ResultPopup result={result} onClose={handleClosePopup} />
-          )}
-        </AnimatePresence>
       </motion.div>
     </motion.div>
   );
 };
-BingoGachaPopup.displayName = 'BingoGachaPopup';
 
-export function Bingo() {
-  const [showBingo, setShowBingo] = useState(true);
+// Bingo コンポーネント
+interface BingoProps {
+  userId: string;
+  initialScore: number;
+}
+
+export function Bingo({ userId, initialScore }: BingoProps) {
   const [showGachaButton, setShowGachaButton] = useState(false);
   const [showGachaPopup, setShowGachaPopup] = useState(false);
   const [bingoKey, setBingoKey] = useState(0);
   const [completedLines, setCompletedLines] = useState(0);
-  const boardRef = useRef<{ checkBingo: () => number; state: { board: { value: number; revealed: boolean }[] } } | null>(null);
+  const [totalPoints, setTotalPoints] = useState(initialScore);
+  const boardRef = useRef<BingoBoardHandle | null>(null);
+
+  useEffect(() => {
+    setTotalPoints(initialScore);
+  }, [initialScore]);
+
+  const addPoints = useCallback(
+    async (points: number) => {
+      const newScore = totalPoints + points;
+      setTotalPoints(newScore);
+
+      try {
+        await updateUserScore(userId, newScore);
+        console.log('User score updated successfully:', newScore);
+      } catch (error) {
+        console.error('Failed to update score:', error);
+      }
+    },
+    [totalPoints, userId]
+  );
 
   const handleBingoComplete = useCallback((lines: number) => {
     setCompletedLines(lines);
@@ -400,7 +308,6 @@ export function Bingo() {
   }, []);
 
   const handleOpenGacha = useCallback(() => {
-    // Recalculate completed lines
     if (boardRef.current && boardRef.current.checkBingo) {
       const recalculatedLines = boardRef.current.checkBingo();
       setCompletedLines(recalculatedLines);
@@ -410,9 +317,8 @@ export function Bingo() {
 
   const handleCloseGacha = useCallback(() => {
     setShowGachaPopup(false);
-    setShowBingo(true);
     setShowGachaButton(false);
-    setBingoKey(prevKey => prevKey + 1); // This will force a re-render of the BingoBoard
+    setBingoKey(prevKey => prevKey + 1);
     setCompletedLines(0);
   }, []);
 
@@ -425,11 +331,22 @@ export function Bingo() {
           flex-direction: column;
           align-items: center;
           padding: 2rem;
+          background-color: #f9f9f9;
+          min-height: 100vh;
+        }
+        .bingo-title {
+          margin-bottom: 1rem;
+        }
+        .total-points {
+          font-size: 1.5rem;
+          color: #4a4a4a;
+          margin-bottom: 2rem;
+          text-align: center;
         }
         .bingo-gacha-button {
           padding: 1rem 2rem;
           font-size: 1.25rem;
-          background: linear-gradient(to right, #f6e05e, #ed8936);
+          background: linear-gradient(to right, #fbbf24, #f6ad55);
           color: white;
           font-weight: bold;
           border: none;
@@ -437,10 +354,11 @@ export function Bingo() {
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           cursor: pointer;
           transition: all 0.3s;
+          margin-top: 1rem;
         }
         .bingo-gacha-button:hover {
           transform: scale(1.05);
-          background: linear-gradient(to right, #f6ad55, #ed8936);
+          background: linear-gradient(to right, #f6ad55, #fbbf24);
         }
         .bingo-gacha-button:disabled {
           opacity: 0.5;
@@ -450,10 +368,12 @@ export function Bingo() {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 0.5rem;
-          background-color: white;
+          background-color: #ffffff;
           padding: 1rem;
           border-radius: 0.5rem;
           margin-bottom: 2rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          border: 2px solid #fbbf24;
         }
         .bingo-gacha-board-cell {
           width: 5rem;
@@ -461,14 +381,19 @@ export function Bingo() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: #e5e7eb;
+          background-color: #e0e0e0;
+          border: 1px solid #fbbf24;
           border-radius: 0.5rem;
           cursor: pointer;
           font-size: 1.5rem;
           font-weight: bold;
+          color: #4a4a4a;
+          transition: background-color 0.3s, transform 0.3s;
         }
         .bingo-gacha-board-cell.revealed {
           background-color: #fbbf24;
+          transform: scale(1.05);
+          color: #ffffff;
         }
         .bingo-gacha-overlay {
           position: fixed;
@@ -483,11 +408,14 @@ export function Bingo() {
           z-index: 50;
         }
         .bingo-gacha-popup {
-          background-color: white;
+          background-color: #ffffff;
           border-radius: 0.5rem;
-          padding: 2rem;
-          max-width: 32rem;
+          padding: 1rem;
+          max-width: 28rem;
           width: 100%;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          position: relative;
+          text-align: center;
         }
         .bingo-gacha-content {
           width: 100%;
@@ -503,55 +431,33 @@ export function Bingo() {
           overflow: hidden;
           position: relative;
         }
-        .bingo-gacha-card {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 0.5rem;
-          background-color: white;
-          padding: 1rem;
-          border-radius: 0.5rem;
-        }
-        .bingo-gacha-cell {
-          width: 3rem;
-          height: 3rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background-color: #e5e7eb;
-          border-radius: 9999px;
-          font-size: 1rem;
-          font-weight: bold;
-        }
-        .bingo-gacha-cell.highlighted {
-          background-color: #fbbf24;
-        }
-        .bingo-gacha-text {
-          font-size: 3.75rem;
-          font-weight: bold;
-          color: #fbbf24;
-          position: absolute;
-          z-index: 10;
-        }
         .bingo-gacha-result-circle {
           width: 16rem;
           height: 16rem;
           border-radius: 9999px;
-          background-color: white;
+          background-color: #ffffff;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           position: absolute;
           z-index: 30;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .bingo-gacha-result-circle h2 {
           font-size: 1.5rem;
           font-weight: bold;
           margin-bottom: 0.5rem;
+          color: #4a4a4a;
         }
         .bingo-gacha-trophy {
           font-size: 4rem;
           margin-top: 1rem;
+        }
+        .result-text {
+          margin: 0.5rem 0;
+          font-size: 1.25rem;
+          color: #4a4a4a;
         }
         .bingo-gacha-button-container {
           display: flex;
@@ -561,11 +467,16 @@ export function Bingo() {
           font-weight: bold;
         }
       `}</style>
-      {showBingo && (
-        <div className="bingo-gacha-container">
-          <BingoBoard key={bingoKey} onBingoComplete={handleBingoComplete} ref={boardRef} />
-        </div>
-      )}
+
+      {/* タイトルの追加 */}
+      <div className="bingo-title">
+        <AnimatedTitle />
+      </div>
+      <div className="total-points">総ポイント: {totalPoints}</div>
+
+      <div className="bingo-gacha-container">
+        <BingoBoard key={bingoKey} onBingoComplete={handleBingoComplete} ref={boardRef} />
+      </div>
       {showGachaButton && (
         <Button onClick={handleOpenGacha} disabled={false}>
           ガチャを表示
@@ -573,7 +484,7 @@ export function Bingo() {
       )}
       <AnimatePresence>
         {showGachaPopup && (
-          <BingoGachaPopup onClose={handleCloseGacha} completedLines={completedLines} />
+          <BingoGachaPopup onClose={handleCloseGacha} completedLines={completedLines} addPoints={addPoints} />
         )}
       </AnimatePresence>
     </div>
