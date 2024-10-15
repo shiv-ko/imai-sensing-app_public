@@ -8,47 +8,6 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
-export const getBingoSheet = /* GraphQL */ `query GetBingoSheet($id: ID!) {
-  getBingoSheet(id: $id) {
-    id
-    userId
-    cells {
-      category
-      isCompleted
-      __typename
-    }
-    createdAt
-    updatedAt
-    owner
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.GetBingoSheetQueryVariables,
-  APITypes.GetBingoSheetQuery
->;
-export const listBingoSheets = /* GraphQL */ `query ListBingoSheets(
-  $filter: ModelBingoSheetFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  listBingoSheets(filter: $filter, limit: $limit, nextToken: $nextToken) {
-    items {
-      id
-      userId
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.ListBingoSheetsQueryVariables,
-  APITypes.ListBingoSheetsQuery
->;
 export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
   getUser(id: $id) {
     id
@@ -246,23 +205,91 @@ export const listCategories = /* GraphQL */ `query ListCategories(
   APITypes.ListCategoriesQueryVariables,
   APITypes.ListCategoriesQuery
 >;
-export const bingoSheetsByUserId = /* GraphQL */ `query BingoSheetsByUserId(
-  $userId: ID!
-  $sortDirection: ModelSortDirection
+export const getBingoSheet = /* GraphQL */ `query GetBingoSheet($id: ID!) {
+  getBingoSheet(id: $id) {
+    id
+    userId
+    user {
+      id
+      displayName
+      score
+      createdAt
+      updatedAt
+      currentCategoryId
+      owner
+      __typename
+    }
+    squares {
+      id
+      number
+      categoryName
+      isOpen
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    isUsed
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetBingoSheetQueryVariables,
+  APITypes.GetBingoSheetQuery
+>;
+export const listBingoSheets = /* GraphQL */ `query ListBingoSheets(
   $filter: ModelBingoSheetFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  bingoSheetsByUserId(
-    userId: $userId
-    sortDirection: $sortDirection
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-  ) {
+  listBingoSheets(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
       userId
+      createdAt
+      isUsed
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListBingoSheetsQueryVariables,
+  APITypes.ListBingoSheetsQuery
+>;
+export const getBingoSquare = /* GraphQL */ `query GetBingoSquare($id: ID!) {
+  getBingoSquare(id: $id) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetBingoSquareQueryVariables,
+  APITypes.GetBingoSquareQuery
+>;
+export const listBingoSquares = /* GraphQL */ `query ListBingoSquares(
+  $filter: ModelBingoSquareFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listBingoSquares(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      number
+      categoryName
+      isOpen
       createdAt
       updatedAt
       owner
@@ -273,8 +300,8 @@ export const bingoSheetsByUserId = /* GraphQL */ `query BingoSheetsByUserId(
   }
 }
 ` as GeneratedQuery<
-  APITypes.BingoSheetsByUserIdQueryVariables,
-  APITypes.BingoSheetsByUserIdQuery
+  APITypes.ListBingoSquaresQueryVariables,
+  APITypes.ListBingoSquaresQuery
 >;
 export const usersByCurrentCategoryId = /* GraphQL */ `query UsersByCurrentCategoryId(
   $currentCategoryId: ID!
@@ -425,4 +452,37 @@ export const likesByPostId = /* GraphQL */ `query LikesByPostId(
 ` as GeneratedQuery<
   APITypes.LikesByPostIdQueryVariables,
   APITypes.LikesByPostIdQuery
+>;
+export const bingoSheetsByUserIdAndCreatedAt = /* GraphQL */ `query BingoSheetsByUserIdAndCreatedAt(
+  $userId: ID!
+  $createdAt: ModelStringKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelBingoSheetFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  bingoSheetsByUserIdAndCreatedAt(
+    userId: $userId
+    createdAt: $createdAt
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      userId
+      createdAt
+      isUsed
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.BingoSheetsByUserIdAndCreatedAtQueryVariables,
+  APITypes.BingoSheetsByUserIdAndCreatedAtQuery
 >;
