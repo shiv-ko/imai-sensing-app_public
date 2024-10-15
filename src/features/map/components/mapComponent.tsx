@@ -1,108 +1,144 @@
-// // MapComponent.tsx
-// import React from 'react';
-// import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-// import 'leaflet/dist/leaflet.css';
-// import L from 'leaflet';
-// import { Amplify } from 'aws-amplify';
-// import awsExports from '../../../aws-exports';
-// // import { generateClient } from 'aws-amplify/api';
-// // マーカーアイコンのインポート
-// // import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-// // import markerIcon from 'leaflet/dist/images/marker-icon.png';
-// // import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import React, { useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import MapModal from '../modal/mapModal'; // モーダルコンポーネントをインポート
 
-// Amplify.configure(awsExports);
+const userIcon = new L.Icon({
+  iconUrl: '4965.png',
+  iconSize: [30, 30],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
 
-// // const client = generateClient();
+const postIcon = new L.Icon({
+  iconUrl: 'pin.png',
+  iconSize: [40, 40],
+  iconAnchor: [15, 50],
+  popupAnchor: [1, -34],
+});
 
-// // デフォルトのアイコン設定を修正
-// // delete L.Icon.Default.prototype._getIconUrl;
+interface Post {
+  id: string;
+  imageUrl?: string | null;
+  userId: string;
+  lat: number;
+  lng: number;
+  category: string;
+  comment: string;
+  reported: boolean;
+  deleted: boolean;
+  visible: boolean;
+  point: number;
+  postType: string;
+  postedby?: string | null;
+}
 
+interface MapComponentProps {
+  userPosition: [number, number];
+  posts: Post[];
+  userId: string; // ユーザーIDを取得
+}
 
-// //これ何？
-// // L.Icon.Default.mergeOptions({
-// //   iconRetinaUrl: markerIcon2x.src,
-// //   iconUrl: markerIcon.src,
-// //   shadowUrl: markerShadow.src,
-// // });
+// マップ上で現在地に移動するためのカスタムフック
+const MoveToCurrentLocationButton: React.FC<{ userPosition: [number, number] }> = ({ userPosition }) => {
+  const map = useMap(); // マップインスタンスを取得
 
+  const handleMoveToCurrentLocation = () => {
+    map.flyTo(userPosition, 13); // 現在地にズーム移動する
+  };
 
-// // ユーザーアイコンを定義（ユーザーの現在地用）
-// const userIcon = new L.Icon({
-//   iconUrl: '4965.png', 
-//   iconSize: [30, 30],
-//   iconAnchor: [12, 41],
-//   popupAnchor: [1, -34],
-//   // shadowUrl: require('leaflet/dist/images/marker-shadow.png').default,
-// });
-// // 投稿ピンのアイコンの定義
-// const postIcon = new L.Icon({
-//   iconUrl: 'pin.png',
-//   iconSize: [40, 40], // アイコンサイズを指定（幅, 高さ）
-//   iconAnchor: [15, 50],
-//   popupAnchor: [1, -34],
-// //   shadowUrl: markerShadow.src,
-// });
+  return (
+    <button onClick={handleMoveToCurrentLocation} style={currentLocationButtonStyle}>
+      現在地に移動
+    </button>
+  );
+};
 
+const PostMarker: React.FC<{ post: Post; userId: string }> = ({ post, userId }) => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-// interface Post {
-//   id: string;
-//   imageUrl?: string;
-//   userId: string;
-//   lat: number;
-//   lng: number;
-//   category: string;
-//   comment: string;
-//   reported: boolean;
-//   deleted: boolean;
-//   visible: boolean;
-//   point: number;
-//   postType: string;
-// }
+  const handlePopupOpen = () => {
+    setIsModalOpen(true);
+  };
 
-// interface MapComponentProps {
-//   userPosition: [number, number];
-//   posts: Post[];
-// }
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+  
 
-// const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts }) => {
-//   return (
-//     <MapContainer
-//       center={userPosition}
-//       zoom={13}
-//       style={{ height: '500px', width: '100%' }}
-//     >
-//       <TileLayer
-//         attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
-//         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//       />
-//       {/* ユーザーの現在地にマーカーを表示 */}
-//       <Marker position={userPosition} icon={userIcon}>
-//         <Popup>あなたの現在地</Popup>
-//       </Marker>
-//       {/* 投稿データのマーカーを表示 */}
-//       {posts.map((post) => (
-//         <Marker
-//           key={post.id}
-//           position={[post.lat, post.lng]}
-//           icon={postIcon} // アイコンサイズを統一
-//         >
-//           <Popup>
-//             <h3>{post.category}</h3>
-//             <p>{post.comment}</p>
-//             {post.imageUrl && (
-//               <img
-//                 src={post.imageUrl}
-//                 alt={post.category}
-//                 style={{ maxWidth: '200px' }}
-//               />
-//             )}
-//             <p>投稿者: {post.userId}</p>
-//           </Popup>
-//         </Marker>
-//       ))}
-//     </MapContainer>
-//   );
-// };
+  return (
+    <>
+      <Marker
+        position={[post.lat, post.lng]}
+        icon={postIcon}
+        eventHandlers={{
+          click: handlePopupOpen, // モーダルを開く
+        }}
+      />
+      <MapModal 
+        post={post} 
+        userId={userId} // ユーザーIDを渡す
+        isOpen={isModalOpen} 
+        onClose={handleModalClose} 
+      />
+    </>
+  );
+};
 
-// export default MapComponent;
+const Markers: React.FC<{ posts: Post[]; userId: string }> = ({ posts, userId }) => {
+  return (
+    <>
+      {posts.map((post) => (
+        <PostMarker key={post.id} post={post} userId={userId} />
+      ))}
+    </>
+  );
+};
+
+const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts, userId }) => {
+  return (
+    <div style={mapWrapperStyle}>
+      <MapContainer center={userPosition} zoom={13} style={mapStyle}>
+        <TileLayer
+          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={userPosition} icon={userIcon}>
+          <Popup>あなたの現在地</Popup>
+        </Marker>
+        <Markers posts={posts} userId={userId} />
+        <MoveToCurrentLocationButton userPosition={userPosition} />
+      </MapContainer>
+    </div>
+  );
+};
+
+// スタイル定義
+const mapWrapperStyle: React.CSSProperties = {
+  margin: '0 auto',
+  border: '5px solid green',
+  width: '90%',
+  padding: '10px',
+  borderRadius: '10px',
+};
+
+const mapStyle: React.CSSProperties = {
+  height: '500px',
+  width: '100%',
+};
+
+const currentLocationButtonStyle: React.CSSProperties = {
+  position: 'absolute',
+  bottom: '10px',
+  left: '10px',
+  padding: '10px 20px',
+  backgroundColor: '#4CAF50',
+  color: 'white',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  zIndex: 1000, // マップの上にボタンを表示するための優先度
+};
+
+export default MapComponent;

@@ -395,3 +395,168 @@ export const onDeleteCategory = /* GraphQL */ `subscription OnDeleteCategory($fi
   APITypes.OnDeleteCategorySubscriptionVariables,
   APITypes.OnDeleteCategorySubscription
 >;
+export const onCreateBingoSheet = /* GraphQL */ `subscription OnCreateBingoSheet(
+  $filter: ModelSubscriptionBingoSheetFilterInput
+) {
+  onCreateBingoSheet(filter: $filter) {
+    id
+    userId
+    user {
+      id
+      displayName
+      score
+      createdAt
+      updatedAt
+      currentCategoryId
+      owner
+      __typename
+    }
+    squares {
+      id
+      number
+      categoryName
+      isOpen
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    isUsed
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateBingoSheetSubscriptionVariables,
+  APITypes.OnCreateBingoSheetSubscription
+>;
+export const onUpdateBingoSheet = /* GraphQL */ `subscription OnUpdateBingoSheet(
+  $filter: ModelSubscriptionBingoSheetFilterInput
+) {
+  onUpdateBingoSheet(filter: $filter) {
+    id
+    userId
+    user {
+      id
+      displayName
+      score
+      createdAt
+      updatedAt
+      currentCategoryId
+      owner
+      __typename
+    }
+    squares {
+      id
+      number
+      categoryName
+      isOpen
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    isUsed
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateBingoSheetSubscriptionVariables,
+  APITypes.OnUpdateBingoSheetSubscription
+>;
+export const onDeleteBingoSheet = /* GraphQL */ `subscription OnDeleteBingoSheet(
+  $filter: ModelSubscriptionBingoSheetFilterInput
+) {
+  onDeleteBingoSheet(filter: $filter) {
+    id
+    userId
+    user {
+      id
+      displayName
+      score
+      createdAt
+      updatedAt
+      currentCategoryId
+      owner
+      __typename
+    }
+    squares {
+      id
+      number
+      categoryName
+      isOpen
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    isUsed
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteBingoSheetSubscriptionVariables,
+  APITypes.OnDeleteBingoSheetSubscription
+>;
+export const onCreateBingoSquare = /* GraphQL */ `subscription OnCreateBingoSquare(
+  $filter: ModelSubscriptionBingoSquareFilterInput
+) {
+  onCreateBingoSquare(filter: $filter) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateBingoSquareSubscriptionVariables,
+  APITypes.OnCreateBingoSquareSubscription
+>;
+export const onUpdateBingoSquare = /* GraphQL */ `subscription OnUpdateBingoSquare(
+  $filter: ModelSubscriptionBingoSquareFilterInput
+) {
+  onUpdateBingoSquare(filter: $filter) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateBingoSquareSubscriptionVariables,
+  APITypes.OnUpdateBingoSquareSubscription
+>;
+export const onDeleteBingoSquare = /* GraphQL */ `subscription OnDeleteBingoSquare(
+  $filter: ModelSubscriptionBingoSquareFilterInput
+) {
+  onDeleteBingoSquare(filter: $filter) {
+    id
+    number
+    categoryName
+    isOpen
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteBingoSquareSubscriptionVariables,
+  APITypes.OnDeleteBingoSquareSubscription
+>;

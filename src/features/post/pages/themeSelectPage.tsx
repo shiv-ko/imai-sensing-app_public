@@ -1,24 +1,23 @@
+// pages/themeSelectPage.tsx
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ThemeSelector from '../components/themeSelector';
-import { categoriesList } from '@/shared/utils/category/categoryList'; // themes をインポート
+import { categoriesList } from '@/shared/utils/category/categoryList';
 
 const ThemeSelectPage: React.FC = () => {
   const router = useRouter();
   const [selectedTheme, setSelectedTheme] = useState('');
 
-    const filteredThemes = categoriesList.filter((theme) => theme !== 'All');
+  const filteredThemes = categoriesList.filter((theme) => theme !== 'All');
 
   const handleThemeChange = (theme: string) => {
     setSelectedTheme(theme);
   };
 
-  // 次のページへの遷移を管理
   const handleNext = () => {
     if (selectedTheme) {
       const params = new URLSearchParams({ theme: selectedTheme });
-      // /camera/post＋クエリパラメータとしてテーマを追加している。
-      router.push(`/camera/post?${params.toString()}`);
+      router.push(`/camera/camera?${params.toString()}`);
     } else {
       alert('テーマを選択してください');
     }
@@ -26,23 +25,20 @@ const ThemeSelectPage: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      {/* テーマを選択してくださいのテキスト */}
       <h1 style={styles.title}>テーマを選択してください</h1>
-
-      {/* テーマセレクター */}
       <ThemeSelector
         themes={filteredThemes}
         selectedTheme={selectedTheme}
         onThemeChange={handleThemeChange}
       />
-
-      {/* 次へボタン */}
       <button style={styles.button} onClick={handleNext}>
         次へ
       </button>
     </div>
   );
 };
+
+
 
 // インラインスタイル
 const styles = {
