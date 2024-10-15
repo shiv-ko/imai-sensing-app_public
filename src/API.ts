@@ -1326,6 +1326,41 @@ export type PostDataByUserIdAndUpdatedAtQuery = {
   } | null,
 };
 
+export type PostDataByCategoryAndUpdatedAtQueryVariables = {
+  category: string,
+  updatedAt?: ModelStringKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelPostDataFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type PostDataByCategoryAndUpdatedAtQuery = {
+  postDataByCategoryAndUpdatedAt?:  {
+    __typename: "ModelPostDataConnection",
+    items:  Array< {
+      __typename: "PostData",
+      id: string,
+      imageUrl?: string | null,
+      userId: string,
+      postedby?: string | null,
+      lat: number,
+      lng: number,
+      category: string,
+      comment: string,
+      reported: boolean,
+      deleted: boolean,
+      visible: boolean,
+      createdAt: string,
+      updatedAt: string,
+      point: number,
+      postType: string,
+      owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type PostDataByPostTypeAndUpdatedAtQueryVariables = {
   postType: string,
   updatedAt?: ModelStringKeyConditionInput | null,

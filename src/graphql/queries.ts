@@ -351,6 +351,49 @@ export const postDataByUserIdAndUpdatedAt = /* GraphQL */ `query PostDataByUserI
   APITypes.PostDataByUserIdAndUpdatedAtQueryVariables,
   APITypes.PostDataByUserIdAndUpdatedAtQuery
 >;
+export const postDataByCategoryAndUpdatedAt = /* GraphQL */ `query PostDataByCategoryAndUpdatedAt(
+  $category: String!
+  $updatedAt: ModelStringKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelPostDataFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  postDataByCategoryAndUpdatedAt(
+    category: $category
+    updatedAt: $updatedAt
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      imageUrl
+      userId
+      postedby
+      lat
+      lng
+      category
+      comment
+      reported
+      deleted
+      visible
+      createdAt
+      updatedAt
+      point
+      postType
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.PostDataByCategoryAndUpdatedAtQueryVariables,
+  APITypes.PostDataByCategoryAndUpdatedAtQuery
+>;
 export const postDataByPostTypeAndUpdatedAt = /* GraphQL */ `query PostDataByPostTypeAndUpdatedAt(
   $postType: String!
   $updatedAt: ModelStringKeyConditionInput

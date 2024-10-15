@@ -57,7 +57,7 @@ type PostData
   postedby: String
   lat: Float!
   lng: Float!
-  category: String!
+  category: String! @index(name: "postByCategory", sortKeyFields: ["updatedAt"]) # 新しいインデックス
   comment: String!
   reported: Boolean!
   deleted: Boolean!
