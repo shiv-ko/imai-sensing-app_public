@@ -1,5 +1,26 @@
 # This "input" configures a global authorization rule to enable public access to
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
+
+type BingoCell {
+  category: String!
+  isCompleted: Boolean!
+}
+
+type BingoSheet
+  @model
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, update, delete, read] }
+      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+    ]
+  ) {
+  id: ID!
+  userId: ID! @index(name: "bingoByUser")
+  cells: [BingoCell!]!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
 type User
   @model
   @auth(
@@ -38,7 +59,7 @@ type PostData
   postedby: String
   lat: Float!
   lng: Float!
-  category: String!
+  category: String! @index(name: "postByCategory", sortKeyFields: ["updatedAt"]) # 新しいインデックス
   comment: String!
   reported: Boolean!
   deleted: Boolean!
@@ -82,36 +103,4 @@ type Category
   id: ID!
   name: String!
   users: [User] @hasMany(indexName: "usersByCategoryIndex", fields: ["id"])
-}
-
-type BingoSheet
-  @model
-  @auth(
-    rules: [
-      { allow: owner, operations: [create, update, delete] }
-      { allow: private, operations: [read] }
-      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
-    ]
-  ) {
-  id: ID!
-  userId: ID! @index(name: "bingoByUser", sortKeyFields: ["createdAt"])
-  user: User @belongsTo(fields: ["userId"])
-  squares: [BingoSquare]!
-  createdAt: AWSDateTime!
-  isUsed: Boolean!
-}
-
-type BingoSquare
-  @model
-  @auth(
-    rules: [
-      { allow: owner, operations: [create, update, delete] }
-      { allow: private, operations: [read] }
-      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
-    ]
-  ) {
-  id: ID!
-  number: Int!
-  categoryName: String!
-  isOpen: Boolean!
 }
