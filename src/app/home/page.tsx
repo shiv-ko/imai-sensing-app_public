@@ -1,9 +1,16 @@
-// src/app/home/page.tsx
-import React from 'react';
-import HomePage from '@/features/dashboard/pages/homePage'; 
+'use client'
+import React from "react";
 
-const Home: React.FC = () => {
-  return <HomePage />;
+import Header from '@/shared/components/header'; // Headerコンポーネントのインポート
+import FooterNavBar from '@/shared/components/footer'; // FooterNavBarコンポーネントのインポート
+const HomePage: React.FC = () => {
+  return (
+    <div>
+        <Header></Header>
+      <h1>ここでビンゴする。</h1>
+      <FooterNavBar></FooterNavBar>
+    </div>
+  );
 };
 
-export default Home;
+export default HomePage;
