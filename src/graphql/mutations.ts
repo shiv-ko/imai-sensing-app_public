@@ -8,6 +8,72 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
+export const createBingoSheet = /* GraphQL */ `mutation CreateBingoSheet(
+  $input: CreateBingoSheetInput!
+  $condition: ModelBingoSheetConditionInput
+) {
+  createBingoSheet(input: $input, condition: $condition) {
+    id
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateBingoSheetMutationVariables,
+  APITypes.CreateBingoSheetMutation
+>;
+export const updateBingoSheet = /* GraphQL */ `mutation UpdateBingoSheet(
+  $input: UpdateBingoSheetInput!
+  $condition: ModelBingoSheetConditionInput
+) {
+  updateBingoSheet(input: $input, condition: $condition) {
+    id
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateBingoSheetMutationVariables,
+  APITypes.UpdateBingoSheetMutation
+>;
+export const deleteBingoSheet = /* GraphQL */ `mutation DeleteBingoSheet(
+  $input: DeleteBingoSheetInput!
+  $condition: ModelBingoSheetConditionInput
+) {
+  deleteBingoSheet(input: $input, condition: $condition) {
+    id
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteBingoSheetMutationVariables,
+  APITypes.DeleteBingoSheetMutation
+>;
 export const createUser = /* GraphQL */ `mutation CreateUser(
   $input: CreateUserInput!
   $condition: ModelUserConditionInput
