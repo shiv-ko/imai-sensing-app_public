@@ -13,19 +13,19 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 }) => {
   return (
     <div style={styles.container}>
-      {themes.map((theme) => (
-        <button
-          key={theme}
-          onClick={() => onThemeChange(theme)}
-          style={{
-            ...styles.button,
-            backgroundColor: selectedTheme === theme ? '#00695c' : '#e0f7fa',
-            color: selectedTheme === theme ? 'white' : '#333',
-          }}
-        >
-          {theme}
-        </button>
-      ))}
+      <select
+        id="theme-select"
+        value={selectedTheme}
+        onChange={(e) => onThemeChange(e.target.value)}
+        style={styles.select}
+      >
+        <option value="">テーマを選んでください</option> {/* Default placeholder */}
+        {themes.map((theme) => (
+          <option key={theme} value={theme}>
+            {theme}
+          </option>
+        ))}
+      </select>
     </div>
   );
 };
@@ -40,22 +40,17 @@ const styles = {
     borderRadius: '10px',
     width: '100%',
   },
-  title: {
+  label: {
     fontSize: '24px',
-    marginBottom: '20px',
+    marginBottom: '10px',
   },
-  button: {
-    backgroundColor: '#81c784',
-    color: 'white',
-    border: 'none',
-    padding: '10px 20px',
-    borderRadius: '5px',
+  select: {
     fontSize: '18px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease',
-    marginTop: '20px', // テーマセレクターとボタンの間に余白を作成
+    padding: '10px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    width: '50%',
   },
 };
-
 
 export default ThemeSelector;
