@@ -79,7 +79,7 @@ const styles = {
     flexDirection: 'column' as const,
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100vh', // Take the full height of the viewport
+    height: '100vh',
   },
   card: {
     display: 'flex',
@@ -90,11 +90,10 @@ const styles = {
     borderRadius: '10px',
   },
   camera: {
-    width: '100%', // Camera will takes the full width of the card
-    height: '100%', // Adjust height to fit within the card
-    objectFit: 'cover', // Ensures the video covers the area nicely
-    borderRadius: '10px', // Ensure the camera feed follows the card's border-radius
-  },
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    borderRadius: '10px',
   button: {
     marginTop: '20px',
     padding: '10px 20px',
