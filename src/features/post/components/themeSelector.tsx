@@ -19,7 +19,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         onChange={(e) => onThemeChange(e.target.value)}
         style={styles.select}
       >
-        <option value="">テーマを選んでください</option> {/* Default placeholder */}
+        <option value="">お題を選んでください</option> {/* Default placeholder */}
         {themes.map((theme) => (
           <option key={theme} value={theme}>
             {theme}

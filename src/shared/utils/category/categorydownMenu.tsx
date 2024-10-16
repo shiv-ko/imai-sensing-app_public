@@ -19,19 +19,24 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ selectedCategory, c
   const selectedOption = options.find(option => option.value === selectedCategory);
 
   return (
-    <div style={styles.container}>
-      <label htmlFor="category" style={styles.label}>Category: </label>
-      <Select
-        id="category"
-        value={selectedOption}
-        options={options}
-        onChange={(selectedOption) =>
-          onCategoryChange(selectedOption ? selectedOption.value : '')
-        }
-        styles={customStyles}
-      />
-    </div>
-  );
+  <div style={styles.container}>
+    <label htmlFor="category" style={styles.label}>お題: </label>
+    <Select
+      id="category"
+      value={selectedOption}
+      options={options}
+      onChange={(selectedOption) =>
+        onCategoryChange(selectedOption ? selectedOption.value : '')
+      }
+      styles={{
+        control: (base) => ({ ...base, ...styles.selectControl }),
+        menu: (base) => ({ ...base, ...styles.selectMenu }),
+        valueContainer: (base) => ({ ...base, ...styles.valueContainer }),
+        indicatorsContainer: (base) => ({ ...base, ...styles.indicatorsContainer }),
+      }}
+    />
+  </div>
+);
 };
 
 const styles = {
@@ -43,27 +48,19 @@ const styles = {
   label: {
     fontSize: '16px',
   },
-};
-
-
-const customStyles = {
-  control: (base: any) => ({
-      ...base,
-      minHeight: '40px', // Adjust height here
-      width: '300px', // Adjust width here
-      fontSize: '16px',
-  }),
-  menu: (base: any) => ({
-      ...base,
-      width: '300px', // Ensure the menu width matches the select box
-  }),
-  valueContainer: (base: any) => ({
-      ...base,
-      padding: '2px 8px', // Adjust padding for the inner content
-  }),
-  indicatorsContainer: (base: any) => ({
-      ...base,
-      height: '40px', // Match height of the select box
-  }),
+  selectControl: {
+    minHeight: '40px', // セレクトボックスの高さ
+    width: '300px', // セレクトボックスの幅
+    fontSize: '16px',
+  },
+  selectMenu: {
+    width: '300px', // セレクトボックスとメニューの幅を一致させる
+  },
+  valueContainer: {
+    padding: '2px 8px', // 内側のコンテンツの余白調整
+  },
+  indicatorsContainer: {
+    height: '40px', // セレクトボックスの高さに一致させる
+  },
 };
 export default CategoryDropdown;

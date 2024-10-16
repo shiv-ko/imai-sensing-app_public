@@ -1,3 +1,12 @@
 // categoriesList.ts
-export const categoriesList = ['All','Technology',  'Nature', 'Science','Art','テスト'];  // カテゴリリストを定義
-
+export const categoriesList = [
+  'すべて',  // 全てのカテゴリー
+  '防災器具の場所',  // 消火栓/消化器など
+  '道の名前',
+  '懐かしい場所',
+  '守りたい場所',
+  '友達に教えてあげたいこと',
+  '珍しいもの',
+  '危険な場所',
+  '景観が綺麗な場所'
+];  // カテゴリリストを定義

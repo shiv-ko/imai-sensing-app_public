@@ -8,7 +8,7 @@ const ThemeSelectPage: React.FC = () => {
   const router = useRouter();
   const [selectedTheme, setSelectedTheme] = useState('');
 
-  const filteredThemes = categoriesList.filter((theme) => theme !== 'All');
+  const filteredThemes = categoriesList.filter((theme) => theme !== 'すべて');
 
   const handleThemeChange = (theme: string) => {
     setSelectedTheme(theme);
@@ -25,7 +25,7 @@ const ThemeSelectPage: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>テーマを選択してください</h1>
+      <h1 style={styles.title}>お題を選択してください</h1>
       <ThemeSelector
         themes={filteredThemes}
         selectedTheme={selectedTheme}

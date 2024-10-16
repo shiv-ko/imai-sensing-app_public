@@ -36,7 +36,7 @@ interface Post {
 const PostMapPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>('すべて');
   const [loading, setLoading] = useState<boolean>(true); // ローディング状態を追加
   const [isMoreAvailable, setIsMoreAvailable] = useState<boolean>(true);
   const [userId, setUserId] = useState<string | null>(null); // ユーザーID用のステート
@@ -99,20 +99,16 @@ const PostMapPage: React.FC = () => {
     if (!isMoreAvailable && !isInitialLoad) return;
 
     let variables;
-    if (selectedCategory === 'All') {
+    if (selectedCategory === 'すべて') {
       variables = {
         postType: 'POST',
         filter: {
-          deleted: { eq: false },
-          reported: { eq: false },
         },
       };
     } else {
       variables = {
         postType: 'POST',
         filter: {
-          deleted: { eq: false },
-          reported: { eq: false },
           category: { eq: selectedCategory },
         },
       };
@@ -153,53 +149,52 @@ const PostMapPage: React.FC = () => {
     }
   }
 
-  const allCategories = categoriesList.includes('All')
+  const allCategories = categoriesList.includes('すべて')
     ? categoriesList
-    : ['All', ...categoriesList];
+    : ['すべて', ...categoriesList];
 
   return (
-  <div>
-    <div style={styles.top}>
-      <h1>マップ</h1>
-      <div style={styles.dropdownContainer}>
-        <CategoryDropdown
-          selectedCategory={selectedCategory}
-          categories={allCategories}
-          onCategoryChange={handleCategoryChange}
-        />
-      </div>
+    <div>
+      {loading ? (
+        <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
+      ) : (
+        userPosition && userId && (
+          <>
+            <div style={styles.dropdownContainer}>
+              <CategoryDropdown
+                selectedCategory={selectedCategory}
+                categories={allCategories}
+                onCategoryChange={handleCategoryChange}
+              />
+            </div>
+            <div style={styles.mapContainer}>
+              
+              <MapComponent 
+                userPosition={userPosition} 
+                posts={posts} 
+                userId={userId} // ここでuserIdを渡す
+              />
+            </div>
+        
+          </>
+          
+        )
+      )}
     </div>
-
-    {loading ? (
-      <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
-    ) : (
-      userPosition && userId && (
-        <div style={styles.mapContainer}>
-          <MapComponent 
-            userPosition={userPosition} 
-            posts={posts} 
-            userId={userId} // ここでuserIdを渡す
-          />
-        </div>
-      )
-    )}
-  </div>
 
   );
 };
 
 const styles = {
-  top: {
+  dropdownContainer: {
+    position: 'relative' as const,
+    zIndex: 5, // マップより高く設定
+    marginBottom: '10px',
+    marginTop: '10px',
     display: 'flex',
     flexDirection: 'column' as const,
     alignItems: 'center',
     width: '90%', // mapComponent.tsx の mapWrapperStyleの幅に合わせてる
-    margin: '0 auto',
-  },
-  dropdownContainer: {
-    position: 'relative' as const,
-    zIndex: 1000,
-    marginBottom: '10px',
   },
   mapContainer: {
     position: 'relative' as const,

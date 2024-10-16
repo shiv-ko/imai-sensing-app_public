@@ -45,7 +45,7 @@ const MoveToCurrentLocationButton: React.FC<{ userPosition: [number, number] }> 
   const map = useMap(); // マップインスタンスを取得
 
   const handleMoveToCurrentLocation = () => {
-    map.flyTo(userPosition, 13); // 現在地にズーム移動する
+    map.flyTo(userPosition, 18); // 現在地にズーム移動する
   };
 
   return (
@@ -99,7 +99,7 @@ const Markers: React.FC<{ posts: Post[]; userId: string }> = ({ posts, userId })
 const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts, userId }) => {
   return (
     <div style={mapWrapperStyle}>
-      <MapContainer center={userPosition} zoom={13} style={mapStyle}>
+      <MapContainer center={userPosition} zoom={16} style={mapStyle}>
         <TileLayer
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
