@@ -54,6 +54,7 @@ const PostPage: React.FC = () => {
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [user, setUser] = useState<GetCurrentUserOutput>();
   const [nickName,setNickName]=useState<string>();
+  const [userid,setUserid]=useState<string>();
 
   //ユーザの位置情報と認証情報を取得
   useEffect(() => {
@@ -103,6 +104,7 @@ const PostPage: React.FC = () => {
       setNickName(userAttributes.nickname || '');
       console.log('userAttributes:',userAttributes);
       console.log('userNickName',userAttributes.nickname);
+      setUserid(userAttributes.sub || '')
     } catch (error) {
       console.log(error);
     }
@@ -153,7 +155,7 @@ const PostPage: React.FC = () => {
     } = formData;
     //投稿するデータの定義
     const postData = {
-      userId: user?.userId ?? '',
+      userId: userid  || '',
       lat: parseFloat(lat),
       lng: parseFloat(lng),
       category:category,
@@ -166,18 +168,18 @@ const PostPage: React.FC = () => {
       imageUrl: image?.name ?? null,
       postedby:nickName,
     };
-
-    try {
+    console.log('user id',userid)
+    //画像があったら別でS3に保存
+      if (image) {
+        await uploadData({ key: image.name, data: image ,});
+      }
       //データをDBに保存。
       await client.graphql({
         query: createPostData,
         variables: { input: { ...postData, postedby: postData.postedby || '' } },
       });
 
-      //画像があったら別でS3に保存
-      if (image) {
-        await uploadData({ key: image.name, data: image });
-      }
+      
       //フォームのリセット
       setFormData({
         ...formData,
@@ -186,9 +188,8 @@ const PostPage: React.FC = () => {
       });
       //投稿完了したら前のテーマ選択のページに戻る。(連続で投稿ができないため)
       router.push('/camera/completion');
-    } catch (error) {
-      console.error('Error creating post:', error);
-    }
+
+   
   }
 
   function handleInputChange(

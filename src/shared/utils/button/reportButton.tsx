@@ -32,6 +32,7 @@ const ReportButton: React.FC<ReportButtonProps> = ({ postId }) => {
           input: {
             id: postId,
             reported: true, // reportedをtrueに変更
+            postType:'REPORTED'
           },
         },
       });
@@ -39,7 +40,7 @@ const ReportButton: React.FC<ReportButtonProps> = ({ postId }) => {
       alert('投稿が通報されました。');
     } catch (error) {
       console.error('Error reporting post:', error);
-      alert('通報に失敗しました。');
+      // alert('通報に失敗しました。');
     } finally {
       setLoading(false);
     }

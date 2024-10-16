@@ -10,6 +10,8 @@ const Header = () => {
   const handleGuide = () => {
     router.push('/guide'); // 使い方説明ページにリダイレクト
   };
+  
+
 
   return (
   <header style={styles.header}>
@@ -22,11 +24,21 @@ const Header = () => {
       <button style={styles.button} onClick={handleGuide}>使い方</button>
 
       {/* Authenticatorでラップしてサインアウト機能を提供 */}
-      <Authenticator>
-        {({ signOut }) => (
-          <button style={styles.button} onClick={signOut}>サインアウト</button>
-        )}
-      </Authenticator>
+       <Authenticator>
+          {({ signOut }) => (
+            <button
+              style={styles.button}
+              onClick={() => {
+                if (signOut && router) { // signOut と router が定義されているか確認
+                  signOut(); // サインアウト
+                  router.push('/signin'); // サインアウト後に /signin にリダイレクト
+                }
+              }}
+            >
+              サインアウト
+            </button>
+          )}
+        </Authenticator>
     </div>
   </header>
 );

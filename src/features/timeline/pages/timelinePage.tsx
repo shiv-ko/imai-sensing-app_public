@@ -62,13 +62,11 @@ const TimelinePage: React.FC = () => {
   setLoading(true);
 
   interface FilterType {
-    reported: { eq: boolean };
     category?: { eq: string }; // category プロパティを追加
   }
 
   // まず、フィルタの初期値を定義
   let filter: FilterType = {
-    reported: { eq: false }, // 通報されていない投稿を取得
   };
 
   // カテゴリが選択されている場合、フィルタにcategoryを追加

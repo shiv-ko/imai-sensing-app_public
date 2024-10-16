@@ -24,9 +24,10 @@ type User
   @model
   @auth(
     rules: [
-      { allow: owner, operations: [create, update, delete] }
-      { allow: private, operations: [read, update] }
-      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+      { allow: owner }
+      { allow: private, operations: [read] }
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["Admin"] }
     ]
   ) {
   id: ID!
@@ -57,7 +58,7 @@ type PostData
   postedby: String
   lat: Float!
   lng: Float!
-  category: String! @index(name: "postByCategory", sortKeyFields: ["updatedAt"]) # 新しいインデックス
+  category: String!
   comment: String!
   reported: Boolean!
   deleted: Boolean!
