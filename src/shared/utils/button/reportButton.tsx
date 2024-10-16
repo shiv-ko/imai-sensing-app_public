@@ -50,13 +50,16 @@ const ReportButton: React.FC<ReportButtonProps> = ({ postId }) => {
       onClick={handleReport}
       disabled={isReported || loading}
       style={{
+        marginTop: '12px',
+        padding: '6px 12px',
+        fontSize: '14px',
         backgroundColor: isReported ? 'gray' : '#ff4c4c',
         color: 'white',
-        padding: '8px 16px',
         border: 'none',
-        borderRadius: '4px',
+        borderRadius: '4px', 
         cursor: isReported || loading ? 'not-allowed' : 'pointer',
         opacity: loading ? 0.7 : 1,
+        transition: 'background-color 0.3s',
       }}
     >
       {isReported ? '通報済み' : '通報する'}

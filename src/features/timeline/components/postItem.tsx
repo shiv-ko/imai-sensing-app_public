@@ -58,15 +58,17 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
         <p style={styles.postedby}>投稿者: {post.postedby}</p>
         <p style={styles.comment}>コメント: {post.comment}</p>
 
+        {/* 通報ボタン */}
+        <div style={styles.buttonContainer}>
+          <ReportButton postId={post.id} />
+          <button onClick={toggleLocationModal} style={styles.locationButton}>
+            場所を確認する
+          </button>
+        </div>
+      </div>
+      <div style={styles.likeButtonContainer}>
         {/* いいねボタン */}
         <LikeButton postId={post.id} userId={currentUserId} />
-
-        {/* 通報ボタン */}
-        <ReportButton postId={post.id} />
-
-        <button onClick={toggleLocationModal} style={styles.locationButton}>
-          場所を確認する
-        </button>
       </div>
 
       {/* 画像モーダル */}
@@ -96,15 +98,18 @@ const styles = {
     padding: '16px',
     marginBottom: '16px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    alignItems: 'flex-start',
+    alignItems: 'space-between',
   },
   imageContainer: {
     marginRight: '20px',
-    textAlign: 'center' as const,
     cursor: 'pointer',
+    display: 'flex', // Flexbox layout to center content
+    flexDirection:'column' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
-    maxWidth: '150px',
+    maxWidth: '200px',
     borderRadius: '8px',
   },
   clickToEnlarge: {
@@ -112,24 +117,39 @@ const styles = {
     color: '#888',
     marginTop: '8px',
   },
+  likeButtonContainer:{
+    display:'flex',
+    justifyContent:'flex-start'
+  },
   textContainer: {
     display: 'flex',
     flexDirection: 'column' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
   },
   category: {
     fontSize: '18px',
     fontWeight: 'bold',
     color: '#333',
+    textAlign:'center' as const,
   },
   postedby: {
     fontStyle: 'italic',
     color: '#333',
     marginTop: '5px',
+    textAlign:'center' as const,
   },
   comment: {
     fontSize: '16px',
     marginTop: '12px',
     color: '#555',
+    textAlign:'center' as const,
+  },
+  buttonContainer:{
+    display: 'flex',
+    gap: '12px',
+    marginTop: '12px',
   },
   locationButton: {
     marginTop: '12px',

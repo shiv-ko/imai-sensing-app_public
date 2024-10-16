@@ -1,6 +1,8 @@
 // LikeButton.tsx
 
 import React, { useState, useEffect } from 'react';
+import Heart from "react-animated-heart";
+
 import { createLike, deleteLike } from '../../../graphql/mutations'; // いいね作成と削除のクエリ
 import { listLikes } from '../../../graphql/queries'; // いいねのリストを取得
 import { generateClient } from 'aws-amplify/api';
@@ -84,13 +86,28 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId, userId }) => {
   };
 
   return (
-    <div>
-      <button onClick={isLiked ? handleUnlike : handleLike}>
-        {isLiked ? 'いいね解除' : 'いいね'}
-      </button>
-      <p>{likesCount} いいね</p>
+    <div style={styles.likeContainer}>
+      <Heart
+        isClick={isLiked}
+        onClick={isLiked ? handleUnlike : handleLike}
+      />
+      {/* <p style={styles.likesCount}>{likesCount} いいね</p> */}
+      <p style={styles.likesCount}>{likesCount}</p>
     </div>
   );
 };
 
+const styles = {
+  likeContainer: {
+    display: 'flex', // This will align the heart and the text horizontally
+    alignItems: 'center', // Vertically center the heart and text
+    justifyContent:'center',
+    padding:'30px'
+  },
+  likesCount: {
+    margin: 0, // Remove default margin from the <p> element
+    fontSize: '14px', // Adjust the size of the likes count if needed
+    fontWeight: 'bold'
+  },
+};
 export default LikeButton;

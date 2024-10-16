@@ -120,15 +120,17 @@ const TimelinePage: React.FC = () => {
 
   return (
     <div style={styles.timeline}>
-      <CategoryDropdown
-        selectedCategory={selectedCategory}
-        categories={categoriesList}
-        onCategoryChange={setSelectedCategory}
-      />
-
-      <div>
-        <p>Selected Category: {selectedCategory}</p>
+      <div style = {styles.dropdown}>
+        <CategoryDropdown
+          selectedCategory={selectedCategory}
+          categories={categoriesList}
+          onCategoryChange={setSelectedCategory}
+        />
       </div>
+
+      {/* <div>
+        <p>Selected Category: {selectedCategory}</p>
+      </div> */}
 
       {loading && posts.length === 0 ? (
         <p>Loading...</p>
@@ -139,17 +141,45 @@ const TimelinePage: React.FC = () => {
           ))}
         </ul>
       )}
-
-      {isMoreAvailable && (
-        <button onClick={() => fetchPostData(nextToken)} disabled={loading}>
-          {loading ? 'Loading...' : 'Load More'}
-        </button>
-      )}
+      <div style={styles.container}>
+        <div style = {styles.loadMoreContainer}>
+            {isMoreAvailable && (
+              <button
+                onClick={() => fetchPostData(nextToken)}
+                disabled={loading}
+                style={{
+                  marginTop: '12px',
+                  padding: '6px 12px',
+                  fontSize: '14px',
+                  backgroundColor: loading ? 'gray' : '#296218',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1,
+                  transition: 'background-color 0.3s',
+                }}
+              >
+            {loading ? 'Loading...' : 'Load More'}
+          </button>
+        )}
+        </div>
+      </div>
     </div>
   );
 };
 
 const styles = {
+    container: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      border: 'none',
+      backgroundColor: 'transparent',
+      padding: '16px',
+      marginBottom: '16px',
+      boxShadow: 'none',
+  },
   timeline: {
     padding: '20px',
     backgroundColor: '#f4f4f4',
@@ -159,6 +189,19 @@ const styles = {
     listStyleType: 'none',
     padding: '0',
   },
+  dropdown:{
+    display:'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '10px'
+  },
+  loadMoreContainer:{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%', 
+  }
+
 };
 
 export default withAuthenticator(TimelinePage);
