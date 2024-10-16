@@ -201,7 +201,7 @@ const PostPage: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>投稿ページ</h1>
+      
       {loadingLocation ? (
         <p>位置情報を取得中...</p>
       ) : (

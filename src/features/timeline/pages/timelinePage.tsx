@@ -34,7 +34,7 @@ interface Post {
 const TimelinePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>(''); // 現在のユーザーIDを保存
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>('すべて');
   const [nextToken, setNextToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [isMoreAvailable, setIsMoreAvailable] = useState<boolean>(true);
@@ -70,7 +70,7 @@ const TimelinePage: React.FC = () => {
   };
 
   // カテゴリが選択されている場合、フィルタにcategoryを追加
-  if (selectedCategory !== 'All') {
+  if (selectedCategory !== 'すべて') {
     filter = {
       ...filter,
       category: { eq: selectedCategory }, // 選択されたカテゴリで絞り込み

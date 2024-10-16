@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useRecoilState } from 'recoil';
 import { capturedImageAtom } from '../states/imageAtom';
 import { useSearchParams } from 'next/navigation';
-import { background } from '@chakra-ui/react';
+
 
 const CameraPage: React.FC = () => {
   const router = useRouter();
