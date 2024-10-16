@@ -158,26 +158,69 @@ const PostMapPage: React.FC = () => {
     : ['All', ...categoriesList];
 
   return (
-    <div>
-      <h2>マップビュー</h2>
-      <CategoryDropdown
-        selectedCategory={selectedCategory}
-        categories={allCategories}
-        onCategoryChange={handleCategoryChange}
-      />
-      {loading ? (
-        <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
-      ) : (
-        userPosition && userId && (
-          <MapComponent 
-            userPosition={userPosition} 
-            posts={posts} 
-            userId={userId} // ここでuserIdを渡す
-          />
-        )
-      )}
-    </div>
+    // <div>
+    //   <h2>マップビュー</h2>
+    //   <CategoryDropdown
+    //     selectedCategory={selectedCategory}
+    //     categories={allCategories}
+    //     onCategoryChange={handleCategoryChange}
+    //   />
+    //   {loading ? (
+    //     <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
+    //   ) : (
+    //     userPosition && userId && (
+    //       <MapComponent 
+    //         userPosition={userPosition} 
+    //         posts={posts} 
+    //         userId={userId} // ここでuserIdを渡す
+    //       />
+    //     )
+    //   )}
+    // </div>
+    <div style={styles.mapPage}>
+  <h2>マップビュー</h2>
+  <div style={styles.dropdownContainer}>
+    <CategoryDropdown
+      selectedCategory={selectedCategory}
+      categories={allCategories}
+      onCategoryChange={handleCategoryChange}
+    />
+  </div>
+
+  {loading ? (
+    <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
+  ) : (
+    userPosition && userId && (
+      <div style={styles.mapContainer}>
+        <MapComponent 
+          userPosition={userPosition} 
+          posts={posts} 
+          userId={userId} // ここでuserIdを渡す
+        />
+      </div>
+    )
+  )}
+</div>
+
   );
 };
+
+const styles = {
+  mapPage: {
+  },
+  dropdownContainer: {
+    position: 'relative' as const,
+    zIndex: 1000,
+  },
+  mapContainer: {
+    position: 'relative' as const,
+    zIndex: 1,
+  },
+};
+
+
+
+
+
 
 export default PostMapPage;

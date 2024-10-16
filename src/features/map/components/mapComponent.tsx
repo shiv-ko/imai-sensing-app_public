@@ -124,7 +124,7 @@ const mapWrapperStyle: React.CSSProperties = {
 };
 
 const mapStyle: React.CSSProperties = {
-  height: '500px',
+  height: '60vh',
   width: '100%',
 };
 
