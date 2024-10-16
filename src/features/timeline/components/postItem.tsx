@@ -123,9 +123,9 @@ const styles = {
   textContainer: {
     display: 'flex',
     flexDirection: 'column' as const,
-    justifyContent: 'center', // Vertically center the category within the textContainer
-    alignItems: 'center', // Horizontally center the elements (category) in the textContainer
-    flex: 1, // Take the remaining space to the right of the image container
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
   },
   category: {
     fontSize: '18px',

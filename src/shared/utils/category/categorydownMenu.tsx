@@ -67,12 +67,12 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ selectedCategory, c
 
 const styles = {
   container: {
-    display: 'flex', // Use flexbox to align the label and select side by side
-    alignItems: 'center', // Align items vertically in the center
-    gap: '10px', // Add space between the label and select
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
   },
   label: {
-    fontSize: '16px', // Customize label font size if needed
+    fontSize: '16px',
   },
 };
 
