@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useRecoilState } from 'recoil';
 import { capturedImageAtom } from '../states/imageAtom';
 import { useSearchParams } from 'next/navigation';
+import { background } from '@chakra-ui/react';
 
 const CameraPage: React.FC = () => {
   const router = useRouter();
@@ -61,11 +62,49 @@ const CameraPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <video ref={videoRef} autoPlay playsInline style={{ width: '100%' }} />
-      <button onClick={takePhoto}>撮影</button>
+    <div style={styles.content}>
+      <div style={styles.card}>
+        <video ref={videoRef} autoPlay playsInline style={styles.camera} />
+      </div>
+      <button onClick={takePhoto} style={styles.button}>
+        撮影
+      </button>
     </div>
   );
+};
+
+const styles = {
+  content: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh', // Take the full height of the viewport
+  },
+  card: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '50%',
+    height: '60%',
+    borderRadius: '10px',
+  },
+  camera: {
+    width: '100%', // Camera will takes the full width of the card
+    height: '100%', // Adjust height to fit within the card
+    objectFit: 'cover', // Ensures the video covers the area nicely
+    borderRadius: '10px', // Ensure the camera feed follows the card's border-radius
+  },
+  button: {
+    marginTop: '20px',
+    padding: '10px 20px',
+    fontSize: '16px',
+    backgroundColor: '#4caf50',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
 };
 
 export default CameraPage;
