@@ -58,10 +58,6 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
         <p style={styles.postedby}>投稿者: {post.postedby}</p>
         <p style={styles.comment}>コメント: {post.comment}</p>
 
-        {/* いいねボタン */}
-        
-        <LikeButton postId={post.id} userId={currentUserId} />
-
         {/* 通報ボタン */}
         <div style={styles.buttonContainer}>
           <ReportButton postId={post.id} />
@@ -69,6 +65,10 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
             場所を確認する
           </button>
         </div>
+      </div>
+      <div style={styles.likeButtonContainer}>
+        {/* いいねボタン */}
+        <LikeButton postId={post.id} userId={currentUserId} />
       </div>
 
       {/* 画像モーダル */}
@@ -105,8 +105,8 @@ const styles = {
     cursor: 'pointer',
     display: 'flex', // Flexbox layout to center content
     flexDirection:'column' as const,
-    justifyContent: 'center', // Center the image vertically
-    alignItems: 'center', // Center the image horizontally
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
     maxWidth: '200px',
@@ -116,6 +116,9 @@ const styles = {
     fontSize: '12px',
     color: '#888',
     marginTop: '8px',
+  },
+  likeButtonContainer:{
+    display:'flex'
   },
   textContainer: {
     display: 'flex',
@@ -128,7 +131,6 @@ const styles = {
     fontSize: '18px',
     fontWeight: 'bold',
     color: '#333',
-    // textAlign: 'center', // Center the text within the container
   },
   postedby: {
     fontStyle: 'italic',
@@ -141,9 +143,9 @@ const styles = {
     color: '#555',
   },
   buttonContainer:{
-    display: 'flex', // Ensure buttons are side by side
-    gap: '12px', // Adds space between buttons
-    marginTop: '12px', // Adjusts the spacing of the button container
+    display: 'flex',
+    gap: '12px',
+    marginTop: '12px',
   },
   locationButton: {
     marginTop: '12px',
