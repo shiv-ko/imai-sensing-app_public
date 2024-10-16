@@ -118,7 +118,8 @@ const styles = {
     marginTop: '8px',
   },
   likeButtonContainer:{
-    display:'flex'
+    display:'flex',
+    justifyContent:'flex-start'
   },
   textContainer: {
     display: 'flex',
@@ -131,16 +132,19 @@ const styles = {
     fontSize: '18px',
     fontWeight: 'bold',
     color: '#333',
+    textAlign:'center' as const,
   },
   postedby: {
     fontStyle: 'italic',
     color: '#333',
     marginTop: '5px',
+    textAlign:'center' as const,
   },
   comment: {
     fontSize: '16px',
     marginTop: '12px',
     color: '#555',
+    textAlign:'center' as const,
   },
   buttonContainer:{
     display: 'flex',
