@@ -64,7 +64,7 @@ const CameraPage: React.FC = () => {
   return (
     <div style={styles.content}>
       <div style={styles.card}>
-        <video ref={videoRef} autoPlay playsInline style={styles.camera} />
+      <video ref={videoRef} autoPlay playsInline style={styles.camera as React.CSSProperties} />
       </div>
       <button onClick={takePhoto} style={styles.button}>
         撮影
@@ -94,7 +94,8 @@ const styles = {
     height: '100%',
     objectFit: 'cover',
     borderRadius: '10px',
-  button: {
+  },
+    button: {
     marginTop: '20px',
     padding: '10px 20px',
     fontSize: '16px',
