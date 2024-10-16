@@ -158,59 +158,48 @@ const PostMapPage: React.FC = () => {
     : ['All', ...categoriesList];
 
   return (
-    // <div>
-    //   <h2>マップビュー</h2>
-    //   <CategoryDropdown
-    //     selectedCategory={selectedCategory}
-    //     categories={allCategories}
-    //     onCategoryChange={handleCategoryChange}
-    //   />
-    //   {loading ? (
-    //     <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
-    //   ) : (
-    //     userPosition && userId && (
-    //       <MapComponent 
-    //         userPosition={userPosition} 
-    //         posts={posts} 
-    //         userId={userId} // ここでuserIdを渡す
-    //       />
-    //     )
-    //   )}
-    // </div>
-    <div style={styles.mapPage}>
-  <h2>マップビュー</h2>
-  <div style={styles.dropdownContainer}>
-    <CategoryDropdown
-      selectedCategory={selectedCategory}
-      categories={allCategories}
-      onCategoryChange={handleCategoryChange}
-    />
-  </div>
-
-  {loading ? (
-    <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
-  ) : (
-    userPosition && userId && (
-      <div style={styles.mapContainer}>
-        <MapComponent 
-          userPosition={userPosition} 
-          posts={posts} 
-          userId={userId} // ここでuserIdを渡す
+  <div>
+    <div style={styles.top}>
+      <h1>マップ</h1>
+      <div style={styles.dropdownContainer}>
+        <CategoryDropdown
+          selectedCategory={selectedCategory}
+          categories={allCategories}
+          onCategoryChange={handleCategoryChange}
         />
       </div>
-    )
-  )}
-</div>
+    </div>
+
+    {loading ? (
+      <p>ロード中...</p> // 位置情報の読み込みが完了するまで表示
+    ) : (
+      userPosition && userId && (
+        <div style={styles.mapContainer}>
+          <MapComponent 
+            userPosition={userPosition} 
+            posts={posts} 
+            userId={userId} // ここでuserIdを渡す
+          />
+        </div>
+      )
+    )}
+  </div>
 
   );
 };
 
 const styles = {
-  mapPage: {
+  top: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    width: '90%', // mapComponent.tsx の mapWrapperStyleの幅に合わせてる
+    margin: '0 auto',
   },
   dropdownContainer: {
     position: 'relative' as const,
     zIndex: 1000,
+    marginBottom: '10px',
   },
   mapContainer: {
     position: 'relative' as const,
