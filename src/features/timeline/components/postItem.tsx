@@ -59,14 +59,16 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
         <p style={styles.comment}>コメント: {post.comment}</p>
 
         {/* いいねボタン */}
+        
         <LikeButton postId={post.id} userId={currentUserId} />
 
         {/* 通報ボタン */}
-        <ReportButton postId={post.id} />
-
-        <button onClick={toggleLocationModal} style={styles.locationButton}>
-          場所を確認する
-        </button>
+        <div style={styles.buttonContainer}>
+          <ReportButton postId={post.id} />
+          <button onClick={toggleLocationModal} style={styles.locationButton}>
+            場所を確認する
+          </button>
+        </div>
       </div>
 
       {/* 画像モーダル */}
@@ -96,15 +98,18 @@ const styles = {
     padding: '16px',
     marginBottom: '16px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    alignItems: 'flex-start',
+    alignItems: 'space-between',
   },
   imageContainer: {
     marginRight: '20px',
-    textAlign: 'center' as const,
     cursor: 'pointer',
+    display: 'flex', // Flexbox layout to center content
+    flexDirection:'column' as const,
+    justifyContent: 'center', // Center the image vertically
+    alignItems: 'center', // Center the image horizontally
   },
   image: {
-    maxWidth: '150px',
+    maxWidth: '200px',
     borderRadius: '8px',
   },
   clickToEnlarge: {
@@ -115,11 +120,15 @@ const styles = {
   textContainer: {
     display: 'flex',
     flexDirection: 'column' as const,
+    justifyContent: 'center', // Vertically center the category within the textContainer
+    alignItems: 'center', // Horizontally center the elements (category) in the textContainer
+    flex: 1, // Take the remaining space to the right of the image container
   },
   category: {
     fontSize: '18px',
     fontWeight: 'bold',
     color: '#333',
+    // textAlign: 'center', // Center the text within the container
   },
   postedby: {
     fontStyle: 'italic',
@@ -130,6 +139,11 @@ const styles = {
     fontSize: '16px',
     marginTop: '12px',
     color: '#555',
+  },
+  buttonContainer:{
+    display: 'flex', // Ensure buttons are side by side
+    gap: '12px', // Adds space between buttons
+    marginTop: '12px', // Adjusts the spacing of the button container
   },
   locationButton: {
     marginTop: '12px',
