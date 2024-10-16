@@ -120,15 +120,17 @@ const TimelinePage: React.FC = () => {
 
   return (
     <div style={styles.timeline}>
-      <CategoryDropdown
-        selectedCategory={selectedCategory}
-        categories={categoriesList}
-        onCategoryChange={setSelectedCategory}
-      />
-
-      <div>
-        <p>Selected Category: {selectedCategory}</p>
+      <div style = {styles.dropdown}>
+        <CategoryDropdown
+          selectedCategory={selectedCategory}
+          categories={categoriesList}
+          onCategoryChange={setSelectedCategory}
+        />
       </div>
+
+      {/* <div>
+        <p>Selected Category: {selectedCategory}</p>
+      </div> */}
 
       {loading && posts.length === 0 ? (
         <p>Loading...</p>
@@ -159,6 +161,12 @@ const styles = {
     listStyleType: 'none',
     padding: '0',
   },
+  dropdown:{
+    display:'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '10px'
+  }
 };
 
 export default withAuthenticator(TimelinePage);
