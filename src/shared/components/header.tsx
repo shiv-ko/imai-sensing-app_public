@@ -1,6 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { signOut } from 'aws-amplify/auth';
+
 
 const Header = () => {
   const router = useRouter();
@@ -23,22 +24,17 @@ const Header = () => {
       {/* 使い方ページに移動するボタン */}
       <button style={styles.button} onClick={handleGuide}>使い方</button>
 
-      {/* Authenticatorでラップしてサインアウト機能を提供 */}
-       <Authenticator>
-          {({ signOut }) => (
-            <button
-              style={styles.button}
-              onClick={() => {
-                if (signOut && router) { // signOut と router が定義されているか確認
-                  signOut(); // サインアウト
-                  router.push('/signin'); // サインアウト後に /signin にリダイレクト
-                }
-              }}
-            >
-              サインアウト
-            </button>
-          )}
-        </Authenticator>
+      <button
+        style={styles.button}
+        onClick={() => {
+          if (signOut && router) { // signOut と router が定義されているか確認
+            signOut(); // サインアウト
+            router.push('/signin'); // サインアウト後に /signin にリダイレクト
+          }
+        }}
+      >
+        サインアウト
+      </button>
     </div>
   </header>
 );

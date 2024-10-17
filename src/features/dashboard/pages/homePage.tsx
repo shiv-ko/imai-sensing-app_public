@@ -44,8 +44,6 @@ const HomePage: React.FC = () => {
   }, []);
 
   const userId = userSession?.tokens?.idToken?.payload?.sub;
-  const nickname = userSession?.tokens?.idToken?.payload?.nickname;
-  const displayName = typeof nickname === 'string' ? nickname : 'ユーザー';
 
   if (loading) {
     return <div>読み込み中...</div>;
@@ -58,7 +56,6 @@ const HomePage: React.FC = () => {
   return (
     <div>
       <Header />
-      <h1>ようこそ、{displayName}さん！</h1>
       {userId ? (
         // Bingo コンポーネントを表示
         <Bingo userId={userId} initialScore={userScore} />
