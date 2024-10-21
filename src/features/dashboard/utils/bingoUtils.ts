@@ -2,8 +2,8 @@
 
 import { categoriesList } from '../../../shared/utils/category/categoryList';
 
-// "All"を除いたカテゴリリスト
-const filteredCategories = categoriesList.filter(category => category !== 'All');
+// 'すべて' カテゴリーを除外
+const filteredCategories = categoriesList.filter(category => category.trim() !== 'すべて');
 
 // ガチャ関連の定数と関数
 const basePointValues = [1, 2, 3, 4, 5, 6, 7, 8, 10, 15, 20, 30, 50];
@@ -45,22 +45,35 @@ export function pullGacha(completedLines: number): { points: number } {
   return { points };
 }
 
-/**
- * ビンゴシートを生成する関数
- * 各セルにカテゴリ名とisCompletedフラグを持たせる
- * @returns 生成されたビンゴシート（カテゴリ名とフラグのオブジェクト配列）
- */
-export function generateBingoSheet(): { category: string; isCompleted: boolean }[] {
-  const newBingoSheet = Array(9)
-    .fill(null)
-    .map(() => {
-      const randomIndex = Math.floor(Math.random() * filteredCategories.length);
-      return {
-        category: filteredCategories[randomIndex],
-        isCompleted: false // 初期状態は未完了
-      };
-    });
 
-  console.log('ビンゴシート生成:', newBingoSheet);
+
+export const generateBingoSheet = () => {
+  // カテゴリーの数を確認
+  if (filteredCategories.length < 9) {
+    throw new Error('カテゴリーの数が9未満です。');
+  }
+
+  // Fisher-Yatesアルゴリズムを使用してカテゴリーをシャッフル
+  const shuffledCategories = [...filteredCategories];
+  for (let i = shuffledCategories.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledCategories[i], shuffledCategories[j]] = [shuffledCategories[j], shuffledCategories[i]];
+  }
+
+  // シャッフルされたカテゴリーから最初の9つを選択
+  const selectedCategories = shuffledCategories.slice(0, 9);
+
+  // 重複がないか確認（デバッグ用）
+  const uniqueCategories = new Set(selectedCategories);
+  if (uniqueCategories.size !== selectedCategories.length) {
+    throw new Error('選択されたカテゴリーに重複があります。');
+  }
+
+  // ビンゴシートを生成
+  const newBingoSheet = selectedCategories.map(category => ({
+    category,
+    isCompleted: false,
+  }));
+
   return newBingoSheet;
-}
+};
