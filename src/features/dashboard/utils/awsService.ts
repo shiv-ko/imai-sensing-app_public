@@ -3,9 +3,9 @@
 
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import awsExports from '../../../aws-exports';
-import { updateUser, createBingoSheet, updateBingoSheet } from '../../../graphql/mutations';
+import { updateUser, createBingoSheet, updateBingoSheet, createUser } from '../../../graphql/mutations';
 import { getUser, bingoSheetsByUserId, getBingoSheet } from '../../../graphql/queries';
 import { 
   UpdateUserMutationVariables, 
@@ -19,7 +19,9 @@ import {
   GetBingoSheetQuery,
   GetBingoSheetQueryVariables,
   UpdateBingoSheetMutation,
-  UpdateBingoSheetInput
+  UpdateBingoSheetInput,
+  CreateUserMutation,
+  CreateUserMutationVariables
 } from '../../../API';
 import { GraphQLResult } from '@aws-amplify/api-graphql';
 
@@ -108,7 +110,7 @@ export async function updateUserScore(userId: string, newScore: number): Promise
     return result.data?.updateUser as UpdateUserMutation['updateUser'];
   } catch (error) {
     console.error('ユーザースコア更新エラー:', error);
-    throw new Error('ポイントの更新に失敗しました。');
+    throw new Error('ポイントの更新に失敗しま���た。');
   }
 }
 
@@ -182,7 +184,7 @@ export async function markCategoryAsCompleted(sheetId: string, category: string)
     const input: UpdateBingoSheetInput = {
       id: sheetId,
       cells: updatedCells,
-      // 必要に応じて他のフィールドも更新
+      // ���要に応じて他のフィールドも更新
     };
 
     const updateResult = await client.graphql<UpdateBingoSheetMutation>({
@@ -249,7 +251,7 @@ export async function fetchBingoSheet(userId: string): Promise<BingoSheet | null
       return null;
     }
 
-    // クライアント側で最新のビンゴシートを選択（updatedAt に基づいてソート）
+    // クライ��ントで最新のビンゴシートを選択（updatedAt に基づいてソート）
     allSheets.sort((a, b) => {
       if (!a || !b) return 0;
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
@@ -398,3 +400,35 @@ export async function createOrUpdateBingoSheet(userId: string, input: CreateBing
     throw new Error('ビンゴシートの作成または更新に失敗しました。');
   }
 }
+
+
+/**
+ * ユーザーが存在しない場合に新規作成する関数
+ * @param userId ユーザーID
+ * @returns 作成されたユーザーのデータまたはnull
+ */
+export async function createUserIfNotExists(userId: string): Promise<CreateUserMutation['createUser'] | null> {
+  try {
+    const userAttributes = await fetchUserAttributes();
+    const nickname = userAttributes.nickname || userId;
+
+    const input: CreateUserMutationVariables['input'] = {
+      id: userId,
+      score: 0,
+      displayName: nickname,
+    };
+
+    const result = await client.graphql<CreateUserMutation>({
+      query: createUser,
+      variables: { input },
+    }) as GraphQLResult<CreateUserMutation>;
+
+    console.log('新規ユーザー作成:', JSON.stringify(result.data?.createUser, null, 2));
+    return result.data?.createUser as CreateUserMutation['createUser'];
+  } catch (error) {
+    console.error('ユーザー情報取得エラー:', error);
+    console.log('ユーザー情報の取得に失敗しましたが、処理を続行します。');
+    return null;
+  }
+}
+

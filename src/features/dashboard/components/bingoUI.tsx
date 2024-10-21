@@ -358,8 +358,9 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       const sheet = await fetchBingoSheet(userId);
       if (sheet && sheet.cells && sheet.cells.length > 0) {
         setBingoSheet(sheet.cells);
-        setCurrentSheetId(sheet.id); // シートIDを状態に保存
-        console.log('保存されたビンゴシートをロードしました:', sheet.cells);
+        setCurrentSheetId(sheet.id);
+        console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
+        
         // ビンゴラインをチェック
         const completed = checkBingoLines(sheet.cells);
         if (completed > 0) {
@@ -368,13 +369,13 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           console.log(`ビンゴラインが${completed}本完成しました。`);
         }
       } else {
-        console.log('保存されたビンゴシートが存在しません。');
-        // 新しいシートを生成しない
+        console.log('保存されたビンゴシートが存在しません。新しいシートを生成します。');
+        await handleGenerateBingo();
       }
     } catch (error) {
       console.error('ビンゴシートの取得に失敗しました:', error);
     }
-  }, [userId, checkBingoLines]);
+  }, [userId, checkBingoLines, handleGenerateBingo]);
 
   useEffect(() => {
     setTotalPoints(initialScore);

@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import awsExports from './../../aws-exports';
 import '@aws-amplify/ui-react/styles.css';
 import { useRouter } from 'next/navigation';
+import { createUserIfNotExists } from '../../features/dashboard/utils/awsService'; // 適切なパスに変更してください
 
 Amplify.configure({ ...awsExports });
 
@@ -49,11 +50,15 @@ export default function App() {
 
   const handleButtonClick = async () => {
     try {
-      const currentUser =await fetchUserAttributes();
+      const currentUser = await fetchUserAttributes();
       console.log(currentUser);
-      const username = currentUser.nickname|| '' 
+      const username = currentUser.nickname || '';
       setDisplayName(username);
       setButtonClicked(true);
+      
+      // ユーザーのデータを取得し、存在しない場合は新規作成する関数を呼び出す
+      await createUserIfNotExists(currentUser.sub || ''); // currentUser.subがundefinedの場合は空文字を渡す
+
       setTimeout(() => {
         router.push('/home');
       }, 2000); // 2秒後にリダイレクト
