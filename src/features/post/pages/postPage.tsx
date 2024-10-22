@@ -14,7 +14,6 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useRecoilValue } from 'recoil';
 import { capturedImageAtom } from '../states/imageAtom';
-import updateUserScore from '@/hooks/updatePoint';
 
 Amplify.configure(awsExports);
 
@@ -192,8 +191,8 @@ const PostPage: React.FC = () => {
         variables: { input: { ...postData, postedby: postData.postedby || '' } },
       });
 
-      const updatedUser = await updateUserScore(userid || '', 1);
-      console.log('ユーザーのスコアが更新されました:', updatedUser.score);
+      // const updatedUser = await updateUserScore(userid || '', 1);
+      // console.log('ユーザーのスコアが更新されました:', updatedUser.score);
 
 
       // フォームのリセット
