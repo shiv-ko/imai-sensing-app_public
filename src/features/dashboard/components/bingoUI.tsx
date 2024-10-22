@@ -207,14 +207,14 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
 };
 
 // Bingo コンポーネント
-export const Bingo: React.FC<BingoProps> = ({ userId }) => {
+export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   const [bingoSheet, setBingoSheet] = useState<any[]>([]);
   const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
   const [bingoSheetExists, setBingoSheetExists] = useState(false);
   const [showGachaButton, setShowGachaButton] = useState(false);
   const [showGachaPopup, setShowGachaPopup] = useState(false);
   const [completedLines, setCompletedLines] = useState(0);
-  const [totalPoints, setTotalPoints] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(initialScore);  
   const [bingoKey, setBingoKey] = useState(0);
   const boardRef = useRef<BingoBoardHandle>(null);
 
@@ -268,7 +268,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
         setBingoSheet(sheet.cells);
         setCurrentSheetId(sheet.id);
         setBingoSheetExists(true);
-        console.log('ビ��ゴシートをロードしました。セル数:', sheet.cells.length);
+        console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
         return sheet;
       } else {
         console.log('保存されたビンゴシートが存在しません。');
@@ -374,10 +374,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
     initializeBingoAndPosts();
   }, [bingoSheetExists, loadBingoSheet, loadPostsAndUpdateBingoSheet]);
 
-  useEffect(() => {
-    setTotalPoints(0);
-  }, []);
-
   const addPoints = useCallback(
     async (points: number) => {
       try {
@@ -481,7 +477,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
           background-color: #e0e0e0;
           border: 1px solid #fbbf24;
           border-radius: 0.5rem;
-          cursor: default; /* クリックで���ないようにカーソルを変更 */
+          cursor: default; /* クリックでないようにカーソルを変更 */
           font-size: 0.9rem; /* フォントサイズを調整 */
           font-weight: bold;
           color: #4a4a4a;
@@ -665,7 +661,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
         )}
       </div>
 
-      {/* ガチャポップアップ */}
+      {/* ガ��ャポップアップ */}
       <AnimatePresence>
         {showGachaPopup && (
           <BingoGachaPopup
@@ -679,3 +675,4 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
     </div>
   );
 };
+
