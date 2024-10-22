@@ -207,18 +207,16 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
 };
 
 // Bingo コンポーネント
-export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
+export const Bingo: React.FC<BingoProps> = ({ userId }) => {
+  const [bingoSheet, setBingoSheet] = useState<any[]>([]);
+  const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
+  const [bingoSheetExists, setBingoSheetExists] = useState(false);
   const [showGachaButton, setShowGachaButton] = useState(false);
   const [showGachaPopup, setShowGachaPopup] = useState(false);
-  const [bingoKey, setBingoKey] = useState(0);
   const [completedLines, setCompletedLines] = useState(0);
-  const [totalPoints, setTotalPoints] = useState(initialScore);
-  const [bingoSheet, setBingoSheet] = useState<{ category: string; isCompleted: boolean }[]>([]);
-  const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
-  const [bingoSheetCreatedAt, setBingoSheetCreatedAt] = useState<Date | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const boardRef = useRef<BingoBoardHandle | null>(null);
-  const [bingoSheetExists, setBingoSheetExists] = useState(false);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [bingoKey, setBingoKey] = useState(0);
+  const boardRef = useRef<BingoBoardHandle>(null);
 
   const checkBingoLines = useCallback((sheet: { category: string; isCompleted: boolean }[]): number => {
     const lines = [
@@ -298,8 +296,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       if (sheet && sheet.cells && sheet.cells.length > 0) {
         setBingoSheet(sheet.cells);
         setCurrentSheetId(sheet.id);
-        const createdAt = sheet.createdAt ? new Date(sheet.createdAt) : null;
-        setBingoSheetCreatedAt(createdAt);
         setBingoSheetExists(true);
         console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
         return sheet;
@@ -392,7 +388,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
 
   useEffect(() => {
     const initializeBingoAndPosts = async () => {
-      if (isInitialized) return;
+      if (bingoSheetExists) return;
       const sheet = await loadBingoSheet();
       console.log('ビンゴシートのロード完了');
       if (sheet && sheet.createdAt) {
@@ -402,14 +398,14 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       } else {
         console.log('ビンゴシートの作成日時が設定されていません。');
       }
-      setIsInitialized(true);
+      setBingoSheetExists(true);
     };
     initializeBingoAndPosts();
-  }, [isInitialized, loadBingoSheet, loadPostsAndUpdateBingoSheet]);
+  }, [bingoSheetExists, loadBingoSheet, loadPostsAndUpdateBingoSheet]);
 
   useEffect(() => {
-    setTotalPoints(initialScore);
-  }, [initialScore]);
+    setTotalPoints(0);
+  }, []);
 
   const addPoints = useCallback(
     async (points: number) => {

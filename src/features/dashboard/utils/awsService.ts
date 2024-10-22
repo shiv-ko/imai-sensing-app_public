@@ -54,18 +54,17 @@ export async function fetchPosts(
   selectedCategory: string,
   token: string | null = null,
   limit: number = 10,
-  startDate?: string, // 開始日をオプション引数として追加
-  endDate?: string,   // 終了日をオプション引数として追加
-  userId?: string     // userIdをオプション引数として追加
+  startDate?: string,
+  endDate?: string,
+  userId?: string
 ): Promise<{ posts: Post[]; nextToken: string | null }> {
-  // フィルタ条件を設定
   interface FilterType {
     category?: { eq: string };
-    updatedAt?: { between?: [string, string] }; // 日付フィルタを追加
-    userId?: { eq: string }; // userIdフィルタを追加
+    updatedAt?: { between?: [string, string] };
+    userId?: { eq: string };
   }
 
-  let filter: FilterType = {};
+  const filter: FilterType = {}; 
 
   // カテゴリでフィルタリング
   if (selectedCategory !== 'すべて') {
@@ -92,7 +91,7 @@ export async function fetchPosts(
 
   try {
     const result = await client.graphql({
-      query: postDataByPostTypeAndUpdatedAt, // ここは適切なクエリに変更
+      query: postDataByPostTypeAndUpdatedAt, 
       variables,
     }) as GraphQLResult<any>;
 
@@ -512,5 +511,6 @@ export async function createUserIfNotExists(userId: string): Promise<CreateUserM
     return null;
   }
 }
+
 
 
