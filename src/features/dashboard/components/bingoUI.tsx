@@ -232,35 +232,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
     return lines.filter(line => line.every(index => sheet[index].isCompleted)).length;
   }, []);
 
-  const handlePostCategory = useCallback(async (category: string) => {
-    if (!currentSheetId) {
-      console.error('ビンゴシートIDが存在しません。');
-      return;
-    }
-    try {
-      setBingoSheet(prevSheet => {
-        const updatedSheet = prevSheet.map(cell => {
-          if (cell.category === category) {
-            return { ...cell, isCompleted: true };
-          }
-          return cell;
-        });
-        const completed = checkBingoLines(updatedSheet);
-        if (completed > 0) {
-          setCompletedLines(completed);
-          setShowGachaButton(true);
-          console.log(`ビンゴラインが${completed}本完成しました。`);
-        }
-        console.log(`カテゴリ "${category}" を完了しました。`);
-        return updatedSheet;
-      });
-      await markCategoryAsCompleted(currentSheetId, category);
-      console.log(`バックエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
-    } catch (error) {
-      console.error('カテゴリの完了処理に失敗しました:', error);
-    }
-  }, [currentSheetId, checkBingoLines]);
-
   const handleGenerateBingo = useCallback(async () => {
     const newSheet = generateBingoSheet();
     setBingoSheet(newSheet);
@@ -297,7 +268,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
         setBingoSheet(sheet.cells);
         setCurrentSheetId(sheet.id);
         setBingoSheetExists(true);
-        console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
+        console.log('ビ��ゴシートをロードしました。セル数:', sheet.cells.length);
         return sheet;
       } else {
         console.log('保存されたビンゴシートが存在しません。');
@@ -510,7 +481,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
           background-color: #e0e0e0;
           border: 1px solid #fbbf24;
           border-radius: 0.5rem;
-          cursor: default; /* クリックできないようにカーソルを変更 */
+          cursor: default; /* クリックで���ないようにカーソルを変更 */
           font-size: 0.9rem; /* フォントサイズを調整 */
           font-weight: bold;
           color: #4a4a4a;
