@@ -19,13 +19,12 @@ const ImageModal: React.FC<ImageModalProps> = ({
 
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
-      <div
-        style={styles.modalContent}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button style={styles.closeButton} onClick={onClose}>
-          ×
-        </button>
+      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div style={styles.header}>
+          <button style={styles.closeButton} onClick={onClose}>
+            ×
+          </button>
+        </div>
         <img src={imageUrl} alt={altText} style={styles.modalImage} />
       </div>
     </div>
@@ -35,18 +34,17 @@ const ImageModal: React.FC<ImageModalProps> = ({
 const styles = {
   modalOverlay: {
     position: 'fixed' as const,
-    top: '0',
-    left: '0',
+    top: 0,
+    left: 0,
     width: '100%',
     height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     display: 'flex',
-    justifyContent: 'center', // 横方向中央に配置
-    alignItems: 'center',     // 縦方向中央に配置
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 1000,
   },
   modalContent: {
-    position: 'relative' as const,
     backgroundColor: '#fff',
     borderRadius: '8px',
     padding: '16px',
@@ -56,22 +54,25 @@ const styles = {
     display: 'flex',
     flexDirection: 'column' as const,
     alignItems: 'center',
+    position: 'relative' as const,
+  },
+  header: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'flex-end' as const,
+  },
+  closeButton: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    fontSize: '32px',
+    cursor: 'pointer',
+    color: '#000',
   },
   modalImage: {
     maxWidth: '100%',
     maxHeight: '80vh',
     borderRadius: '8px',
     marginTop: '16px',
-  },
-  closeButton: {
-    position: 'absolute' as const,
-    top: 'px',
-    right: '5px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    fontSize: '32px',
-    cursor: 'pointer',
-    color: '#000',
   },
 };
 

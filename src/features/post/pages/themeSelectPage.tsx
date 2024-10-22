@@ -46,10 +46,15 @@ const styles = {
     display: 'flex',
     flexDirection: 'column' as const,
     alignItems: 'center',
+    width: '100%',
     padding: '20px',
     backgroundColor: '#f5f5f5',
-    borderRadius: '10px',
-    width: '100%',
+    position: 'fixed' as const,
+    top: '60px',  // ヘッダーの高さ分を確保
+    left: 0,
+    height: 'calc(100vh - 120px)',  // ヘッダー(60px)とフッター(60px)の高さを引く
+    zIndex: 1000,
+    overflowY: 'auto' as const,  // コンテンツが長い場合にスクロール可能に
   },
   title: {
     fontSize: '24px',

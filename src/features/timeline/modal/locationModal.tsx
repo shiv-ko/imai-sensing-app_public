@@ -24,19 +24,20 @@ const LocationModal: React.FC<LocationModalProps> = ({
 
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
-      <div
-        style={styles.modalContent}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button style={styles.closeButton} onClick={onClose}>
-          ×
-        </button>
-        <iframe
-          title="Location Map"
-          src={mapSrc}
-          style={styles.mapIframe}
-          allowFullScreen
-        ></iframe>
+      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div style={styles.header}>
+          <button style={styles.closeButton} onClick={onClose}>
+            ×
+          </button>
+        </div>
+        <div style={styles.mapContainer}>
+          <iframe
+            title="Location Map"
+            src={mapSrc}
+            style={styles.mapIframe}
+            allowFullScreen
+          ></iframe>
+        </div>
       </div>
     </div>
   );
@@ -45,45 +46,55 @@ const LocationModal: React.FC<LocationModalProps> = ({
 const styles = {
   modalOverlay: {
     position: 'fixed' as const,
-    top: '0',
-    left: '0',
+    top: 0,
+    left: 0,
     width: '100%',
     height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     display: 'flex',
-    justifyContent: 'center', // 中央寄せ
-    alignItems: 'center', // 縦方向中央寄せ
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 1000,
   },
   modalContent: {
-    position: 'relative' as const,
     backgroundColor: '#fff',
     borderRadius: '8px',
     padding: '16px',
-    width: '80%',
-    maxWidth: '800px',
+    width: '90%',
+    maxWidth: '600px',
     maxHeight: '90%',
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column' as const,
+    alignItems: 'center',
+    position: 'relative' as const,
   },
-  mapIframe: {
+  header: {
     width: '100%',
-    height: '100%',
-    border: 'none',
-    flexGrow: 1,
-    marginTop: '16px',
+    display: 'flex',
+    justifyContent: 'flex-end' as const,
   },
   closeButton: {
-    position: 'absolute' as const,
-    top: '5px',
-    right: '5px',
     backgroundColor: 'transparent',
     border: 'none',
     fontSize: '32px',
     cursor: 'pointer',
     color: '#000',
-    zIndex: 1,
+  },
+  mapContainer: {
+    width: '100%',
+    paddingBottom: '56.25%', // 16:9のアスペクト比を維持
+    position: 'relative' as const,
+    marginTop: '16px',
+  },
+  mapIframe: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    border: 'none',
+    borderRadius: '8px',
   },
 };
 

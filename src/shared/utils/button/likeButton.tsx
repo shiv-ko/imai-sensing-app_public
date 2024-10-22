@@ -102,7 +102,7 @@ const styles = {
     display: 'flex', // This will align the heart and the text horizontally
     alignItems: 'center', // Vertically center the heart and text
     justifyContent:'center',
-    padding:'30px'
+    padding:'0px'
   },
   likesCount: {
     margin: 0, // Remove default margin from the <p> element

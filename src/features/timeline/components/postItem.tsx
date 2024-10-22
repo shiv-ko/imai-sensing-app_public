@@ -1,10 +1,8 @@
-// PostItem.tsx
-
 import React, { useState } from 'react';
 import LocationModal from '../modal/locationModal';
 import ImageModal from '../modal/imageModal';
 import LikeButton from '../../../shared/utils/button/likeButton';
-import ReportButton from '../../../shared/utils/button/reportButton'; // 通報ボタンをインポート
+import ReportButton from '../../../shared/utils/button/reportButton';
 
 interface Post {
   id: string;
@@ -42,36 +40,33 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
   return (
     <li style={styles.container}>
       {post.imageUrl && (
-        <div style={styles.imageContainer}>
+        <div style={styles.imageContainer} onClick={toggleImageModal}>
           <img
             src={post.imageUrl}
             alt={post.category}
             style={styles.image}
-            onClick={toggleImageModal}
           />
           <p style={styles.clickToEnlarge}>画像をクリックで拡大</p>
         </div>
       )}
 
-      <div style={styles.textContainer}>
+      <div style={styles.contentContainer}>
         <h3 style={styles.category}>{post.category}</h3>
         <p style={styles.postedby}>投稿者: {post.postedby}</p>
-        <p style={styles.comment}>コメント: {post.comment}</p>
+        <p style={styles.comment}>{post.comment}</p>
 
-        {/* 通報ボタン */}
         <div style={styles.buttonContainer}>
           <ReportButton postId={post.id} />
           <button onClick={toggleLocationModal} style={styles.locationButton}>
             場所を確認する
           </button>
         </div>
-      </div>
-      <div style={styles.likeButtonContainer}>
-        {/* いいねボタン */}
-        <LikeButton postId={post.id} userId={currentUserId} />
+
+        <div style={styles.likeButtonContainer}>
+          <LikeButton postId={post.id} userId={currentUserId} />
+        </div>
       </div>
 
-      {/* 画像モーダル */}
       <ImageModal
         isOpen={isImageModalOpen}
         onClose={toggleImageModal}
@@ -79,7 +74,6 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
         altText={post.category}
       />
 
-      {/* 位置情報モーダル */}
       <LocationModal
         isOpen={isLocationModalOpen}
         onClose={toggleLocationModal}
@@ -92,75 +86,78 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
 
 const styles = {
   container: {
-    display: 'flex',
+    listStyleType: 'none',
+    margin: '0 auto',
+    padding: '16px',
+    maxWidth: '600px',
     border: '1px solid #ddd',
     borderRadius: '8px',
-    padding: '16px',
     marginBottom: '16px',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    alignItems: 'space-between',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    backgroundColor: '#fff',
+    textAlign: 'center' as const,
   },
   imageContainer: {
-    marginRight: '20px',
     cursor: 'pointer',
-    display: 'flex', // Flexbox layout to center content
-    flexDirection:'column' as const,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: '16px',
   },
   image: {
-    maxWidth: '200px',
+    width: '100%',
+    maxWidth: '300px',
+    height: 'auto',
     borderRadius: '8px',
+    objectFit: 'cover' as const,
   },
   clickToEnlarge: {
     fontSize: '12px',
     color: '#888',
     marginTop: '8px',
   },
-  likeButtonContainer:{
-    display:'flex',
-    justifyContent:'flex-start'
-  },
-  textContainer: {
+  contentContainer: {
     display: 'flex',
     flexDirection: 'column' as const,
-    justifyContent: 'center',
     alignItems: 'center',
-    flex: 1,
   },
   category: {
-    fontSize: '18px',
-    fontWeight: 'bold',
+    fontSize: '22px',
+    fontWeight: 'bold' as const,
     color: '#333',
-    textAlign:'center' as const,
+    marginBottom: '8px',
+    whiteSpace: 'nowrap' as const, // テキストが縦にならないように設定
   },
   postedby: {
     fontStyle: 'italic',
-    color: '#333',
-    marginTop: '5px',
-    textAlign:'center' as const,
+    color: '#555',
+    marginBottom: '12px',
   },
   comment: {
     fontSize: '16px',
-    marginTop: '12px',
     color: '#555',
-    textAlign:'center' as const,
+    marginBottom: '16px',
+    wordBreak: 'break-word' as const,
   },
-  buttonContainer:{
+  buttonContainer: {
     display: 'flex',
     gap: '12px',
-    marginTop: '12px',
+    marginBottom: '8px',
+    flexWrap: 'wrap' as const,
+    justifyContent: 'center',
   },
   locationButton: {
-    marginTop: '12px',
-    padding: '6px 12px',
+    padding: '8px 16px',
     fontSize: '14px',
     backgroundColor: '#4CAF50',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '20px',
     cursor: 'pointer',
     transition: 'background-color 0.3s',
+  },
+  likeButtonContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: '8px',
+    marginBottom: '-8px', // 間隔を狭めるために負のマージンを使用
   },
 };
 

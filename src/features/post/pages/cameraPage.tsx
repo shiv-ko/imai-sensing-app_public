@@ -1,12 +1,10 @@
-// pages/camera/index.tsx
-'use client'; // クライアントコンポーネントであることを明示
+'use client';
 
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRecoilState } from 'recoil';
 import { capturedImageAtom } from '../states/imageAtom';
 import { useSearchParams } from 'next/navigation';
-
 
 const CameraPage: React.FC = () => {
   const router = useRouter();
@@ -18,7 +16,8 @@ const CameraPage: React.FC = () => {
 
   useEffect(() => {
     // カメラを起動
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: 'environment' } })
       .then((stream) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -42,29 +41,38 @@ const CameraPage: React.FC = () => {
 
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob((blob) => {
-          if (blob) {
-            // タイムスタンプとランダムなハッシュ値を組み合わせて一意のファイル名を生成
-            const timestamp = Date.now();
-            const randomHash = Math.random().toString(36).substring(2, 15);
-            const fileName = `${timestamp}_${randomHash}.jpg`;
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const timestamp = Date.now();
+              const randomHash = Math.random().toString(36).substring(2, 15);
+              const fileName = `${timestamp}_${randomHash}.jpg`;
 
-            const file = new File([blob], fileName, { type: 'image/jpeg' });
-            setCapturedImage(file);
+              const file = new File([blob], fileName, { type: 'image/jpeg' });
+              setCapturedImage(file);
 
-            // テーマをクエリパラメータとして渡してPostPageに遷移
-            const params = new URLSearchParams({ theme });
-            router.push(`/camera/post?${params.toString()}`);
-          }
-        }, 'image/jpeg', 0.9);
+              // テーマをクエリパラメータとして渡してPostPageに遷移
+              const params = new URLSearchParams({ theme });
+              router.push(`/camera/post?${params.toString()}`);
+            }
+          },
+          'image/jpeg',
+          0.9
+        );
       }
     }
   };
 
   return (
     <div style={styles.content}>
+      <h2 style={styles.themeTitle}>お題: {theme}</h2>
       <div style={styles.card}>
-      <video ref={videoRef} autoPlay playsInline style={styles.camera as React.CSSProperties} />
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          style={styles.camera as React.CSSProperties}
+        />
       </div>
       <button onClick={takePhoto} style={styles.button}>
         撮影
@@ -81,6 +89,10 @@ const styles = {
     alignItems: 'center',
     height: '100vh',
   },
+  themeTitle: {
+    fontSize: '24px',
+    marginBottom: '20px',
+  },
   card: {
     display: 'flex',
     justifyContent: 'center',
@@ -88,6 +100,7 @@ const styles = {
     width: '50%',
     height: '60%',
     borderRadius: '10px',
+    backgroundColor: '#000',
   },
   camera: {
     width: '100%',
@@ -95,7 +108,7 @@ const styles = {
     objectFit: 'cover',
     borderRadius: '10px',
   },
-    button: {
+  button: {
     marginTop: '20px',
     padding: '10px 20px',
     fontSize: '16px',
