@@ -24,12 +24,92 @@ import {
   CreateUserMutationVariables
 } from '../../../API';
 import { GraphQLResult } from '@aws-amplify/api-graphql';
+import { postDataByPostTypeAndUpdatedAt } from '../../../graphql/queries';
+import { ModelSortDirection } from '../../../API';
+
 
 // Amplifyの設定
 Amplify.configure(awsExports);
 
-// APIクライアントの生成
 const client = generateClient();
+
+export interface Post {
+  id: string;
+  imageUrl?: string | null;
+  userId: string;
+  lat: number;
+  lng: number;
+  category: string;
+  comment: string;
+  reported: boolean;
+  deleted: boolean;
+  visible: boolean;
+  point: number;
+  postType: string;
+  postedby?: string | null;
+}
+
+export async function fetchPosts(
+  postType: string,
+  selectedCategory: string,
+  token: string | null = null,
+  limit: number = 10,
+  startDate?: string,
+  endDate?: string,
+  userId?: string
+): Promise<{ posts: Post[]; nextToken: string | null }> {
+  interface FilterType {
+    category?: { eq: string };
+    updatedAt?: { between?: [string, string] };
+    userId?: { eq: string };
+  }
+
+  const filter: FilterType = {}; 
+
+  // カテゴリでフィルタリング
+  if (selectedCategory !== 'すべて') {
+    filter.category = { eq: selectedCategory };
+  }
+
+  // 開始日と終了日でのフィルタリング（オプション）
+  if (startDate && endDate) {
+    filter.updatedAt = { between: [startDate, endDate] };
+  }
+
+  // userId でフィルタリング（オプション）
+  if (userId) {
+    filter.userId = { eq: userId };
+  }
+
+  const variables = {
+    postType,
+    sortDirection: ModelSortDirection.DESC,
+    limit,
+    filter,
+    nextToken: token,
+  };
+
+  try {
+    const result = await client.graphql({
+      query: postDataByPostTypeAndUpdatedAt, 
+      variables,
+    }) as GraphQLResult<any>;
+
+    const postsFromAPI = result.data.postDataByPostTypeAndUpdatedAt.items;
+    const nextTokenFromAPI = result.data.postDataByPostTypeAndUpdatedAt.nextToken;
+
+    return {
+      posts: postsFromAPI,
+      nextToken: nextTokenFromAPI || null,
+    };
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    throw new Error('投稿データの取得に失敗しました');
+  }
+}
+
+
+
 
 /**
  * オブジェクトから __typename フィールドを削除する関数
@@ -110,7 +190,7 @@ export async function updateUserScore(userId: string, newScore: number): Promise
     return result.data?.updateUser as UpdateUserMutation['updateUser'];
   } catch (error) {
     console.error('ユーザースコア更新エラー:', error);
-    throw new Error('ポイントの更新に失敗しま���た。');
+    throw new Error('ポイントの更新に失敗しまた。');
   }
 }
 
@@ -184,7 +264,7 @@ export async function markCategoryAsCompleted(sheetId: string, category: string)
     const input: UpdateBingoSheetInput = {
       id: sheetId,
       cells: updatedCells,
-      // ���要に応じて他のフィールドも更新
+      // 要に応じて他のフィールドも更新
     };
 
     const updateResult = await client.graphql<UpdateBingoSheetMutation>({
@@ -251,7 +331,7 @@ export async function fetchBingoSheet(userId: string): Promise<BingoSheet | null
       return null;
     }
 
-    // クライ��ントで最新のビンゴシートを選択（updatedAt に基づいてソート）
+    // クライントで最新のビンゴシートを選択（updatedAt に基づいてソート）
     allSheets.sort((a, b) => {
       if (!a || !b) return 0;
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
@@ -431,4 +511,6 @@ export async function createUserIfNotExists(userId: string): Promise<CreateUserM
     return null;
   }
 }
+
+
 

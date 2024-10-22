@@ -1,4 +1,5 @@
 // src/features/dashboard/components/BingoUI.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 'use client';
 
@@ -14,7 +15,7 @@ import {
   BingoGachaPopupProps, 
   BingoBoardProps 
 } from '../utils/bingoTypes';
-import { addPointsToUser, createNewBingoSheet, fetchBingoSheet, markCategoryAsCompleted } from '../utils/awsService'; // markCategoryAsCompleted をインポート
+import { addPointsToUser, createNewBingoSheet, fetchBingoSheet, markCategoryAsCompleted, fetchPosts } from '../utils/awsService'; 
 import { CreateBingoSheetMutationVariables } from '../../../API'; // 正しくインポート
 
 // Button コンポーネント
@@ -23,42 +24,6 @@ export const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) =
     {children}
   </button>
 );
-
-// 投稿フォームコンポーネント
-const PostCategoryForm: React.FC<{ 
-  bingoSheet: { category: string; isCompleted: boolean }[]; 
-  onPost: (category: string) => void 
-}> = ({ bingoSheet, onPost }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedCategory) {
-      onPost(selectedCategory);
-      setSelectedCategory('');
-    }
-  };
-
-  // 未完了のカテゴリのみを選択肢に表示
-  const availableCategories = bingoSheet
-    .filter(cell => !cell.isCompleted)
-    .map(cell => cell.category);
-
-  return (
-    <form onSubmit={handleSubmit} className="post-category-form">
-      <select 
-        value={selectedCategory} 
-        onChange={e => setSelectedCategory(e.target.value)}
-      >
-        <option value="">-- 選択してください --</option>
-        {availableCategories.map((category, index) => (
-          <option key={index} value={category}>{category}</option>
-        ))}
-      </select>
-      <button type="submit" disabled={!selectedCategory}>投稿</button>
-    </form>
-  );
-};
 
 // BingoBoard コンポーネント
 export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
@@ -243,20 +208,16 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
 
 // Bingo コンポーネント
 export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
+  const [bingoSheet, setBingoSheet] = useState<any[]>([]);
+  const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
+  const [bingoSheetExists, setBingoSheetExists] = useState(false);
   const [showGachaButton, setShowGachaButton] = useState(false);
   const [showGachaPopup, setShowGachaPopup] = useState(false);
-  const [bingoKey, setBingoKey] = useState(0);
   const [completedLines, setCompletedLines] = useState(0);
-  const [totalPoints, setTotalPoints] = useState(initialScore);
-  const [bingoSheet, setBingoSheet] = useState<{ category: string; isCompleted: boolean }[]>([]);
-  const [currentSheetId, setCurrentSheetId] = useState<string | null>(null); // 新しい状態変数を追加
-  const boardRef = useRef<BingoBoardHandle | null>(null);
+  const [totalPoints, setTotalPoints] = useState(initialScore);  
+  const [bingoKey, setBingoKey] = useState(0);
+  const boardRef = useRef<BingoBoardHandle>(null);
 
-  /**
-   * ビンゴラインの数をチェックする関数
-   * @param sheet 更新されたビンゴシート
-   * @returns 完成したライン数
-   */
   const checkBingoLines = useCallback((sheet: { category: string; isCompleted: boolean }[]): number => {
     const lines = [
       [0, 1, 2],
@@ -268,119 +229,150 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       [0, 4, 8],
       [2, 4, 6],
     ];
-
     return lines.filter(line => line.every(index => sheet[index].isCompleted)).length;
   }, []);
 
-  /**
-   * handlePostCategory 関数を修正
-   * カテゴリの投稿時にビンゴシートを更新し、バックエンドにも反映させる
-   */
-  const handlePostCategory = useCallback(async (category: string) => {
-    if (!currentSheetId) {
-      console.error('ビンゴシートIDが存在しません。');
-      return;
-    }
-
-    try {
-      // ローカルのビンゴシートを更新
-      setBingoSheet(prevSheet => {
-        const updatedSheet = prevSheet.map(cell => {
-          if (cell.category === category) {
-            return { ...cell, isCompleted: true };
-          }
-          return cell;
-        });
-
-        // ビンゴラインをチェック
-        const completed = checkBingoLines(updatedSheet);
-        if (completed > 0) {
-          setCompletedLines(completed);
-          setShowGachaButton(true);
-          console.log(`ビンゴラインが${completed}本完成しました。`);
-        }
-        console.log(`カテゴリ "${category}" を完了しました。`);
-        return updatedSheet;
-      });
-
-      // バックエンドのデータを更新
-      await markCategoryAsCompleted(currentSheetId, category);
-      console.log(`バックエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
-    } catch (error) {
-      console.error('カテゴリの完了処理に失敗しました:', error);
-    }
-  }, [currentSheetId, checkBingoLines]);
-
-  /**
-   * handleGenerateBingo 関数を修正
-   * 新しいビンゴシートを生成し、バックエンドに保存
-   */
   const handleGenerateBingo = useCallback(async () => {
     const newSheet = generateBingoSheet();
     setBingoSheet(newSheet);
-    // 生成されたビンゴシートをコンソールに表示
     console.log('生成されたビンゴシート:', newSheet);
     setBingoKey(prevKey => prevKey + 1);
     setCompletedLines(0);
     setShowGachaButton(false);
-  
     try {
       const input: CreateBingoSheetMutationVariables['input'] = {
         userId: userId,
-        cells: newSheet, // 'sheet' を 'cells' に変更し、JSON.stringify を削除
+        cells: newSheet,
       };
       const savedSheet = await createNewBingoSheet(input);
       console.log('新しいビンゴシートが保存されました:', savedSheet);
       if (savedSheet && savedSheet.id) {
-        setCurrentSheetId(savedSheet.id); // シートIDを状態に保存
+        setCurrentSheetId(savedSheet.id);
+        setBingoSheetExists(true);
       }
     } catch (error) {
       console.error('ビンゴシートの保存に失敗しました:', error);
     }
   }, [userId]);
 
-  /**
-   * handleCloseGacha 関数を修正
-   * ガチャポップアップを閉じた後に新しいビンゴシートを生成する
-   */
   const handleCloseGacha = useCallback(() => {
     setShowGachaPopup(false);
     setShowGachaButton(false);
     console.log('ガチャポップアップを閉じました');
   }, []);
 
-  /**
-   * ビンゴシートをロードする関数を修正
-   * ロード時にシートIDを保存
-   */
   const loadBingoSheet = useCallback(async () => {
     try {
       const sheet = await fetchBingoSheet(userId);
       if (sheet && sheet.cells && sheet.cells.length > 0) {
         setBingoSheet(sheet.cells);
         setCurrentSheetId(sheet.id);
+        setBingoSheetExists(true);
         console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
-        
-        // ビンゴラインをチェック
-        const completed = checkBingoLines(sheet.cells);
-        if (completed > 0) {
-          setCompletedLines(completed);
-          setShowGachaButton(true);
-          console.log(`ビンゴラインが${completed}本完成しました。`);
-        }
+        return sheet;
       } else {
-        console.log('保存されたビンゴシートが存在しません。新しいシートを生成します。');
-        await handleGenerateBingo();
+        console.log('保存されたビンゴシートが存在しません。');
+        setBingoSheetExists(false);
+        return null;
       }
     } catch (error) {
       console.error('ビンゴシートの取得に失敗しました:', error);
+      setBingoSheetExists(false);
+      return null;
     }
-  }, [userId, checkBingoLines, handleGenerateBingo]);
+  }, [userId]);
+
+  const loadPostsAndUpdateBingoSheet = useCallback(async (sheetCreatedAt: Date) => {
+    console.log('loadPostsAndUpdateBingoSheet が呼び出されました');
+    console.log('ビンゴシートの作成日時:', sheetCreatedAt);
+    try {
+      console.log('投稿データを取得中...');
+      const startDateString = sheetCreatedAt.toISOString();
+      console.log('startDateString:', startDateString);
+      const fetchPostsResult = await fetchPosts(
+        'POST',
+        'すべて',
+        null,
+        1000,
+        startDateString,
+        undefined,
+        userId
+      );
+      console.log('fetchPosts の結果:', fetchPostsResult);
+      const { posts } = fetchPostsResult;
+      console.log('取得した投稿データ:', posts);
+      if (posts.length === 0) {
+        console.log('投稿データはありません。');
+        return;
+      }
+      const categoriesWithDates: { category: string; createdAt: Date }[] = posts.map(post => ({
+        category: post.category,
+        createdAt: new Date((post as any).createdAt)
+      }));
+      categoriesWithDates.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      console.log('カテゴリと作成日時のペア:', categoriesWithDates);
+      const filteredCategories = categoriesWithDates
+        .filter(post => post.createdAt > sheetCreatedAt)
+        .map(post => post.category);
+      console.log('フィルタリングされたカテゴリ:', filteredCategories);
+      if (bingoSheet.length > 0) {
+        let updatedSheet = [...bingoSheet];
+        const updatedCategories: string[] = []; // let から const に変更
+        updatedSheet = updatedSheet.map(cell => {
+          if (!cell.isCompleted && filteredCategories.includes(cell.category)) {
+            console.log(`カテゴリ "${cell.category}" を完了しました。`);
+            updatedCategories.push(cell.category);
+            return { ...cell, isCompleted: true, completedAt: new Date() };
+          }
+          return cell;
+        });
+        if (updatedCategories.length > 0) {
+          console.log('ビンゴシートの更新前:', bingoSheet);
+          console.log('ビンゴシートの更新後:', updatedSheet);
+          setBingoSheet(updatedSheet);
+          const completed = checkBingoLines(updatedSheet);
+          if (completed > 0) {
+            setCompletedLines(completed);
+            setShowGachaButton(true);
+            console.log(`ビンゴラインが${completed}本完成しました。`);
+          }
+          for (const category of updatedCategories) {
+            if (currentSheetId) {
+              try {
+                await markCategoryAsCompleted(currentSheetId, category);
+                console.log(`バックエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
+              } catch (error) {
+                console.error(`カテゴリ "${category}" の更新に失敗しました:`, error);
+              }
+            } else {
+              console.error('現在のビンゴシートIDがnullです。更新できません。');
+            }
+          }
+        } else {
+          console.log('ビンゴシートの更新は必要ありませんでした。');
+        }
+      }
+    } catch (error) {
+      console.error('投稿データの取得に失敗しました:', error);
+    }
+  }, [userId, bingoSheet, checkBingoLines, currentSheetId]);
 
   useEffect(() => {
-    setTotalPoints(initialScore);
-    loadBingoSheet();
-  }, [initialScore, userId, loadBingoSheet]);
+    const initializeBingoAndPosts = async () => {
+      if (bingoSheetExists) return;
+      const sheet = await loadBingoSheet();
+      console.log('ビンゴシートのロード完了');
+      if (sheet && sheet.createdAt) {
+        const createdAt = new Date(sheet.createdAt);
+        console.log('ビンゴシートの作成日時:', createdAt);
+        await loadPostsAndUpdateBingoSheet(createdAt);
+      } else {
+        console.log('ビンゴシートの作成日時が設定されていません。');
+      }
+      setBingoSheetExists(true);
+    };
+    initializeBingoAndPosts();
+  }, [bingoSheetExists, loadBingoSheet, loadPostsAndUpdateBingoSheet]);
 
   const addPoints = useCallback(
     async (points: number) => {
@@ -410,22 +402,36 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     <div className="bingo-gacha-game">
       <style jsx global>{`
         .bingo-gacha-game {
-          font-family: Arial, sans-serif;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 2rem;
+          padding: 0.5rem;
           background-color: #f9f9f9;
           min-height: 100vh;
         }
         .bingo-title {
-          margin-bottom: 1rem;
+          margin-bottom: -4rem;
+          padding-left: 1rem; /* margin-leftをpadding-leftに変更 */
+          width: 100%; /* 幅を100%に設定 */
+          display: flex; /* Flexboxを使用 */
+          justify-content: center; /* 中央寄せ */
         }
         .total-points {
           font-size: 1.5rem;
           color: #4a4a4a;
-          margin-bottom: 2rem;
+          margin-top: 1rem;
           text-align: center;
+        }
+        .bingo-gacha-container {
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .bingo-gacha-button-container {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-top: 1rem;
         }
         .bingo-gacha-button {
           padding: 0.75rem 1.5rem;
@@ -471,7 +477,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           background-color: #e0e0e0;
           border: 1px solid #fbbf24;
           border-radius: 0.5rem;
-          cursor: default; /* クリックできないようにカーソルを変更 */
+          cursor: default; /* クリックでないようにカーソルを変更 */
           font-size: 0.9rem; /* フォントサイズを調整 */
           font-weight: bold;
           color: #4a4a4a;
@@ -590,7 +596,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           display: flex;
           justify-content: center;
           gap: 2rem; /* ボタン間のスペースを2remに増加 */
-          flex-wrap: wrap; /* ボタンが小さい画面でも折り返す */
+          flex-wrap: wrap; /* ボタが小さい画面でも折り返す */
         }
         .bingo-gacha-button-container.popup-buttons {
           justify-content: center;
@@ -598,40 +604,15 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         .bingo-gacha-bold {
           font-weight: bold;
         }
-        /* 投稿フォームのスタイル */
+        /* 投稿フォームのスタイルを削除 */
         .post-category-form {
-          margin-bottom: 2rem;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          flex-wrap: wrap; /* フォームが小さい画面でも折り返す */
-          justify-content: center;
-        }
-        .post-category-form select {
-          padding: 0.5rem;
-          font-size: 1rem;
-          border-radius: 0.25rem;
-          border: 1px solid #ccc;
-          min-width: 150px;
-        }
-        .post-category-form button {
-          padding: 0.5rem 1rem;
-          font-size: 1rem;
-          background-color: #4a90e2;
-          color: white;
-          border: none;
-          border-radius: 0.25rem;
-          cursor: pointer;
-          transition: background-color 0.3s;
-        }
-        .post-category-form button:hover {
-          background-color: #357ab8;
+          display: none;
         }
         /* ビンゴを表示ボタンとビンゴシートの間隔を広げる */
         .bingo-gacha-container {
-          margin-top: 2rem; /* 間隔を2remに設定。必要に応じて調整してください */
+          margin-top: 2rem; /* 間隔を2rem設定。に応じて調整してください */
         }
-        /* レスポンシブ対応 */
+        /* スポンシブ対応 */
         @media (max-width: 600px) {
           .bingo-gacha-board {
             grid-template-columns: repeat(3, 1fr);
@@ -647,29 +628,13 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         }
       `}</style>
 
-      {/* タイトルの追加 */}
+      {/* タイトル */}
       <div className="bingo-title">
         <AnimatedTitle />
       </div>
-      <div className="total-points">総ポイント: {totalPoints}</div>
 
-      {/* 投稿フォーム */}
-      <PostCategoryForm bingoSheet={bingoSheet} onPost={handlePostCategory} />
-
-      {/* ビンゴ生成ボタン */}
-      <div className="bingo-gacha-button-container">
-        <Button onClick={handleGenerateBingo} disabled={false}>
-          ビンゴを生成
-        </Button>
-        {showGachaButton && (
-          <Button onClick={handleOpenGacha} disabled={false}>
-            ガチャを表示
-          </Button>
-        )}
-      </div>
-
-      {/* ビンゴボードの表示 */}
-      {bingoSheet.length > 0 && (
+      {/* ビンゴボード */}
+      {bingoSheetExists && bingoSheet.length > 0 && (
         <div className="bingo-gacha-container">
           <BingoBoard 
             key={bingoKey} 
@@ -679,6 +644,24 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         </div>
       )}
 
+      {/* 総ポイント表示 */}
+      <div className="total-points">総ポイント: {totalPoints}</div>
+
+      {/* ビンゴ生成ボタンをビンゴシートの下に移動 */}
+      <div className="bingo-gacha-button-container">
+        {!bingoSheetExists && (
+          <Button onClick={handleGenerateBingo} disabled={false}>
+            ビンゴを生成
+          </Button>
+        )}
+        {showGachaButton && (
+          <Button onClick={handleOpenGacha} disabled={false}>
+            ガチャを表示
+          </Button>
+        )}
+      </div>
+
+      {/* ガ��ャポップアップ */}
       <AnimatePresence>
         {showGachaPopup && (
           <BingoGachaPopup
@@ -689,9 +672,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           />
         )}
       </AnimatePresence>
-
-      {/* 不要なボタンを削除 */}
-      {/* <button onClick={onBingoComplete}>ビンゴを完了する</button> */}
     </div>
   );
 };
+
