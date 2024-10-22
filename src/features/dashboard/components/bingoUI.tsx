@@ -24,43 +24,6 @@ export const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) =
   </button>
 );
 
-// 投稿フォームコンポーネント
-const PostCategoryForm: React.FC<{ 
-  bingoSheet: { category: string; isCompleted: boolean }[]; 
-  onPost: (category: string) => void 
-}> = ({ bingoSheet, onPost }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [loadingPosts, setLoadingPosts] = useState<boolean>(false); // ローディング状態
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedCategory) {
-      onPost(selectedCategory);
-      setSelectedCategory('');
-    }
-  };
-
-  // 未完了のカテゴリのみを選択肢に表示
-  const availableCategories = bingoSheet
-    .filter(cell => !cell.isCompleted)
-    .map(cell => cell.category);
-
-  return (
-    <form onSubmit={handleSubmit} className="post-category-form">
-      <select 
-        value={selectedCategory} 
-        onChange={e => setSelectedCategory(e.target.value)}
-      >
-        <option value="">-- 選択してください --</option>
-        {availableCategories.map((category, index) => (
-          <option key={index} value={category}>{category}</option>
-        ))}
-      </select>
-      <button type="submit" disabled={!selectedCategory}>投稿</button>
-    </form>
-  );
-};
-
 // BingoBoard コンポーネント
 export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
   ({ bingoSheet }, ref) => {
@@ -663,34 +626,9 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         .bingo-gacha-bold {
           font-weight: bold;
         }
-        /* 投稿フォームのスタイル */
+        /* 投稿フォームのスタイルを削除 */
         .post-category-form {
-          margin-bottom: 2rem;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          flex-wrap: wrap; /* フォームが小さい画でも折り返す */
-          justify-content: center;
-        }
-        .post-category-form select {
-          padding: 0.5rem;
-          font-size: 1rem;
-          border-radius: 0.25rem;
-          border: 1px solid #ccc;
-          min-width: 150px;
-        }
-        .post-category-form button {
-          padding: 0.5rem 1rem;
-          font-size: 1rem;
-          background-color: #4a90e2;
-          color: white;
-          border: none;
-          border-radius: 0.25rem;
-          cursor: pointer;
-          transition: background-color 0.3s;
-        }
-        .post-category-form button:hover {
-          background-color: #357ab8;
+          display: none;
         }
         /* ビンゴを表示ボタンとビンゴシートの間隔を広げる */
         .bingo-gacha-container {
@@ -718,8 +656,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       </div>
       <div className="total-points">総ポイント: {totalPoints}</div>
 
-      {/* 投稿フォーム */}
-      <PostCategoryForm bingoSheet={bingoSheet} onPost={handlePostCategory} />
+      {/* 投稿フォームを削除 */}
 
       {/* ビンゴ生成ボタン */}
       <div className="bingo-gacha-button-container">
@@ -756,10 +693,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           />
         )}
       </AnimatePresence>
-
-      {/* 不要なボタンを削除 */}
-      {/* <button onClick={onBingoComplete}>ビンゴを完了する</button> */}
     </div>
   );
 };
-
