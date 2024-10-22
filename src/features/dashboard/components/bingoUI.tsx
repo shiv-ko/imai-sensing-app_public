@@ -1,4 +1,5 @@
 // src/features/dashboard/components/BingoUI.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 'use client';
 
@@ -349,7 +350,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       console.log('フィルタリングされたカテゴリ:', filteredCategories);
       if (bingoSheet.length > 0) {
         let updatedSheet = [...bingoSheet];
-        let updatedCategories: string[] = [];
+        const updatedCategories: string[] = []; // let から const に変更
         updatedSheet = updatedSheet.map(cell => {
           if (!cell.isCompleted && filteredCategories.includes(cell.category)) {
             console.log(`カテゴリ "${cell.category}" を完了しました。`);
@@ -696,3 +697,4 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     </div>
   );
 };
+
