@@ -26,7 +26,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         value={selectedOption}
         options={options}
         onChange={(selectedOption) => onThemeChange(selectedOption ? selectedOption.value : '')}
-        placeholder="テーマを選んでください" // Default placeholder
+        placeholder="お題を選んでください" // Default placeholder
         styles={customStyles} // Apply custom styles
         isClearable // Optional: allows clearing the selection
       />

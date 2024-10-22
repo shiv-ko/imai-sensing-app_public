@@ -50,11 +50,11 @@ const styles = {
   },
   selectControl: {
     minHeight: '40px', // セレクトボックスの高さ
-    width: '300px', // セレクトボックスの幅
+    width: '260px', // セレクトボックスの幅
     fontSize: '16px',
   },
   selectMenu: {
-    width: '300px', // セレクトボックスとメニューの幅を一致させる
+    width: '260px', // セレクトボックスとメニューの幅を一致させる
   },
   valueContainer: {
     padding: '2px 8px', // 内側のコンテンツの余白調整
