@@ -14,7 +14,7 @@ import {
   BingoGachaPopupProps, 
   BingoBoardProps 
 } from '../utils/bingoTypes';
-import { addPointsToUser, createNewBingoSheet, fetchBingoSheet, markCategoryAsCompleted } from '../utils/awsService'; // markCategoryAsCompleted をインポート
+import { addPointsToUser, createNewBingoSheet, fetchBingoSheet, markCategoryAsCompleted, fetchPosts } from '../utils/awsService'; 
 import { CreateBingoSheetMutationVariables } from '../../../API'; // 正しくインポート
 
 // Button コンポーネント
@@ -30,6 +30,7 @@ const PostCategoryForm: React.FC<{
   onPost: (category: string) => void 
 }> = ({ bingoSheet, onPost }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [loadingPosts, setLoadingPosts] = useState<boolean>(false); // ローディング状態
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -241,7 +242,7 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
   );
 };
 
-// Bingo コンポーネント
+// Bingo ンポーネント
 export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   const [showGachaButton, setShowGachaButton] = useState(false);
   const [showGachaPopup, setShowGachaPopup] = useState(false);
@@ -249,7 +250,8 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   const [completedLines, setCompletedLines] = useState(0);
   const [totalPoints, setTotalPoints] = useState(initialScore);
   const [bingoSheet, setBingoSheet] = useState<{ category: string; isCompleted: boolean }[]>([]);
-  const [currentSheetId, setCurrentSheetId] = useState<string | null>(null); // 新しい状態変数を追加
+  const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
+  const [bingoSheetCreatedAt, setBingoSheetCreatedAt] = useState<Date | null>(null);
   const boardRef = useRef<BingoBoardHandle | null>(null);
 
   /**
@@ -305,7 +307,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
 
       // バックエンドのデータを更新
       await markCategoryAsCompleted(currentSheetId, category);
-      console.log(`バックエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
+      console.log(`バエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
     } catch (error) {
       console.error('カテゴリの完了処理に失敗しました:', error);
     }
@@ -313,7 +315,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
 
   /**
    * handleGenerateBingo 関数を修正
-   * 新しいビンゴシートを生成し、バックエンドに保存
+   * 新しいビンゴシートを生成しバックエンドに保存
    */
   const handleGenerateBingo = useCallback(async () => {
     const newSheet = generateBingoSheet();
@@ -350,7 +352,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   }, []);
 
   /**
-   * ビンゴシートをロードする関数を修正
+   * ビンシートをロードする関数を修正
    * ロード時にシートIDを保存
    */
   const loadBingoSheet = useCallback(async () => {
@@ -359,15 +361,10 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       if (sheet && sheet.cells && sheet.cells.length > 0) {
         setBingoSheet(sheet.cells);
         setCurrentSheetId(sheet.id);
+        const createdAt = sheet.createdAt ? new Date(sheet.createdAt) : null;
+        setBingoSheetCreatedAt(createdAt);
+        console.log('ビンゴシートの作成日時:', createdAt); // ここでログを追加
         console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
-        
-        // ビンゴラインをチェック
-        const completed = checkBingoLines(sheet.cells);
-        if (completed > 0) {
-          setCompletedLines(completed);
-          setShowGachaButton(true);
-          console.log(`ビンゴラインが${completed}本完成しました。`);
-        }
       } else {
         console.log('保存されたビンゴシートが存在しません。新しいシートを生成します。');
         await handleGenerateBingo();
@@ -375,7 +372,127 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     } catch (error) {
       console.error('ビンゴシートの取得に失敗しました:', error);
     }
-  }, [userId, checkBingoLines, handleGenerateBingo]);
+  }, [userId, handleGenerateBingo]);
+
+  /**
+   * 投稿データを取得し、ビンゴシートを更新する
+   * 初回ロード時のみ実行されるように依存配列を調整
+   */
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
+
+  const loadPostsAndUpdateBingoSheet = useCallback(async (createdAt: Date) => {
+    console.log('loadPostsAndUpdateBingoSheet が呼び出されました');
+    console.log('ビンゴシートの作成日時:', createdAt);
+
+    setLoadingPosts(true);
+    try {
+      console.log('投稿データを取得中...');
+      const startDateString = createdAt.toISOString();
+      console.log('startDateString:', startDateString);
+      
+      const fetchPostsResult = await fetchPosts(
+        'POST',              // postType
+        'すべて',             // selectedCategory
+        null,                // nextToken を明示的に null に設定
+        1000,                // limit
+        startDateString,     // startDate（ISO 8601形式の文字列）
+        undefined,           // endDate は指定しないため undefined
+        userId               // userId を渡してユーザフィルタリングを行う
+      );
+      
+      console.log('fetchPosts の結果:', fetchPostsResult);
+      
+      const { posts } = fetchPostsResult;
+      console.log('取得した投稿データ:', posts);
+
+      if (posts.length === 0) {
+        console.log('投稿データはありません。');
+        setLoadingPosts(false);
+        return;
+      }
+
+      setPosts(posts);
+
+      if (bingoSheet.length > 0) {
+        const postCategories = posts.map(post => post.category);
+        console.log('投稿データのカテゴリ一覧:', postCategories);
+
+        let updatedSheet = [...bingoSheet];
+        let updatedCategories: string[] = [];
+
+        updatedSheet = updatedSheet.map(cell => {
+          if (!cell.isCompleted && postCategories.includes(cell.category)) {
+            console.log(`カテゴリ "${cell.category}" のマスに穴を開けました。`);
+            updatedCategories.push(cell.category);
+            return { ...cell, isCompleted: true };
+          }
+          return cell;
+        });
+
+        if (updatedCategories.length > 0) {
+          console.log('ビンゴシートの更新前:', bingoSheet);
+          console.log('ビンゴシートの更新後:', updatedSheet);
+
+          setBingoSheet(updatedSheet);
+
+          const completed = checkBingoLines(updatedSheet);
+          if (completed > 0) {
+            setCompletedLines(completed);
+            setShowGachaButton(true);
+            console.log(`ビンゴラインが${completed}本完成しました。`);
+          }
+
+          // バックエンドのビンゴシートを更新
+          for (const category of updatedCategories) {
+            if (currentSheetId) {
+              try {
+                await markCategoryAsCompleted(currentSheetId, category);
+                console.log(`バックエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
+              } catch (error) {
+                console.error(`カテゴリ "${category}" の更新に失敗しました:`, error);
+              }
+            } else {
+              console.error('現在のビンゴシートIDがnullです。更新できません。');
+            }
+          }
+        } else {
+          console.log('ビンゴシートの更新は必要ありませんでした。');
+        }
+      }
+
+    } catch (error) {
+      console.error('投稿データの取得に失敗しました:', error);
+    } finally {
+      setLoadingPosts(false);
+    }
+  }, [userId, bingoSheet, checkBingoLines, currentSheetId]);
+
+  // 新しい state を追加
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const initializeBingoAndPosts = async () => {
+      if (isInitialized) return; // 既に初期化済みの場合は何もしない
+
+      await loadBingoSheet();
+      console.log('ビンゴシートのロード完了');
+      console.log('現在の bingoSheetCreatedAt:', bingoSheetCreatedAt);
+      
+      // bingoSheetCreatedAt の値を直接使用せず、loadBingoSheet の結果を使用
+      const sheet = await fetchBingoSheet(userId);
+      if (sheet && sheet.createdAt) {
+        console.log('ビンゴシートの作成日時:', new Date(sheet.createdAt));
+        await loadPostsAndUpdateBingoSheet(new Date(sheet.createdAt));
+      } else {
+        console.log('ビンゴシートの作成日時が設定されていません。');
+      }
+
+      setIsInitialized(true); // 初期化完了をマーク
+    };
+
+    initializeBingoAndPosts();
+  }, [isInitialized, loadBingoSheet, loadPostsAndUpdateBingoSheet, userId]);
 
   useEffect(() => {
     setTotalPoints(initialScore);
@@ -590,7 +707,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           display: flex;
           justify-content: center;
           gap: 2rem; /* ボタン間のスペースを2remに増加 */
-          flex-wrap: wrap; /* ボタンが小さい画面でも折り返す */
+          flex-wrap: wrap; /* ボタが小さい画面でも折り返す */
         }
         .bingo-gacha-button-container.popup-buttons {
           justify-content: center;
@@ -604,7 +721,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          flex-wrap: wrap; /* フォームが小さい画面でも折り返す */
+          flex-wrap: wrap; /* フォームが小さい画でも折り返す */
           justify-content: center;
         }
         .post-category-form select {
@@ -629,9 +746,9 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         }
         /* ビンゴを表示ボタンとビンゴシートの間隔を広げる */
         .bingo-gacha-container {
-          margin-top: 2rem; /* 間隔を2remに設定。必要に応じて調整してください */
+          margin-top: 2rem; /* 間隔を2rem設定。に応じて調整してください */
         }
-        /* レスポンシブ対応 */
+        /* スポンシブ対応 */
         @media (max-width: 600px) {
           .bingo-gacha-board {
             grid-template-columns: repeat(3, 1fr);
@@ -695,3 +812,4 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     </div>
   );
 };
+
