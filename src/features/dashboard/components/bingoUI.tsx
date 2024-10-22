@@ -307,7 +307,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
 
       // バックエンドのデータを更新
       await markCategoryAsCompleted(currentSheetId, category);
-      console.log(`バエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
+      console.log(`バンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
     } catch (error) {
       console.error('カテゴリの完了処理に失敗しました:', error);
     }
@@ -363,7 +363,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         setCurrentSheetId(sheet.id);
         const createdAt = sheet.createdAt ? new Date(sheet.createdAt) : null;
         setBingoSheetCreatedAt(createdAt);
-        console.log('ビンゴシートの作成日時:', createdAt); // ここでログを追加
         console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
       } else {
         console.log('保存されたビンゴシートが存在しません。新しいシートを生成します。');
@@ -381,14 +380,14 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
 
-  const loadPostsAndUpdateBingoSheet = useCallback(async (createdAt: Date) => {
+  const loadPostsAndUpdateBingoSheet = useCallback(async (sheetCreatedAt: Date) => {
     console.log('loadPostsAndUpdateBingoSheet が呼び出されました');
-    console.log('ビンゴシートの作成日時:', createdAt);
-
+    console.log('ビンゴシートの作成日時:', sheetCreatedAt);
+  
     setLoadingPosts(true);
     try {
       console.log('投稿データを取得中...');
-      const startDateString = createdAt.toISOString();
+      const startDateString = sheetCreatedAt.toISOString();
       console.log('startDateString:', startDateString);
       
       const fetchPostsResult = await fetchPosts(
@@ -405,44 +404,57 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       
       const { posts } = fetchPostsResult;
       console.log('取得した投稿データ:', posts);
-
+  
       if (posts.length === 0) {
         console.log('投稿データはありません。');
         setLoadingPosts(false);
         return;
       }
-
-      setPosts(posts);
-
+  
+      // カテゴリ名とcreatedAtをペアで保存
+      const categoriesWithDates: { category: string; createdAt: Date }[] = posts.map(post => ({
+        category: post.category,
+        createdAt: new Date((post as any).createdAt)
+      }));
+  
+      // 作成日時でソート（古い順）
+      categoriesWithDates.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  
+      console.log('カテゴリと作成日時のペア:', categoriesWithDates);
+  
+      // ビンゴシートの作成日時以降の投稿のみをフィルタリング
+      const filteredCategories = categoriesWithDates
+        .filter(post => post.createdAt > sheetCreatedAt)
+        .map(post => post.category);
+  
+      console.log('フィルタリングされたカテゴリ:', filteredCategories);
+  
       if (bingoSheet.length > 0) {
-        const postCategories = posts.map(post => post.category);
-        console.log('投稿データのカテゴリ一覧:', postCategories);
-
         let updatedSheet = [...bingoSheet];
         let updatedCategories: string[] = [];
-
+  
         updatedSheet = updatedSheet.map(cell => {
-          if (!cell.isCompleted && postCategories.includes(cell.category)) {
-            console.log(`カテゴリ "${cell.category}" のマスに穴を開けました。`);
+          if (!cell.isCompleted && filteredCategories.includes(cell.category)) {
+            console.log(`カテゴリ "${cell.category}" を完了しました。`);
             updatedCategories.push(cell.category);
-            return { ...cell, isCompleted: true };
+            return { ...cell, isCompleted: true, completedAt: new Date() };
           }
           return cell;
         });
-
+  
         if (updatedCategories.length > 0) {
           console.log('ビンゴシートの更新前:', bingoSheet);
           console.log('ビンゴシートの更新後:', updatedSheet);
-
+  
           setBingoSheet(updatedSheet);
-
+  
           const completed = checkBingoLines(updatedSheet);
           if (completed > 0) {
             setCompletedLines(completed);
             setShowGachaButton(true);
             console.log(`ビンゴラインが${completed}本完成しました。`);
           }
-
+  
           // バックエンドのビンゴシートを更新
           for (const category of updatedCategories) {
             if (currentSheetId) {
@@ -460,14 +472,14 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           console.log('ビンゴシートの更新は必要ありませんでした。');
         }
       }
-
+  
     } catch (error) {
       console.error('投稿データの取得に失敗しました:', error);
     } finally {
       setLoadingPosts(false);
     }
   }, [userId, bingoSheet, checkBingoLines, currentSheetId]);
-
+  
   // 新しい state を追加
   const [isInitialized, setIsInitialized] = useState(false);
 
