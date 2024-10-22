@@ -439,22 +439,36 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     <div className="bingo-gacha-game">
       <style jsx global>{`
         .bingo-gacha-game {
-          font-family: Arial, sans-serif;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 2rem;
+          padding: 0.5rem;
           background-color: #f9f9f9;
           min-height: 100vh;
         }
         .bingo-title {
-          margin-bottom: 1rem;
+          margin-bottom: -4rem;
+          padding-left: 1rem; /* margin-leftをpadding-leftに変更 */
+          width: 100%; /* 幅を100%に設定 */
+          display: flex; /* Flexboxを使用 */
+          justify-content: center; /* 中央寄せ */
         }
         .total-points {
           font-size: 1.5rem;
           color: #4a4a4a;
-          margin-bottom: 2rem;
+          margin-top: 1rem;
           text-align: center;
+        }
+        .bingo-gacha-container {
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .bingo-gacha-button-container {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-top: 1rem;
         }
         .bingo-gacha-button {
           padding: 0.75rem 1.5rem;
@@ -651,15 +665,26 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         }
       `}</style>
 
-      {/* タイトルの追加 */}
+      {/* タイトル */}
       <div className="bingo-title">
         <AnimatedTitle />
       </div>
+
+      {/* ビンゴボード */}
+      {bingoSheetExists && bingoSheet.length > 0 && (
+        <div className="bingo-gacha-container">
+          <BingoBoard 
+            key={bingoKey} 
+            bingoSheet={bingoSheet}
+            ref={boardRef} 
+          />
+        </div>
+      )}
+
+      {/* 総ポイント表示 */}
       <div className="total-points">総ポイント: {totalPoints}</div>
 
-      {/* 投稿フォームを削除 */}
-
-      {/* ビンゴ生成ボタン */}
+      {/* ビンゴ生成ボタンをビンゴシートの下に移動 */}
       <div className="bingo-gacha-button-container">
         {!bingoSheetExists && (
           <Button onClick={handleGenerateBingo} disabled={false}>
@@ -673,17 +698,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         )}
       </div>
 
-      {/* ビンゴボードの表示 */}
-      {bingoSheetExists && bingoSheet.length > 0 && (
-        <div className="bingo-gacha-container">
-          <BingoBoard 
-            key={bingoKey} 
-            bingoSheet={bingoSheet}
-            ref={boardRef} 
-          />
-        </div>
-      )}
-
+      {/* ガチャポップアップ */}
       <AnimatePresence>
         {showGachaPopup && (
           <BingoGachaPopup
@@ -697,4 +712,3 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     </div>
   );
 };
-
