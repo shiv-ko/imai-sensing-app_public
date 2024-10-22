@@ -60,7 +60,10 @@ const PostPage: React.FC = () => {
   useEffect(() => {
     getUserLocation();
     getCurrentUserAsync();
-    handleFetchUserAttributes();
+    const fetchData = async () => {
+      await handleFetchUserAttributes();
+    };
+    fetchData();
   }, []);
 
   // テーマと画像を設定
@@ -101,10 +104,10 @@ const PostPage: React.FC = () => {
   async function handleFetchUserAttributes() {
     try {
       const userAttributes = await fetchUserAttributes();
-      setNickName(userAttributes.nickname || '');
+      setNickName(userAttributes.nickname);
       console.log('userAttributes:',userAttributes);
       console.log('userNickName',userAttributes.nickname);
-      setUserid(userAttributes.sub || '')
+      setUserid(userAttributes.sub)
     } catch (error) {
       console.log(error);
     }
@@ -139,64 +142,71 @@ const PostPage: React.FC = () => {
   };
 
   async function createPost(event: React.FormEvent) {
-  event.preventDefault();
-  
-  try {
-    // フォームから入力を取得
-    const {
-      lat,
-      lng,
-      category,
-      comment,
-      image,
-      reported,
-      deleted,
-      visible,
-      point,
-      postType,
-    } = formData;
+    event.preventDefault();
+    
+    try {
+      // フォームから入力を取得
+      const {
+        lat,
+        lng,
+        category,
+        comment,
+        image,
+        reported,
+        deleted,
+        visible,
+        point,
+        postType,
+      } = formData;
 
-    // 投稿するデータの定義
-    const postData = {
-      userId: userid || '',
-      lat: parseFloat(lat),
-      lng: parseFloat(lng),
-      category,
-      comment,
-      reported,
-      deleted,
-      visible,
-      point,
-      postType,
-      imageUrl: image?.name ?? null,
-      postedby: nickName,
-    };
+      // 投稿するデータの定義
+      const postData = {
+        userId: userid || '',
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        category,
+        comment,
+        reported,
+        deleted,
+        visible,
+        point,
+        postType,
+        imageUrl: image?.name ?? null,
+        postedby: nickName,
+      };
 
-    console.log('user id', userid);
+      console.log('user id', userid);
 
-    // 画像があったら別でS3に保存
-    if (image) {
-      await uploadData({ key: image.name, data: image });
+     
+
+      // 画像があったら別でS3に保存
+      if (image) {
+        await uploadData({ key: image.name, data: image });
+      }
+      
+
+      // データをDBに保存
+      await client.graphql({
+        query: createPostData,
+        variables: { input: { ...postData, postedby: postData.postedby || '' } },
+      });
+
+      // const updatedUser = await updateUserScore(userid || '', 1);
+      // console.log('ユーザーのスコアが更新されました:', updatedUser.score);
+
+
+      // フォームのリセット
+      setFormData({
+        ...formData,
+        comment: '',
+        image: null,
+      });
+    } catch (error) {
+      console.error('Error while creating post:', error);
+    } finally {
+      // エラーの有無に関わらず、ルーティングを実行
+      router.push('/camera/completion');
     }
-
-    // データをDBに保存
-    await client.graphql({
-      query: createPostData,
-      variables: { input: { ...postData, postedby: postData.postedby || '' } },
-    });
-
-    // フォームのリセット
-    setFormData({
-      ...formData,
-      comment: '',
-      image: null,
-    });
-  } catch (error) {
-    console.error('Error while creating post:', error);
-  } finally {
-    // エラーの有無に関わらず、ルーティングを実行
-    router.push('/camera/completion');
-  }
 }
 
 
