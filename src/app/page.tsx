@@ -3,6 +3,8 @@
 
 import { useCheckAuth } from "@/features/auth/hooks/useCheckAuth";
 
+
+
 const HomePage = () => {
   useCheckAuth();
   return null;

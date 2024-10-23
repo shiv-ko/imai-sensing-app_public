@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AiOutlineHome, AiOutlineCamera } from 'react-icons/ai';
 import { FiMap } from 'react-icons/fi';
-import { BiUser } from 'react-icons/bi';
+import { BiTimeFive  } from 'react-icons/bi';
 
 const FooterNavBar: React.FC = () => {
   const router = useRouter();
@@ -71,7 +71,7 @@ const FooterNavBar: React.FC = () => {
         <span>マップ</span>
       </div>
       <div style={getNavItemStyle('/timeline')} onClick={() => navigateTo('/timeline')}>
-        <BiUser style={getIconStyle('/timeline')} />
+        <BiTimeFive style={getIconStyle('/timeline')} />
         <span>タイムライン</span>
       </div>
       <div style={getNavItemStyle('/camera')} onClick={() => navigateTo('/camera')}>
