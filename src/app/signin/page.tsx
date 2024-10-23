@@ -92,31 +92,7 @@ const formFields = {
   },
 };
 
-const messages = {
-  ja: {
-    'Sign In': 'サインイン',
-    'Create Account': 'アカウント作成',
-    'Sign Up': 'サインアップ',
-    'Forgot your password?': 'パスワードをお忘れですか？',
-    'Reset Password': 'パスワードをリセット',
-    'Enter your email': 'メールアドレスを入力してください',
-    'Please confirm your Password': 'パスワードを確認してください',
-    'Send code': 'コードを送信',
-    'Confirm': '確認',
-    'Back to Sign In': 'サインインに戻る',
-    'Submit': '送信',
-    'Confirm Sign Up': 'サインアップを確認',
-    'Confirmation Code': '確認コード',
-    'Resend Code': 'コードを再送信',
-    'Create a new account': '新しいアカウントを作成',
-    'Have an account? Sign in': 'アカウントをお持ちですか？サインイン',
-    'No account? Create account': 'アカウントをお持ちでない方はこちら',
-    'Forgot Password': 'パスワードをお忘れの方',
-    'Reset your password': 'パスワードをリセット',
-    'Enter your username': 'ユーザー名を入力してください',
-    'Send Reset Link': 'リセッリンクを送信',
-  },
-};
+
 
 export default function App() {
   const [locationGranted, setLocationGranted] = useState(false);
