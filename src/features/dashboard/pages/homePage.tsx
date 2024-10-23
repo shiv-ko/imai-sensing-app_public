@@ -9,7 +9,7 @@ import { Bingo } from '@/features/dashboard/components/bingoUI';
 import { getUserSession, getUserData } from '@/features/dashboard/utils/awsService';
 // import { User } from '../../../API'; 
 import { UserSession } from '../utils/bingoTypes'; 
-
+import UserRanking from '@/shared/components/ranking';
 // 現在使用されていないため、削除
 // type UserData = Pick<User, 'id' | 'displayName' | 'score' | 'currentCategoryId' | 'currentCategory'>;
 
@@ -57,8 +57,12 @@ const HomePage: React.FC = () => {
     <div>
       <Header />
       {userId ? (
-        // Bingo コンポーネントを表示
-        <Bingo userId={userId} initialScore={userScore} />
+        // Bingo コンポーネントとランキングを表示
+        <>
+          
+          <Bingo userId={userId} initialScore={userScore} />
+          <UserRanking></UserRanking>
+        </>
       ) : (
         <p>ユーザーIDを取得できませんでした。</p>
       )}

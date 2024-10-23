@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import { createPostData } from '../../../graphql/mutations';
-import { generateClient } from 'aws-amplify/api';
 import { uploadData } from 'aws-amplify/storage';
-import { Amplify } from 'aws-amplify';
 import { getCurrentUser, GetCurrentUserOutput ,fetchUserAttributes} from 'aws-amplify/auth';
+import { Amplify } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import awsExports from '../../../aws-exports';
 import PostForm from '../components/postForm';
 import imageCompression from '../../../shared/utils/image/compressImage'; 
