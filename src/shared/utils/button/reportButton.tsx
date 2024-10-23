@@ -1,10 +1,10 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { updatePostData } from '../../../graphql/mutations';
+import { getPostData } from '../../../graphql/queries';
 import { generateClient } from 'aws-amplify/api';
 import { Amplify } from 'aws-amplify';
 import awsExports from '../../../aws-exports';
-import { fetchUserAttributes } from 'aws-amplify/auth';
 import updateUserScore from '@/hooks/updatePoint';
 
 Amplify.configure(awsExports);
@@ -17,25 +17,8 @@ interface ReportButtonProps {
 const ReportButton: React.FC<ReportButtonProps> = ({ postId }) => {
   const [isReported, setIsReported] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [userid, setUserid] = useState<string>();
 
-  useEffect(() => {
-    const fetchUserAttributes = async () => {
-      await handleFetchUserAttributes();
-    };
-    fetchUserAttributes();
-  }, []);
-
-  async function handleFetchUserAttributes() {
-    try {
-      const userAttributes = await fetchUserAttributes();
-      console.log('userAttributes:', userAttributes);
-      console.log('userNickName', userAttributes.nickname);
-      setUserid(userAttributes.sub || '');
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  
 
   const handleReport = async () => {
     const confirmed = window.confirm('本当にこの投稿を通報しますか？');
@@ -55,15 +38,30 @@ const ReportButton: React.FC<ReportButtonProps> = ({ postId }) => {
           },
         },
       });
-      const updatedUser = await updateUserScore(userid || '', 1);
-      console.log('ユーザーのスコアが更新されました:', updatedUser.score);
-
       setIsReported(true);
-      alert('投稿が通報されました。');
     } catch (error) {
       console.error('Error reporting post:', error);
     } finally {
+      alert('投稿が通報されました。');
       setLoading(false);
+    }
+
+
+    // updateUserScoreを別で実行
+    try {
+      // 投稿データを取得してuserIdを取得
+      const postDataResult = await client.graphql({
+        query: getPostData,
+        variables: { id: postId },
+      });
+
+      const postData = postDataResult.data.getPostData;
+      const posterUserId = postData?.userId;
+      console.log(posterUserId)
+      const updatedUser = await updateUserScore(posterUserId  || '', -1);
+      console.log('ユーザーのスコアが更新されました:', updatedUser.score);
+    } catch (error) {
+      console.error('Error updating user score:', error);
     }
   };
 

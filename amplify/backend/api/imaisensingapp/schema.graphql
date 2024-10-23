@@ -25,7 +25,7 @@ type User
   @auth(
     rules: [
       { allow: owner }
-      { allow: private, operations: [read] }
+      { allow: private, operations: [read, update] }
       { allow: public, operations: [read] }
       { allow: groups, groups: ["Admin"] }
     ]

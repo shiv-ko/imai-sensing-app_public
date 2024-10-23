@@ -81,7 +81,7 @@ const TimelinePage: React.FC = () => {
     postType: 'POST',
     updatedAt: { beginsWith: '2024-10' },
     sortDirection: ModelSortDirection.DESC,
-    limit: 30,
+    limit: 50,
     filter: filter, // 修正されたフィルタを使用
     nextToken: token,
   };

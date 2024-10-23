@@ -12,7 +12,6 @@ const NotAuthorizedPage: React.FC = () => {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>帰れ</h1>
       <p>このページを表示する権限がありません。</p>
       <button 
         onClick={handleGoHome} 
