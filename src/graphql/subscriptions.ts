@@ -8,98 +8,71 @@ type GeneratedSubscription<InputType, OutputType> = string & {
   __generatedSubscriptionOutput: OutputType;
 };
 
-export const onCreateUser = /* GraphQL */ `subscription OnCreateUser($filter: ModelSubscriptionUserFilterInput) {
-  onCreateUser(filter: $filter) {
+export const onCreateBingoSheet = /* GraphQL */ `subscription OnCreateBingoSheet(
+  $filter: ModelSubscriptionBingoSheetFilterInput
+  $owner: String
+) {
+  onCreateBingoSheet(filter: $filter, owner: $owner) {
     id
-    displayName
-    score
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
     createdAt
     updatedAt
-    currentCategoryId
-    currentCategory {
-      id
-      name
-      createdAt
-      updatedAt
-      __typename
-    }
-    posts {
-      nextToken
-      __typename
-    }
-    likes {
-      nextToken
-      __typename
-    }
     owner
     __typename
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnCreateUserSubscriptionVariables,
-  APITypes.OnCreateUserSubscription
+  APITypes.OnCreateBingoSheetSubscriptionVariables,
+  APITypes.OnCreateBingoSheetSubscription
 >;
-export const onUpdateUser = /* GraphQL */ `subscription OnUpdateUser($filter: ModelSubscriptionUserFilterInput) {
-  onUpdateUser(filter: $filter) {
+export const onUpdateBingoSheet = /* GraphQL */ `subscription OnUpdateBingoSheet(
+  $filter: ModelSubscriptionBingoSheetFilterInput
+  $owner: String
+) {
+  onUpdateBingoSheet(filter: $filter, owner: $owner) {
     id
-    displayName
-    score
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
     createdAt
     updatedAt
-    currentCategoryId
-    currentCategory {
-      id
-      name
-      createdAt
-      updatedAt
-      __typename
-    }
-    posts {
-      nextToken
-      __typename
-    }
-    likes {
-      nextToken
-      __typename
-    }
     owner
     __typename
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnUpdateUserSubscriptionVariables,
-  APITypes.OnUpdateUserSubscription
+  APITypes.OnUpdateBingoSheetSubscriptionVariables,
+  APITypes.OnUpdateBingoSheetSubscription
 >;
-export const onDeleteUser = /* GraphQL */ `subscription OnDeleteUser($filter: ModelSubscriptionUserFilterInput) {
-  onDeleteUser(filter: $filter) {
+export const onDeleteBingoSheet = /* GraphQL */ `subscription OnDeleteBingoSheet(
+  $filter: ModelSubscriptionBingoSheetFilterInput
+  $owner: String
+) {
+  onDeleteBingoSheet(filter: $filter, owner: $owner) {
     id
-    displayName
-    score
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
     createdAt
     updatedAt
-    currentCategoryId
-    currentCategory {
-      id
-      name
-      createdAt
-      updatedAt
-      __typename
-    }
-    posts {
-      nextToken
-      __typename
-    }
-    likes {
-      nextToken
-      __typename
-    }
     owner
     __typename
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnDeleteUserSubscriptionVariables,
-  APITypes.OnDeleteUserSubscription
+  APITypes.OnDeleteBingoSheetSubscriptionVariables,
+  APITypes.OnDeleteBingoSheetSubscription
 >;
 export const onCreatePostData = /* GraphQL */ `subscription OnCreatePostData($filter: ModelSubscriptionPostDataFilterInput) {
   onCreatePostData(filter: $filter) {
@@ -116,6 +89,7 @@ export const onCreatePostData = /* GraphQL */ `subscription OnCreatePostData($fi
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -154,6 +128,7 @@ export const onUpdatePostData = /* GraphQL */ `subscription OnUpdatePostData($fi
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -192,6 +167,7 @@ export const onDeletePostData = /* GraphQL */ `subscription OnDeletePostData($fi
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -313,4 +289,118 @@ export const onDeleteCategory = /* GraphQL */ `subscription OnDeleteCategory($fi
 ` as GeneratedSubscription<
   APITypes.OnDeleteCategorySubscriptionVariables,
   APITypes.OnDeleteCategorySubscription
+>;
+export const onCreateUser = /* GraphQL */ `subscription OnCreateUser(
+  $filter: ModelSubscriptionUserFilterInput
+  $owner: String
+) {
+  onCreateUser(filter: $filter, owner: $owner) {
+    id
+    displayName
+    score
+    createdAt
+    updatedAt
+    currentCategoryId
+    currentCategory {
+      id
+      name
+      createdAt
+      updatedAt
+      __typename
+    }
+    posts {
+      nextToken
+      __typename
+    }
+    likes {
+      nextToken
+      __typename
+    }
+    bingoSheets {
+      nextToken
+      __typename
+    }
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateUserSubscriptionVariables,
+  APITypes.OnCreateUserSubscription
+>;
+export const onUpdateUser = /* GraphQL */ `subscription OnUpdateUser(
+  $filter: ModelSubscriptionUserFilterInput
+  $owner: String
+) {
+  onUpdateUser(filter: $filter, owner: $owner) {
+    id
+    displayName
+    score
+    createdAt
+    updatedAt
+    currentCategoryId
+    currentCategory {
+      id
+      name
+      createdAt
+      updatedAt
+      __typename
+    }
+    posts {
+      nextToken
+      __typename
+    }
+    likes {
+      nextToken
+      __typename
+    }
+    bingoSheets {
+      nextToken
+      __typename
+    }
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateUserSubscriptionVariables,
+  APITypes.OnUpdateUserSubscription
+>;
+export const onDeleteUser = /* GraphQL */ `subscription OnDeleteUser(
+  $filter: ModelSubscriptionUserFilterInput
+  $owner: String
+) {
+  onDeleteUser(filter: $filter, owner: $owner) {
+    id
+    displayName
+    score
+    createdAt
+    updatedAt
+    currentCategoryId
+    currentCategory {
+      id
+      name
+      createdAt
+      updatedAt
+      __typename
+    }
+    posts {
+      nextToken
+      __typename
+    }
+    likes {
+      nextToken
+      __typename
+    }
+    bingoSheets {
+      nextToken
+      __typename
+    }
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteUserSubscriptionVariables,
+  APITypes.OnDeleteUserSubscription
 >;

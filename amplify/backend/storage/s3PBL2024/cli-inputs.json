@@ -1,0 +1,13 @@
+{
+  "resourceName": "s3PBL2024",
+  "policyUUID": "fa597c30",
+  "bucketName": "imaisensingapp8140c72212944ae38bfb72c96f0ce4f6",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "triggerFunction": "S3Trigger253b8c95",
+  "groupAccess": {}
+}

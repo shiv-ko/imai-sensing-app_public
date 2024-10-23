@@ -1,12 +1,33 @@
 # This "input" configures a global authorization rule to enable public access to
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
+type BingoCell {
+  category: String!
+  isCompleted: Boolean!
+}
+
+type BingoSheet
+  @model
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, update, delete, read] }
+      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+    ]
+  ) {
+  id: ID!
+  userId: ID! @index(name: "bingoByUser")
+  cells: [BingoCell!]!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
 type User
   @model
   @auth(
     rules: [
-      { allow: owner, operations: [create, update, delete] }
+      { allow: owner }
       { allow: private, operations: [read, update] }
-      { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["Admin"] }
     ]
   ) {
   id: ID!
@@ -18,14 +39,15 @@ type User
   currentCategory: Category @belongsTo(fields: ["currentCategoryId"])
   posts: [PostData] @hasMany(indexName: "postByUser", fields: ["id"])
   likes: [Like] @hasMany
+  bingoSheets: [BingoSheet] @hasMany(indexName: "bingoByUser", fields: ["id"])
 }
 
 type PostData
   @model
   @auth(
     rules: [
-      { allow: owner, operations: [create, update, delete] }
-      { allow: private, operations: [read] }
+      { allow: owner, operations: [delete] }
+      { allow: private, operations: [create, read, update] }
       { allow: groups, groups: ["Admin"], operations: [read, update, delete] }
     ]
   ) {
@@ -33,6 +55,7 @@ type PostData
   imageUrl: String
   userId: ID! @index(name: "postByUser", sortKeyFields: ["updatedAt"])
   user: User @belongsTo(fields: ["userId"])
+  postedby: String
   lat: Float!
   lng: Float!
   category: String!

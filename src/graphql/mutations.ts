@@ -8,6 +8,72 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
+export const createBingoSheet = /* GraphQL */ `mutation CreateBingoSheet(
+  $input: CreateBingoSheetInput!
+  $condition: ModelBingoSheetConditionInput
+) {
+  createBingoSheet(input: $input, condition: $condition) {
+    id
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateBingoSheetMutationVariables,
+  APITypes.CreateBingoSheetMutation
+>;
+export const updateBingoSheet = /* GraphQL */ `mutation UpdateBingoSheet(
+  $input: UpdateBingoSheetInput!
+  $condition: ModelBingoSheetConditionInput
+) {
+  updateBingoSheet(input: $input, condition: $condition) {
+    id
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateBingoSheetMutationVariables,
+  APITypes.UpdateBingoSheetMutation
+>;
+export const deleteBingoSheet = /* GraphQL */ `mutation DeleteBingoSheet(
+  $input: DeleteBingoSheetInput!
+  $condition: ModelBingoSheetConditionInput
+) {
+  deleteBingoSheet(input: $input, condition: $condition) {
+    id
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteBingoSheetMutationVariables,
+  APITypes.DeleteBingoSheetMutation
+>;
 export const createUser = /* GraphQL */ `mutation CreateUser(
   $input: CreateUserInput!
   $condition: ModelUserConditionInput
@@ -31,6 +97,10 @@ export const createUser = /* GraphQL */ `mutation CreateUser(
       __typename
     }
     likes {
+      nextToken
+      __typename
+    }
+    bingoSheets {
       nextToken
       __typename
     }
@@ -68,6 +138,10 @@ export const updateUser = /* GraphQL */ `mutation UpdateUser(
       nextToken
       __typename
     }
+    bingoSheets {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -102,6 +176,10 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
       nextToken
       __typename
     }
+    bingoSheets {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -128,6 +206,7 @@ export const createPostData = /* GraphQL */ `mutation CreatePostData(
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -169,6 +248,7 @@ export const updatePostData = /* GraphQL */ `mutation UpdatePostData(
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -210,6 +290,7 @@ export const deletePostData = /* GraphQL */ `mutation DeletePostData(
       owner
       __typename
     }
+    postedby
     lat
     lng
     category

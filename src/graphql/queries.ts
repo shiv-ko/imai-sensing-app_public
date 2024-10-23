@@ -8,47 +8,36 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
-export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
-  getUser(id: $id) {
+export const getBingoSheet = /* GraphQL */ `query GetBingoSheet($id: ID!) {
+  getBingoSheet(id: $id) {
     id
-    displayName
-    score
+    userId
+    cells {
+      category
+      isCompleted
+      __typename
+    }
     createdAt
     updatedAt
-    currentCategoryId
-    currentCategory {
-      id
-      name
-      createdAt
-      updatedAt
-      __typename
-    }
-    posts {
-      nextToken
-      __typename
-    }
-    likes {
-      nextToken
-      __typename
-    }
     owner
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetUserQueryVariables, APITypes.GetUserQuery>;
-export const listUsers = /* GraphQL */ `query ListUsers(
-  $filter: ModelUserFilterInput
+` as GeneratedQuery<
+  APITypes.GetBingoSheetQueryVariables,
+  APITypes.GetBingoSheetQuery
+>;
+export const listBingoSheets = /* GraphQL */ `query ListBingoSheets(
+  $filter: ModelBingoSheetFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  listBingoSheets(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
-      displayName
-      score
+      userId
       createdAt
       updatedAt
-      currentCategoryId
       owner
       __typename
     }
@@ -56,7 +45,10 @@ export const listUsers = /* GraphQL */ `query ListUsers(
     __typename
   }
 }
-` as GeneratedQuery<APITypes.ListUsersQueryVariables, APITypes.ListUsersQuery>;
+` as GeneratedQuery<
+  APITypes.ListBingoSheetsQueryVariables,
+  APITypes.ListBingoSheetsQuery
+>;
 export const getPostData = /* GraphQL */ `query GetPostData($id: ID!) {
   getPostData(id: $id) {
     id
@@ -72,6 +64,7 @@ export const getPostData = /* GraphQL */ `query GetPostData($id: ID!) {
       owner
       __typename
     }
+    postedby
     lat
     lng
     category
@@ -105,6 +98,7 @@ export const listPostData = /* GraphQL */ `query ListPostData(
       id
       imageUrl
       userId
+      postedby
       lat
       lng
       category
@@ -199,15 +193,15 @@ export const listCategories = /* GraphQL */ `query ListCategories(
   APITypes.ListCategoriesQueryVariables,
   APITypes.ListCategoriesQuery
 >;
-export const usersByCurrentCategoryId = /* GraphQL */ `query UsersByCurrentCategoryId(
-  $currentCategoryId: ID!
+export const bingoSheetsByUserId = /* GraphQL */ `query BingoSheetsByUserId(
+  $userId: ID!
   $sortDirection: ModelSortDirection
-  $filter: ModelUserFilterInput
+  $filter: ModelBingoSheetFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  usersByCurrentCategoryId(
-    currentCategoryId: $currentCategoryId
+  bingoSheetsByUserId(
+    userId: $userId
     sortDirection: $sortDirection
     filter: $filter
     limit: $limit
@@ -215,11 +209,9 @@ export const usersByCurrentCategoryId = /* GraphQL */ `query UsersByCurrentCateg
   ) {
     items {
       id
-      displayName
-      score
+      userId
       createdAt
       updatedAt
-      currentCategoryId
       owner
       __typename
     }
@@ -228,8 +220,8 @@ export const usersByCurrentCategoryId = /* GraphQL */ `query UsersByCurrentCateg
   }
 }
 ` as GeneratedQuery<
-  APITypes.UsersByCurrentCategoryIdQueryVariables,
-  APITypes.UsersByCurrentCategoryIdQuery
+  APITypes.BingoSheetsByUserIdQueryVariables,
+  APITypes.BingoSheetsByUserIdQuery
 >;
 export const postDataByUserIdAndUpdatedAt = /* GraphQL */ `query PostDataByUserIdAndUpdatedAt(
   $userId: ID!
@@ -251,6 +243,7 @@ export const postDataByUserIdAndUpdatedAt = /* GraphQL */ `query PostDataByUserI
       id
       imageUrl
       userId
+      postedby
       lat
       lng
       category
@@ -293,6 +286,7 @@ export const postDataByPostTypeAndUpdatedAt = /* GraphQL */ `query PostDataByPos
       id
       imageUrl
       userId
+      postedby
       lat
       lng
       category
@@ -346,4 +340,89 @@ export const likesByPostId = /* GraphQL */ `query LikesByPostId(
 ` as GeneratedQuery<
   APITypes.LikesByPostIdQueryVariables,
   APITypes.LikesByPostIdQuery
+>;
+export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
+  getUser(id: $id) {
+    id
+    displayName
+    score
+    createdAt
+    updatedAt
+    currentCategoryId
+    currentCategory {
+      id
+      name
+      createdAt
+      updatedAt
+      __typename
+    }
+    posts {
+      nextToken
+      __typename
+    }
+    likes {
+      nextToken
+      __typename
+    }
+    bingoSheets {
+      nextToken
+      __typename
+    }
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.GetUserQueryVariables, APITypes.GetUserQuery>;
+export const listUsers = /* GraphQL */ `query ListUsers(
+  $filter: ModelUserFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      displayName
+      score
+      createdAt
+      updatedAt
+      currentCategoryId
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.ListUsersQueryVariables, APITypes.ListUsersQuery>;
+export const usersByCurrentCategoryId = /* GraphQL */ `query UsersByCurrentCategoryId(
+  $currentCategoryId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelUserFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  usersByCurrentCategoryId(
+    currentCategoryId: $currentCategoryId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      displayName
+      score
+      createdAt
+      updatedAt
+      currentCategoryId
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.UsersByCurrentCategoryIdQueryVariables,
+  APITypes.UsersByCurrentCategoryIdQuery
 >;
