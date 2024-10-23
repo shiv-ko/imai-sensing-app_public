@@ -208,10 +208,7 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
 
 // Bingo コンポーネント
 export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
-  const [showGachaButton, setShowGachaButton] = useState(false);
-  const [showGachaPopup, setShowGachaPopup] = useState(false);
   const [bingoKey, setBingoKey] = useState(0);
-  const [completedLines, setCompletedLines] = useState(0);
   const [totalPoints, setTotalPoints] = useState(initialScore);
   const [bingoSheet, setBingoSheet] = useState<{ category: string; isCompleted: boolean }[]>([]);
   const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
@@ -233,15 +230,11 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     return lines.filter(line => line.every(index => sheet[index].isCompleted)).length;
   }, []);
 
-  
-
   const handleGenerateBingo = useCallback(async () => {
     const newSheet = generateBingoSheet();
     setBingoSheet(newSheet);
     console.log('生成されたビンゴシート:', newSheet);
     setBingoKey(prevKey => prevKey + 1);
-    setCompletedLines(0);
-    setShowGachaButton(false);
     try {
       const input: CreateBingoSheetMutationVariables['input'] = {
         userId: userId,
@@ -257,12 +250,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       console.error('ビンゴシートの保存に失敗しました:', error);
     }
   }, [userId]);
-
-  const handleCloseGacha = useCallback(() => {
-    setShowGachaPopup(false);
-    setShowGachaButton(false);
-    console.log('ガチャポップアップを閉じました');
-  }, []);
 
   const loadBingoSheet = useCallback(async () => {
     try {
@@ -335,8 +322,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           setBingoSheet(updatedSheet);
           const completed = checkBingoLines(updatedSheet);
           if (completed > 0) {
-            setCompletedLines(completed);
-            setShowGachaButton(true);
             console.log(`ビンゴラインが${completed}本完成しました。`);
           }
           for (const category of updatedCategories) {
@@ -380,30 +365,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   useEffect(() => {
     setTotalPoints(initialScore);
   }, [initialScore]);
-
-  const addPoints = useCallback(
-    async (points: number) => {
-      try {
-        const newScore = totalPoints + points;
-        setTotalPoints(newScore);
-        await addPointsToUser(userId, points);
-        console.log(`${points} ポイントを追加しました。新しいスコア: ${newScore}`);
-      } catch (error) {
-        console.error('ポイント追加エラー:', error);
-      }
-    },
-    [totalPoints, userId]
-  );
-
-  const handleOpenGacha = useCallback(() => {
-    if (boardRef.current && boardRef.current.checkBingo) {
-      const recalculatedLines = boardRef.current.checkBingo();
-      setCompletedLines(recalculatedLines);
-      console.log(`ビンゴラインが${recalculatedLines}本完成しました。`);
-    }
-    setShowGachaPopup(true);
-    console.log('ガチャポップアップを表示しました。');
-  }, []);
 
   return (
     <div className="bingo-gacha-game">
@@ -619,7 +580,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           display: flex;
           justify-content: center;
           width: 100%;
-          margin-top: 4rem;  // 1remから4remに変更
         }
       `}</style>
 
@@ -638,6 +598,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     </div>
   );
 };
+
 
 
 
