@@ -6,7 +6,7 @@
 import React, { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { pullGacha, generateBingoSheet } from '@/features/dashboard/utils/bingoUtils';
+import { pullGacha } from '@/features/dashboard/utils/bingoUtils';
 import { 
   BingoBoardHandle, 
   BingoProps, 
@@ -14,8 +14,7 @@ import {
   BingoGachaPopupProps, 
   BingoBoardProps 
 } from '@/features/dashboard/utils/bingoTypes';
-import { createNewBingoSheet, fetchBingoSheet, markCategoryAsCompleted, fetchPosts } from '@/features/dashboard/utils/awsService'; 
-import { CreateBingoSheetMutationVariables } from '../../../API'; // 正しくインポート
+import {fetchBingoSheet, markCategoryAsCompleted, fetchPosts } from '@/features/dashboard/utils/awsService'; 
 
 
 // Button コンポーネント
@@ -208,7 +207,6 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
 
 // Bingo コンポーネント
 export const Bingo: React.FC<BingoProps> = ({ userId }) => {
-  const [bingoKey, setBingoKey] = useState(0);
   const [bingoSheet, setBingoSheet] = useState<{ category: string; isCompleted: boolean }[]>([]);
   const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -565,7 +563,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
       {bingoSheetExists && bingoSheet.length > 0 && (
         <div className="bingo-gacha-container">
           <BingoBoard 
-            key={bingoKey} 
             bingoSheet={bingoSheet}
             ref={boardRef} 
           />
@@ -575,6 +572,8 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
     </div>
   );
 };
+
+
 
 
 
