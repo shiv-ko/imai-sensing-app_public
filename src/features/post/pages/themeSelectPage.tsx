@@ -74,19 +74,16 @@ const styles = {
     display: 'flex',
     flexDirection: 'column' as const,
     alignItems: 'center',
+    justifyContent: 'center',
     width: '100%',
-    maxWidth: '100vw', // 追加: ビューポートの幅を超えないようにする
+    height: 'calc(100vh - 120px)',
     padding: '20px',
     backgroundColor: '#f5f5f5',
     position: 'fixed' as const,
     top: '60px',
     left: 0,
-    right: 0, // 追加: 右端も固定
-    bottom: '60px',
-    zIndex: 1000,
-    overflowY: 'auto' as const,
-    overflowX: 'hidden' as const, // 追加: 横スクロールを無効にする
-    boxSizing: 'border-box' as const, // 追加: パディングを幅に含める
+    right: 0,
+    boxSizing: 'border-box' as const,
   },
   title: {
     fontSize: '24px',

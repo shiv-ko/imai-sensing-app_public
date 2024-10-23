@@ -207,7 +207,7 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
 };
 
 // Bingo コンポーネント
-export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
+export const Bingo: React.FC<BingoProps> = ({ userId }) => {
   const [bingoKey, setBingoKey] = useState(0);
   const [bingoSheet, setBingoSheet] = useState<{ category: string; isCompleted: boolean }[]>([]);
   const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
@@ -229,26 +229,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     return lines.filter(line => line.every(index => sheet[index].isCompleted)).length;
   }, []);
 
-  const handleGenerateBingo = useCallback(async () => {
-    const newSheet = generateBingoSheet();
-    setBingoSheet(newSheet);
-    console.log('生成されたビンゴシート:', newSheet);
-    setBingoKey(prevKey => prevKey + 1);
-    try {
-      const input: CreateBingoSheetMutationVariables['input'] = {
-        userId: userId,
-        cells: newSheet,
-      };
-      const savedSheet = await createNewBingoSheet(input);
-      console.log('新しいビンゴシートが保存されました:', savedSheet);
-      if (savedSheet && savedSheet.id) {
-        setCurrentSheetId(savedSheet.id);
-        setBingoSheetExists(true);
-      }
-    } catch (error) {
-      console.error('ビンゴシートの保存に失敗しました:', error);
-    }
-  }, [userId]);
+
 
   const loadBingoSheet = useCallback(async () => {
     try {
