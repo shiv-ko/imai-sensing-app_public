@@ -3,17 +3,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Header from '@/shared/components/header';
-import FooterNavBar from '@/shared/components/footer';
 import { Bingo } from '@/features/dashboard/components/bingoUI';
 import { getUserSession, getUserData } from '@/features/dashboard/utils/awsService';
-// import { User } from '../../../API'; 
 import { UserSession } from '../utils/bingoTypes'; 
-// 現在使用されていないため、削除
-// type UserData = Pick<User, 'id' | 'displayName' | 'score' | 'currentCategoryId' | 'currentCategory'>;
 
 const HomePage: React.FC = () => {
-  // useStateの型をUserSession | nullに変更
   const [userSession, setUserSession] = useState<UserSession | null>(null);
   const [userScore, setUserScore] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -54,17 +48,11 @@ const HomePage: React.FC = () => {
 
   return (
     <div>
-      <Header />
       {userId ? (
-        // Bingo コンポーネントとランキングを表示
-        <>
-          
-          <Bingo userId={userId} initialScore={userScore} />
-        </>
+        <Bingo userId={userId} initialScore={userScore} />
       ) : (
         <p>ユーザーIDを取得できませんでした。</p>
       )}
-      <FooterNavBar />
     </div>
   );
 };
