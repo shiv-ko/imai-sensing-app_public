@@ -12,6 +12,7 @@ import { updateUser } from '../../../graphql/mutations';
 import { UpdateUserMutationVariables } from '../../../API';
 import AnimatedTitle from './animatedTitle';
 
+
 Amplify.configure(awsExports);
 const client = generateClient();
 
@@ -473,7 +474,9 @@ export function Bingo({ userId, initialScore }: BingoProps) {
         <AnimatedTitle />
       </div>
       <div className="total-points">総ポイント: {totalPoints}</div>
+      
 
+      
       <div className="bingo-gacha-container">
         <BingoBoard key={bingoKey} onBingoComplete={handleBingoComplete} ref={boardRef} />
       </div>

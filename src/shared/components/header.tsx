@@ -5,12 +5,6 @@ import { signOut } from 'aws-amplify/auth';
 
 const Header = () => {
   const router = useRouter();
-
-
-  // 説明ページにルーティング
-  const handleGuide = () => {
-    router.push('/guide'); // 使い方説明ページにリダイレクト
-  };
   
 
 
@@ -22,7 +16,6 @@ const Header = () => {
     </div>
     <div style={styles.buttons}>
       {/* 使い方ページに移動するボタン */}
-      <button style={styles.button} onClick={handleGuide}>使い方</button>
 
       <button
         style={styles.button}
