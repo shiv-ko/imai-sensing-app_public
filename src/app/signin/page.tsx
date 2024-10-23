@@ -2,24 +2,119 @@
 import { Authenticator } from '@aws-amplify/ui-react';
 import { fetchUserAttributes} from 'aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
+import { I18n } from '@aws-amplify/core';
 import React, { useState, useEffect } from 'react';
 import awsExports from './../../aws-exports';
 import '@aws-amplify/ui-react/styles.css';
 import { useRouter } from 'next/navigation';
 import { createUserIfNotExists } from '../../features/dashboard/utils/awsService'; // 適切なパスに変更してください
+import { motion } from 'framer-motion';
 
 Amplify.configure({ ...awsExports });
 
+// I18nの設定
+I18n.setLanguage('ja');
+I18n.putVocabularies({
+  ja: {
+    'Sign In': 'サインイン',
+    'Create Account': 'アカウント作成',
+    'Sign Up': 'サインアップ',
+    'Sign in': 'サインイン',
+    'Forgot your password?': 'パスワードをお忘れですか？',
+    'Reset Password': 'パスワードをリセット',
+    'Enter your email': 'メールアドレスを入力してください',
+    'Please confirm your Password': 'パスワードを確認してください',
+    'Send code': 'コードを送信',
+    'Confirm': '確認',
+    'Back to Sign In': 'サインインに戻る',
+    'Submit': '送信',
+    'Confirm Sign Up': 'サインアップを確認',
+    'Confirmation Code': '確認コード',
+    'Resend Code': 'コードを再送信',
+    'Create a new account': '新しいアカウントを作成',
+    'Have an account? Sign in': 'アカウントをお持ちですか？サインイン',
+    'No account? Create account': 'アカウントをお持ちでない方はこちら',
+    'Forgot Password': 'パスワードをお忘れの方',
+    'Reset your password': 'パスワードをリセット',
+    'Enter your username': 'ユーザー名を入力してください',
+    'Send Reset Link': 'リセッリンクを送信',
+  }
+});
+
 const formFields = {
-  signUp: {
-    email: {
+  signIn: {
+    username: {
       label: 'メールアドレス',
-      order: 2,
+      placeholder: 'メールアドレスを入力してください',
     },
     password: {
       label: 'パスワード',
-      order: 3,
+      placeholder: 'パスワードを入力してください',
     },
+  },
+  signUp: {
+    username: {
+      label: 'ユーザー名',
+      placeholder: 'ユーザー名を入力してください',
+    },
+    nickname: {
+      label: 'ニックネーム',
+      placeholder: 'ニックネームを入力してください',
+    },
+    email: {
+      label: 'メールアドレス',
+      placeholder: 'メールアドレスを入力してください',
+    },
+    password: {
+      label: 'パスワード',
+      placeholder: 'パスワードを入力してください',
+    },
+    confirm_password: {
+      label: 'パスワード（確認）',
+      placeholder: 'パスワードを再入力してください',
+    },
+  },
+  forgetPassword: {
+    username: {
+      label: 'メールアドレス',
+      placeholder: 'メールアドレスを入力してください',
+    },
+  },
+  resetPassword: {
+    password: {
+      label: '新しいパスワード',
+      placeholder: '新しいパスワードを入力してください',
+    },
+    confirm_password: {
+      label: '新しいパスワード（確認）',
+      placeholder: '新しいパスワードを再入力してください',
+    },
+  },
+};
+
+const messages = {
+  ja: {
+    'Sign In': 'サインイン',
+    'Create Account': 'アカウント作成',
+    'Sign Up': 'サインアップ',
+    'Forgot your password?': 'パスワードをお忘れですか？',
+    'Reset Password': 'パスワードをリセット',
+    'Enter your email': 'メールアドレスを入力してください',
+    'Please confirm your Password': 'パスワードを確認してください',
+    'Send code': 'コードを送信',
+    'Confirm': '確認',
+    'Back to Sign In': 'サインインに戻る',
+    'Submit': '送信',
+    'Confirm Sign Up': 'サインアップを確認',
+    'Confirmation Code': '確認コード',
+    'Resend Code': 'コードを再送信',
+    'Create a new account': '新しいアカウントを作成',
+    'Have an account? Sign in': 'アカウントをお持ちですか？サインイン',
+    'No account? Create account': 'アカウントをお持ちでない方はこちら',
+    'Forgot Password': 'パスワードをお忘れの方',
+    'Reset your password': 'パスワードをリセット',
+    'Enter your username': 'ユーザー名を入力してください',
+    'Send Reset Link': 'リセッリンクを送信',
   },
 };
 
@@ -74,13 +169,52 @@ export default function App() {
           {() => (
             <div>
               {!buttonClicked ? (
-                <button style={styles.button} onClick={handleButtonClick}>
-                  今井町について知る
-                </button>
+                <motion.button 
+                  style={styles.button} 
+                  onClick={handleButtonClick}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  今井町の魅力を探る
+                </motion.button>
               ) : (
-                <div>
-                  <h1>ようこそ、{displayName} さん</h1>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8 }}
+                  style={styles.welcomeContainer}
+                >
+                  <motion.h1
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                    style={styles.welcomeText}
+                  >
+                    ようこそ
+                  </motion.h1>
+                  <motion.h2
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                    style={styles.displayName}
+                  >
+                    {displayName} さん
+                  </motion.h2>
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ delay: 0.6, duration: 0.5 }}
+                    style={styles.separator}
+                  />
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8, duration: 0.5 }}
+                    style={styles.message}
+                  >
+                    今井町の歴史と文化をお楽しみください
+                  </motion.p>
+                </motion.div>
               )}
             </div>
           )}
@@ -99,19 +233,57 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     height: '100vh',
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#f8f9fa',
   },
   errorMessage: {
     color: 'red',
     fontSize: '1.2rem',
   },
   button: {
-    padding: '0.5rem 1rem',
-    backgroundColor: '#ff6f61',
+    padding: '15px 30px',
+    fontSize: '1.2rem',
+    color: '#ffffff',
+    backgroundColor: '#1a1a1a',
     border: 'none',
-    color: 'white',
+    borderRadius: '50px',
     cursor: 'pointer',
-    borderRadius: '4px',
-    fontSize: '1rem',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease',
+  },
+  welcomeContainer: {
+    backgroundColor: '#ffffff',
+    padding: '3rem 4rem',
+    borderRadius: '10px',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+    textAlign: 'center' as const,
+    maxWidth: '500px',
+    width: '90%',
+    position: 'absolute' as const,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
+  welcomeText: {
+    fontSize: '2.5rem',
+    color: '#1a1a1a',
+    marginBottom: '0.5rem',
+    fontWeight: '300',
+  },
+  displayName: {
+    fontSize: '2rem',
+    color: '#4a4a4a',
+    fontWeight: '600',
+    marginBottom: '1.5rem',
+  },
+  separator: {
+    height: '2px',
+    backgroundColor: '#e0e0e0',
+    width: '50%',
+    margin: '0 auto 1.5rem',
+  },
+  message: {
+    fontSize: '1.2rem',
+    color: '#666666',
+    lineHeight: '1.6',
   },
 };

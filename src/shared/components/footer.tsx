@@ -1,27 +1,16 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AiOutlineHome, AiOutlineCamera } from 'react-icons/ai';
 import { FiMap } from 'react-icons/fi';
 import { BiUser } from 'react-icons/bi';
 
 const FooterNavBar: React.FC = () => {
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  // クライアントサイドでのみレンダリングする
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return null; // サーバーサイドでは何もレンダリングしない
-  }
-
-  // ページ遷移のハンドラ
   const navigateTo = (path: string) => {
-    router.push(path); // 指定されたパスにリダイレクト
+    router.push(path);
   };
 
   const navItemStyle = {
@@ -30,7 +19,6 @@ const FooterNavBar: React.FC = () => {
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '12px',
-    color: '#555',
     cursor: 'pointer',
     width: '25%',
     height: '60px',
@@ -68,8 +56,11 @@ const FooterNavBar: React.FC = () => {
       padding: '5px 0',
       position: 'fixed' as const,
       bottom: 0,
-      width: '100%',
+      left: 0,
+      right: 0,
+      height: '70px', // フッターの高さを明示的に設定
       borderTop: '1px solid #ddd',
+      zIndex: 1000, // 他の要素より前面に表示
     }}>
       <div style={getNavItemStyle('/home')} onClick={() => navigateTo('/home')}>
         <AiOutlineHome style={getIconStyle('/home')} />
