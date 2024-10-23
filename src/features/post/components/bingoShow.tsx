@@ -14,7 +14,7 @@ import {
   BingoGachaPopupProps, 
   BingoBoardProps 
 } from '@/features/dashboard/utils/bingoTypes';
-import { addPointsToUser, createNewBingoSheet, fetchBingoSheet, markCategoryAsCompleted, fetchPosts } from '@/features/dashboard/utils/awsService'; 
+import { createNewBingoSheet, fetchBingoSheet, markCategoryAsCompleted, fetchPosts } from '@/features/dashboard/utils/awsService'; 
 import { CreateBingoSheetMutationVariables } from '../../../API'; // 正しくインポート
 
 
@@ -209,7 +209,6 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
 // Bingo コンポーネント
 export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   const [bingoKey, setBingoKey] = useState(0);
-  const [totalPoints, setTotalPoints] = useState(initialScore);
   const [bingoSheet, setBingoSheet] = useState<{ category: string; isCompleted: boolean }[]>([]);
   const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -362,9 +361,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     initializeBingoAndPosts();
   }, [isInitialized, loadBingoSheet, loadPostsAndUpdateBingoSheet]);
 
-  useEffect(() => {
-    setTotalPoints(initialScore);
-  }, [initialScore]);
 
   return (
     <div className="bingo-gacha-game">
