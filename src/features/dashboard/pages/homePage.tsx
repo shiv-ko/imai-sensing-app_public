@@ -9,7 +9,6 @@ import { Bingo } from '@/features/dashboard/components/bingoUI';
 import { getUserSession, getUserData } from '@/features/dashboard/utils/awsService';
 // import { User } from '../../../API'; 
 import { UserSession } from '../utils/bingoTypes'; 
-import UserRanking from '@/shared/components/ranking';
 // 現在使用されていないため、削除
 // type UserData = Pick<User, 'id' | 'displayName' | 'score' | 'currentCategoryId' | 'currentCategory'>;
 
@@ -61,7 +60,6 @@ const HomePage: React.FC = () => {
         <>
           
           <Bingo userId={userId} initialScore={userScore} />
-          <UserRanking></UserRanking>
         </>
       ) : (
         <p>ユーザーIDを取得できませんでした。</p>

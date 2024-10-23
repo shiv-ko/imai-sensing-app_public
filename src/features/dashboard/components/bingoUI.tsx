@@ -18,6 +18,7 @@ import {
 import { addPointsToUser, createNewBingoSheet, fetchBingoSheet, markCategoryAsCompleted, fetchPosts } from '../utils/awsService'; 
 import { CreateBingoSheetMutationVariables } from '../../../API'; // 正しくインポート
 
+import UserRanking from '@/shared/components/ranking';
 
 // Button コンポーネント
 export const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) => (
@@ -112,7 +113,7 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
       await handleGenerateBingo();
       
     } catch (error) {
-      console.error('ポイント追加またはビンゴシート生成中にエラーが発生しました:', error);
+      console.error('ポイント追加またはビンゴシート生成中にエラーが発生しした:', error);
     } finally {
       setIsAddingPoints(false);
     }
@@ -419,13 +420,8 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           min-height: 100vh;
         }
         .bingo-title {
-          margin-bottom: 1rem;
-        }
-        .total-points {
-          font-size: 1.5rem;
-          color: #4a4a4a;
-          margin-bottom: 2rem;
-          text-align: center;
+          justify-content: center;
+          margin-left: 1rem;
         }
         .bingo-gacha-button {
           padding: 0.75rem 1.5rem;
@@ -455,7 +451,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           background-color: #ffffff;
           padding: 1rem;
           border-radius: 0.5rem;
-          margin-bottom: 2rem;
+          margin-bottom: 1rem;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           border: 2px solid #fbbf24;
           width: 100%;
@@ -604,7 +600,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         }
         /* ビンゴを表示ボタンとビンゴシートの間隔を広げる */
         .bingo-gacha-container {
-          margin-top: 2rem; /* 間隔を2rem設定。に応じて調整してください */
+          margin-top: -3rem; 
         }
         /* スポンシブ対応 */
         @media (max-width: 600px) {
@@ -620,15 +616,18 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
             height: 12rem;
           }
         }
+        .ranking-wrapper {
+          display: flex;
+          justify-content: center;
+          width: 100%;
+          margin-top: 1rem;  /* 2rem から 1rem に変更 */
+        }
       `}</style>
 
       {/* タイトルの追加 */}
       <div className="bingo-title">
         <AnimatedTitle />
       </div>
-      <div className="total-points">総ポイント: {totalPoints}</div>
-
-      {/* 投稿フォームを削除 */}
 
       {/* ビンゴ生成ボタン */}
       <div className="bingo-gacha-button-container">
@@ -655,6 +654,11 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         </div>
       )}
 
+      {/* ランキングを中央揃えで配置 */}
+      <div className="ranking-wrapper">
+        <UserRanking />
+      </div>
+
       <AnimatePresence>
         {showGachaPopup && (
           <BingoGachaPopup
@@ -668,3 +672,4 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     </div>
   );
 };
+
