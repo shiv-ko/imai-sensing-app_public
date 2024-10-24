@@ -1,17 +1,22 @@
 // pages/themeSelectPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import ThemeSelector from '../components/themeSelector';
 import { categoriesList } from '@/shared/utils/category/categoryList';
 import { getUserSession, getUserData } from '@/features/dashboard/utils/awsService';
 import { UserSession } from '@/features/dashboard/utils/bingoTypes';
 import { Bingo } from '@/features/post/components/bingoShow';
+import { useRecoilState } from 'recoil';
+import { capturedImageAtom } from '../states/imageAtom';
 
 const ThemeSelectPage: React.FC = () => {
   const router = useRouter();
   const [selectedTheme, setSelectedTheme] = useState('');
   const [userSession, setUserSession] = useState<UserSession | null>(null);
   const [userScore, setUserScore] = useState<number>(0);
+  const [capturedImage, setCapturedImage] = useRecoilState(capturedImageAtom);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
@@ -41,10 +46,25 @@ const ThemeSelectPage: React.FC = () => {
 
   const handleNext = () => {
     if (selectedTheme) {
-      const params = new URLSearchParams({ theme: selectedTheme });
-      router.push(`/camera/camera?${params.toString()}`);
+      // Programmatically click the hidden input to open the camera
+      if (inputRef.current) {
+        inputRef.current.click();
+      }
     } else {
       alert('テーマを選択してください');
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files[0]) {
+      const file = files[0];
+      setCapturedImage(file);
+      console.log(capturedImage);
+
+      // Navigate to post page with theme as query parameter
+      const params = new URLSearchParams({ theme: selectedTheme });
+      router.push(`/camera/post?${params.toString()}`);
     }
   };
 
@@ -62,11 +82,20 @@ const ThemeSelectPage: React.FC = () => {
         次へ
       </button>
       {userId && <Bingo userId={userId} initialScore={userScore} />}
+      {/* Hidden input to trigger camera */}
+      <input
+        ref={inputRef}
+        id="upload"
+        type="file"
+        name="image"
+        accept="image/*"
+        capture="environment"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
     </div>
   );
 };
-
-
 
 // インラインスタイルの修正
 const styles = {
