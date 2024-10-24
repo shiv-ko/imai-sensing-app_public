@@ -50,6 +50,7 @@ const CameraPage: React.FC = () => {
           capture="environment"
           className="hidden"
           onChange={handleFileChange}
+          aria-label="カメラを開く"
         />
       </div>
     </div>
