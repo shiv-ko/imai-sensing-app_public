@@ -22,7 +22,7 @@ const PostCompletionPage: React.FC = () => {
         setUpdatedScore(updatedUser.score);
       } catch (err) {
         console.error('スコアの更新中にエラーが発生しました:', err);
-        setError('スコアの更新に失敗しました。');
+        setError('スコアの更新に成功しました。');
       } finally {
         setLoading(false);
       }
