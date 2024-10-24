@@ -67,12 +67,14 @@ const CameraPage: React.FC = () => {
     <div style={styles.content}>
       <h2 style={styles.themeTitle}>お題: {theme}</h2>
       <div style={styles.card}>
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          style={styles.camera as React.CSSProperties}
-        />
+        <input
+            id="upload"
+            type="file"
+            name="image"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+          />
       </div>
       <button onClick={takePhoto} style={styles.button}>
         撮影
