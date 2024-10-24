@@ -12,54 +12,28 @@ const CameraPage: React.FC = () => {
   const searchParams = useSearchParams();
   const theme = searchParams.get('theme') || '';
 
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // カメラを起動
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: 'environment' } })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      })
-      .catch((error) => {
-        console.error('Error accessing camera:', error);
-        alert('カメラにアクセスできませんでした。');
-        router.back();
-      });
-  }, [router]);
+    // Programmatically click the input to open the camera
+    if (inputRef.current) {
+      inputRef.current.click();
+    }
+  }, []);
 
-  const takePhoto = () => {
-    if (videoRef.current) {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files[0]) {
+      const file = files[0];
+      setCapturedImage(file);
       console.log(capturedImage);
-      const video = videoRef.current;
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
 
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const timestamp = Date.now();
-              const randomHash = Math.random().toString(36).substring(2, 15);
-              const fileName = `${timestamp}_${randomHash}.jpg`;
-
-              const file = new File([blob], fileName, { type: 'image/jpeg' });
-              setCapturedImage(file);
-
-              // テーマをクエリパラメータとして渡してPostPageに遷移
-              const params = new URLSearchParams({ theme });
-              router.push(`/camera/post?${params.toString()}`);
-            }
-          },
-          'image/jpeg',
-          0.9
-        );
-      }
+      // Navigate to post page with theme as query parameter
+      const params = new URLSearchParams({ theme });
+      router.push(`/camera/post?${params.toString()}`);
+    } else {
+      // If no file is selected, navigate back
+      router.back();
     }
   };
 
@@ -68,17 +42,16 @@ const CameraPage: React.FC = () => {
       <h2 style={styles.themeTitle}>お題: {theme}</h2>
       <div style={styles.card}>
         <input
-            id="upload"
-            type="file"
-            name="image"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-          />
+          ref={inputRef}
+          id="upload"
+          type="file"
+          name="image"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </div>
-      <button onClick={takePhoto} style={styles.button}>
-        撮影
-      </button>
     </div>
   );
 };
@@ -109,22 +82,6 @@ const styles = {
     borderRadius: '10px',
     backgroundColor: '#000',
     overflow: 'hidden',
-  },
-  camera: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover' as const,
-    borderRadius: '10px',
-  },
-  button: {
-    marginTop: '20px',
-    padding: '15px 30px',
-    fontSize: '18px',
-    backgroundColor: '#4caf50',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
   },
 };
 
