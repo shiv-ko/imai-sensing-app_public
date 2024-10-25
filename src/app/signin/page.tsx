@@ -31,7 +31,7 @@ I18n.putVocabularies({
     'Confirm Sign Up': 'サインアップを確認',
     'Confirmation Code': '確認コード',
     'Resend Code': 'コードを再送信',
-    'Create a new account': '新しいカウントを作成',
+    'Create a new account': '新しいアカウントを作成',
     'Have an account? Sign in': 'アカウントをお持ちですか？サインイン',
     'No account? Create account': 'アカウントをお持ちでない方はこちら',
     'Forgot Password': 'パスワードをお忘れの方',
