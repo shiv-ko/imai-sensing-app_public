@@ -72,8 +72,8 @@ I18n.putVocabularies({
     'Please try again': 'もう一度お試しください',
 
     // 確認コード関連のメッセージを分割
-    'Your code is on the way. To log in, enter the code we emailed to': 'コードをメールで送信しました。ログインするには、受信したコードを入力してください。',
-    'It may take a minute to arrive.': 'コードの到着に1分ほどかかる場合があります。',
+    'Your code is on the way. To log in, enter the code we emailed to': 'コードをメールで送信しました. ログインするには, 受信したコードを入力してください. ',
+    'It may take a minute to arrive': 'コードの到着に1分ほどかかる場合があります',
     'Enter your code': '確認コードを入力してください',
     'Code': 'コード',
     'Verify': '確認',
