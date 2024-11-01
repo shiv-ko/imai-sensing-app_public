@@ -15,6 +15,7 @@ import {
   BingoBoardProps 
 } from '@/features/dashboard/utils/bingoTypes';
 import {fetchBingoSheet, markCategoryAsCompleted, fetchPosts } from '@/features/dashboard/utils/awsService'; 
+import { usePost } from '@/shared/contexts/PostContext';
 
 
 // Button コンポーネント
@@ -27,6 +28,8 @@ export const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) =
 // BingoBoard コンポーネント
 export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
   ({ bingoSheet }, ref) => {
+    const { setSelectedCategory } = usePost();
+
     const [board, setBoard] = useState(
       bingoSheet.map(cell => ({ ...cell }))
     );
@@ -55,6 +58,10 @@ export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
       state: { board },
     }));
 
+    const handleCellClick = (category: string) => {
+      setSelectedCategory(category);
+    };
+
     return (
       <div className="bingo-gacha-board">
         {board.map((cell, index) => (
@@ -68,6 +75,8 @@ export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
               duration: 0.3,
               ease: "easeInOut",
             }}
+            onClick={() => handleCellClick(cell.category)}
+            style={{ cursor: 'pointer' }}
           >
             <span className="category-text">{cell.category}</span>
             {cell.isCompleted && (
@@ -402,12 +411,17 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
           background-color: #e0e0e0;
           border: 1px solid #fbbf24;
           border-radius: 0.5rem;
-          cursor: default; /* クリックできないようにカーソルを変更 */
+          cursor: pointer; /* クリックできないようにカーソルを変更 */
           font-size: 0.9rem; /* フォントサイズを調整 */
           font-weight: bold;
           color: #4a4a4a;
           text-align: center; /* テキストを中央揃え */
           padding: 0; /* パディングを削除 */
+          transition: transform 0.2s ease; /* ホバーエフェクトのトランジション */
+        }
+
+        .bingo-gacha-board-cell:hover {
+          transform: scale(1.05); /* ホバー時に少し拡大 */
         }
 
         .bingo-gacha-board-cell.completed {
