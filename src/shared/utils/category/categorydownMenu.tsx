@@ -7,6 +7,12 @@ interface CategoryDropdownProps {
   onCategoryChange: (category: string) => void;
 }
 
+// オプションの型を定義
+interface Option {
+  value: string;
+  label: string;
+}
+
 const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ selectedCategory, categories, onCategoryChange }) => {
   // Convert categories array into react-select options format
   const options = categories.map((category) => ({
@@ -17,7 +23,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ selectedCategory, c
   // Find the selected option
   const selectedOption = options.find(option => option.value === selectedCategory);
 
-  const handleChange = (option: any) => {
+  const handleChange = (option: Option | null) => {
     if (option) {
       onCategoryChange(option.value);
     }
