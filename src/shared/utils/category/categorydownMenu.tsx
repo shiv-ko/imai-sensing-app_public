@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Select from 'react-select';
 
@@ -18,25 +17,36 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ selectedCategory, c
   // Find the selected option
   const selectedOption = options.find(option => option.value === selectedCategory);
 
+  const handleChange = (option: any) => {
+    if (option) {
+      onCategoryChange(option.value);
+    }
+  };
+
   return (
-  <div style={styles.container}>
-    <label htmlFor="category" style={styles.label}>お題: </label>
-    <Select
-      id="category"
-      value={selectedOption}
-      options={options}
-      onChange={(selectedOption) =>
-        onCategoryChange(selectedOption ? selectedOption.value : '')
-      }
-      styles={{
-        control: (base) => ({ ...base, ...styles.selectControl }),
-        menu: (base) => ({ ...base, ...styles.selectMenu }),
-        valueContainer: (base) => ({ ...base, ...styles.valueContainer }),
-        indicatorsContainer: (base) => ({ ...base, ...styles.indicatorsContainer }),
-      }}
-    />
-  </div>
-);
+    <div style={styles.container}>
+      <label htmlFor="category" style={styles.label}>お題: </label>
+      <Select
+        id="category"
+        value={selectedOption}
+        options={options}
+        onChange={handleChange}
+        isSearchable={false}
+        isClearable={false}
+        isDisabled={false}
+        styles={{
+          control: (base) => ({ 
+            ...base, 
+            ...styles.selectControl,
+            cursor: 'pointer',
+          }),
+          menu: (base) => ({ ...base, ...styles.selectMenu }),
+          valueContainer: (base) => ({ ...base, ...styles.valueContainer }),
+          indicatorsContainer: (base) => ({ ...base, ...styles.indicatorsContainer }),
+        }}
+      />
+    </div>
+  );
 };
 
 const styles = {
