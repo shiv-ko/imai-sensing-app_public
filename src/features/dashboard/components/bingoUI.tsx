@@ -486,6 +486,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         .bingo-gacha-button:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+          background: linear-gradient(to right, #9ca3af, #6b7280);
         }
         .bingo-gacha-board {
           display: grid;
@@ -672,16 +673,19 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         <AnimatedTitle />
       </div>
 
-      {/* ビンゴ生成ボタンとガチャ表示ボタン */}
+      {/* ビンゴ生成ボタンとガチャボタン */}
       <div className="bingo-gacha-button-container">
         {!bingoSheetExists && (
           <Button onClick={handleGenerateBingo} disabled={false}>
             ビンゴを生成
           </Button>
         )}
-        {bingoSheetExists && showGachaButton && (
-          <Button onClick={handleOpenGacha} disabled={false}>
-            ガチャを表示 ({completedLines}ライン完成)
+        {bingoSheetExists && (
+          <Button 
+            onClick={handleOpenGacha} 
+            disabled={completedLines === 0}
+          >
+            ガチャを表示 {completedLines > 0 && `(${completedLines}ライン完成)`}
           </Button>
         )}
       </div>
