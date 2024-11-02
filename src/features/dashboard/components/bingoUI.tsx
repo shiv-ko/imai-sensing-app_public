@@ -361,16 +361,26 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           }
           return cell;
         });
+
         if (updatedCategories.length > 0) {
           console.log('ビンゴシートの更新前:', bingoSheet);
           console.log('ビンゴシートの更新後:', updatedSheet);
           setBingoSheet(updatedSheet);
+
+          // ビンゴ判定を実行
           const completed = checkBingoLines(updatedSheet);
+          setCompletedLines(completed);
+          
+          // ビンゴが1つ以上完成していればガチャボタンを表示
           if (completed > 0) {
-            setCompletedLines(completed);
             setShowGachaButton(true);
-            console.log(`ビンゴラインが${completed}本完成しました。`);
+            console.log(`ビンゴラインが${completed}本完成しました。ガチャボタンを表示します。`);
+          } else {
+            setShowGachaButton(false);
+            console.log('完成したビンゴラインはありません。');
           }
+
+          // バックエンドの更新処理
           for (const category of updatedCategories) {
             if (currentSheetId) {
               try {
@@ -379,12 +389,8 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
               } catch (error) {
                 console.error(`カテゴリ "${category}" の更新に失敗しました:`, error);
               }
-            } else {
-              console.error('現在のビンゴシートIDがnullです。更新できません。');
             }
           }
-        } else {
-          console.log('ビンゴシートの更新は必要ありませんでした。');
         }
       }
     } catch (error) {
