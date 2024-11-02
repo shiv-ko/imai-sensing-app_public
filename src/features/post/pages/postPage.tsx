@@ -29,13 +29,25 @@ async function compressImage(file: File): Promise<File> {
     throw error;
   }
 }
+function getFormattedTimestamp(): string {
+  const date = new Date();
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月は0から始まるので+1
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+  return `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+}
 async function generateHash(value: string): Promise<string> {
-  const msgUint8 = new TextEncoder().encode(value); // Encode as (utf-8) Uint8Array
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // Hash the message
-  const hashArray = Array.from(new Uint8Array(hashBuffer)); // Convert buffer to byte array
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // Convert bytes to hex string
+  const msgUint8 = new TextEncoder().encode(value); // Uint8Arrayにエンコード
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // ハッシュ化
+  const hashArray = Array.from(new Uint8Array(hashBuffer)); // バッファをバイト配列に変換
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // 16進数文字列に変換
   return hashHex;
 }
+
 
 
 const PostPage: React.FC = () => {
@@ -159,8 +171,8 @@ const PostPage: React.FC = () => {
       return;
     }
 
-    // Generate unique image name
-    const timestamp = Date.now();
+    // 詳細なタイムスタンプを取得
+    const timestamp = getFormattedTimestamp();
     const uniqueString = `${userid}-${timestamp}`;
     const imageName = await generateHash(uniqueString);
 
