@@ -29,6 +29,26 @@ async function compressImage(file: File): Promise<File> {
     throw error;
   }
 }
+function getFormattedTimestamp(): string {
+  const date = new Date();
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月は0から始まるので+1
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+  return `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+}
+async function generateHash(value: string): Promise<string> {
+  const msgUint8 = new TextEncoder().encode(value); // Uint8Arrayにエンコード
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // ハッシュ化
+  const hashArray = Array.from(new Uint8Array(hashBuffer)); // バッファをバイト配列に変換
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // 16進数文字列に変換
+  return hashHex;
+}
+
+
 
 const PostPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -142,72 +162,86 @@ const PostPage: React.FC = () => {
   };
 
   async function createPost(event: React.FormEvent) {
-    event.preventDefault();
-    
-    try {
-      // フォームから入力を取得
-      const {
-        lat,
-        lng,
-        category,
-        comment,
-        image,
-        reported,
-        deleted,
-        visible,
-        point,
-        postType,
-      } = formData;
+  event.preventDefault();
 
-      // 投稿するデータの定義
-      const postData = {
-        userId: userid || '',
-        lat: parseFloat(lat),
-        lng: parseFloat(lng),
-        category,
-        comment,
-        reported,
-        deleted,
-        visible,
-        point,
-        postType,
-        imageUrl: image?.name ?? null,
-        postedby: nickName,
-      };
-
-      console.log('user id', userid);
-
-     
-
-      // 画像があったら別でS3に保存
-      if (image) {
-        await uploadData({ key: image.name, data: image });
-      }
-      
-
-      // データをDBに保存
-      await client.graphql({
-        query: createPostData,
-        variables: { input: { ...postData, postedby: postData.postedby || '' } },
-      });
-
-      // const updatedUser = await updateUserScore(userid || '', 1);
-      // console.log('ユーザーのスコアが更新されました:', updatedUser.score);
-
-
-      // フォームのリセット
-      setFormData({
-        ...formData,
-        comment: '',
-        image: null,
-      });
-    } catch (error) {
-      console.error('Error while creating post:', error);
-    } finally {
-      // エラーの有無に関わらず、ルーティングを実行
-      router.push('/camera/completion');
+  try {
+    // Ensure userid is available
+    if (!userid) {
+      console.error('User ID is not available.');
+      return;
     }
+
+    // 詳細なタイムスタンプを取得
+    const timestamp = getFormattedTimestamp();
+    const uniqueString = `${userid}-${timestamp}`;
+    const imageName = await generateHash(uniqueString);
+
+    // Create new File object with new name
+    if (formData.image) {
+      const image = formData.image;
+      const newImageFile = new File([image], imageName, { type: image.type });
+      // Update formData.image
+      setFormData(prevData => ({
+        ...prevData,
+        image: newImageFile
+      }));
+    }
+
+    // Extract form data
+    const {
+      lat,
+      lng,
+      category,
+      comment,
+      image,
+      reported,
+      deleted,
+      visible,
+      point,
+      postType,
+    } = formData;
+
+    // Prepare post data
+    const postData = {
+      userId: userid || '',
+      lat: parseFloat(lat),
+      lng: parseFloat(lng),
+      category,
+      comment,
+      reported,
+      deleted,
+      visible,
+      point,
+      postType,
+      imageUrl: imageName,
+      postedby: nickName,
+    };
+
+    // Upload image with new name
+    if (image) {
+      await uploadData({ key: imageName, data: image });
+    }
+
+    // Save post data to the database
+    await client.graphql({
+      query: createPostData,
+      variables: { input: { ...postData, postedby: postData.postedby || '' } },
+    });
+
+    // Reset form data
+    setFormData({
+      ...formData,
+      comment: '',
+      image: null,
+    });
+  } catch (error) {
+    console.error('Error while creating post:', error);
+  } finally {
+    // Navigate to the completion page
+    router.push('/camera/completion');
+  }
 }
+
 
 
   function handleInputChange(
