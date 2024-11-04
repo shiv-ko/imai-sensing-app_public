@@ -40,13 +40,6 @@ function getFormattedTimestamp(): string {
   const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
   return `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
 }
-async function generateHash(value: string): Promise<string> {
-  const msgUint8 = new TextEncoder().encode(value); // Uint8Arrayにエンコード
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); // ハッシュ化
-  const hashArray = Array.from(new Uint8Array(hashBuffer)); // バッファをバイト配列に変換
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // 16進数文字列に変換
-  return hashHex;
-}
 
 
 
@@ -174,7 +167,7 @@ const PostPage: React.FC = () => {
       // 詳細なタイムスタンプを取得
       const timestamp = getFormattedTimestamp();
       const uniqueString = `${userid}+${timestamp}`;
-      const imageName = await generateHash(uniqueString);
+      const imageName = uniqueString;
 
       // Create new File object with new name
       if (formData.image) {
