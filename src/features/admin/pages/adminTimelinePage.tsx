@@ -61,8 +61,13 @@ const ReportedDeletedPostsPage: React.FC = () => {
 
     const postTypeToUse = postTypeParam || selectedPostType;
 
-    const filter = {};
-
+    let filter = {};
+    if (selectedCategory !== 'すべて') {
+    filter = {
+      ...filter,
+      category: { eq: selectedCategory }, // 選択されたカテゴリで絞り込み
+    };
+  }
     
 
     const variables = {
@@ -185,7 +190,7 @@ const styles = {
     margin: '0 10px',
     padding: '8px 16px',
     fontSize: '16px',
-    backgroundColor: '#000080',
+    backgroundColor: '#000000',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
