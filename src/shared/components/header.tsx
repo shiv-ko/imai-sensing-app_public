@@ -63,7 +63,7 @@ const styles = {
   button: {
     padding: '10px',
     fontSize: '1rem',
-    backgroundColor: '#006400', // 緑色のボタン
+    backgroundColor: '#4CAF50', // 緑色のボタン
     color: '#fff',
     border: 'none',
     borderRadius: '4px',
