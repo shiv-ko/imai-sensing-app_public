@@ -38,6 +38,57 @@ I18n.putVocabularies({
     'Reset your password': 'パスワードをリセット',
     'Enter your username': 'ユーザー名を入力してください',
     'Send Reset Link': 'リセッリンクを送信',
+    'Confirming': '確認中...',
+    'Submitting': '送信中...',
+    'Sending': '送信中...',
+
+    // 試行回数制限のエラーメッセージ
+    'Attempt limit exceeded, please try after some time.': '試行回数の制限を超えました。しばらくしてからもう一度お試しください。',
+
+    // サインイン中のメッセージ
+    'Signing in': 'サインイン中...',
+
+    // パスワード関連のエラーメッセージ
+    'Password must have at least 8 characters': 'パスワードは8文字以上である必要があります',
+    'Your passwords must match': 'パスワードが一致しません',
+
+    // 属性に関するエラーメッセージ
+    'Attributes did not conform to the schema: nickName: The attribute nickName is required': 'ニックネームを入力してください',
+
+    // ログイン関連のエラーメッセージ
+    'Incorrect username or password.': 'ユーザー名またはパスワードが正しくありません。',
+    'User does not exist.': 'ユーザーが存在しません。アカウントを作成してください。',
+    'username is required to signIn': 'サインインにはユーザー名が必要です',
+
+    // サインアップ関連のエラーメッセージ
+    'username is required to signUp': 'ユーザ情報を入力してください',
+    'User already exists': 'このユーザーは既に存在します',
+
+    // メール送信関連のメッセージ
+    'We Emailed You': 'メールを送信しました',
+
+    // その他の一般的なエラーメッセージ
+    'An error occurred': 'エラーが発生しました',
+    'Please try again': 'もう一度お試しください',
+
+    // 確認コード関連のメッセージを分割
+    'Your code is on the way. To log in, enter the code we emailed to': 'コードをメールで送信しました. ログインするには, 受信したコードを入力してください. ',
+    'It may take a minute to arrive': 'コードの到着に1分ほどかかる場合があります',
+    'Enter your code': '確認コードを入力してください',
+    'Code': 'コード',
+    'Verify': '確認',
+    'Invalid verification code provided, please try again.': '無効な確認コードが入力されました。もう一度お試しください。',
+    'Code expired. Click Resend to request a new one.': 'コードの有効期限が切れました。再送信をクリックして新しいコードをリクエストしてください。',
+    'New code sent': '新しいコードを送信しました',
+    'Code sent successfully': 'コードが正常に送信されました',
+    'Verification code is required': '確認コードが必要です',
+
+    'Code *': 'コード *',
+
+    // パスワード関連
+    'New Password': '新しいパスワード',
+    'Confirm Password': 'パスワード（確認）',
+
   }
 });
 
@@ -53,10 +104,6 @@ const formFields = {
     },
   },
   signUp: {
-    username: {
-      label: 'ユーザー名',
-      placeholder: 'ユーザー名を入力してください',
-    },
     nickname: {
       label: 'ニックネーム',
       placeholder: 'ニックネームを入力してください',

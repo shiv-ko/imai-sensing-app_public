@@ -11,12 +11,27 @@ const userIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-const postIcon = new L.Icon({
-  iconUrl: 'pin.png',
-  iconSize: [40, 40],
-  iconAnchor: [15, 50],
-  popupAnchor: [1, -34],
-});
+// カテゴリとピン画像のマッピング
+const categoryIconMapping: { [key: string]: string } = {
+  '防災器具の場所': 'output/pin_variation_1.png',
+  '避難場所': 'output/pin_variation_2.png',
+  '道の名前': 'output/pin_variation_3.png',
+  '懐かしい場所': 'output/pin_variation_4.png',
+  '思い出の場所': 'output/pin_variation_5.png',
+  '守りたい場所': 'output/pin_variation_6.png',
+  '大切な場所': 'output/pin_variation_7.png',
+  '友達に教えてあげたいこと': 'output/pin_variation_8.png',
+  'おすすめスポット': 'output/pin_variation_9.png',
+  '珍しいもの': 'output/pin_variation_10.png',
+  '面白いもの': 'output/pin_variation_11.png',
+  '危険な場所': 'output/pin_variation_12.png',
+  '注意が必要な場所': 'output/pin_variation_13.png',
+  '景観が綺麗な場所': 'output/pin_variation_14.png',
+  '写真映えするスポット': 'output/pin_variation_15.png',
+  '歴史的な場所': 'output/pin_variation_16.png',
+  '地域の名物': 'output/pin_variation_17.png',
+  '季節を感じる場所': 'output/pin_variation_18.png',
+};
 
 interface Post {
   id: string;
@@ -38,6 +53,16 @@ interface MapComponentProps {
   userPosition: [number, number];
   posts: Post[];
   userId: string; // ユーザーIDを取得
+}
+
+function getIconForCategory(category: string): L.Icon {
+  const iconUrl = categoryIconMapping[category] || 'pin.png'; // デフォルトのピン画像を設定
+  return new L.Icon({
+    iconUrl,
+    iconSize: [40, 40],      // ピンのサイズを調整
+    iconAnchor: [20, 40],    // ピンの位置を調整
+    popupAnchor: [0, -40],   // ポップアップの位置を調整
+  });
 }
 
 // マップ上で現在地に移動するためのカスタムフック
@@ -65,22 +90,24 @@ const PostMarker: React.FC<{ post: Post; userId: string }> = ({ post, userId }) 
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
-  
+
+  // カテゴリーに応じたアイコンを取得
+  const icon = getIconForCategory(post.category);
 
   return (
     <>
       <Marker
         position={[post.lat, post.lng]}
-        icon={postIcon}
+        icon={icon}
         eventHandlers={{
-          click: handlePopupOpen, // モーダルを開く
+          click: handlePopupOpen,
         }}
       />
-      <MapModal 
-        post={post} 
-        userId={userId} // ユーザーIDを渡す
-        isOpen={isModalOpen} 
-        onClose={handleModalClose} 
+      <MapModal
+        post={post}
+        userId={userId}
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
       />
     </>
   );
@@ -101,7 +128,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts, userId
     <div style={mapWrapperStyle}>
       <MapContainer center={userPosition} zoom={16} style={mapStyle}>
         <TileLayer
-          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
+          attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <Marker position={userPosition} icon={userIcon}>
@@ -113,6 +140,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ userPosition, posts, userId
     </div>
   );
 };
+
+
 
 // スタイル定義
 const mapWrapperStyle: React.CSSProperties = {

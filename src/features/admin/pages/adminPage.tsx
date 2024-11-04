@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { handleFetchUserAttributes } from '@/shared/utils/auth/GetUserid';
 import { adminUserIds } from '@/shared/utils/auth/adminUserId';
 import { Amplify } from 'aws-amplify';
-
+import ReportedDeletedPostsPage from '../../admin/pages/adminTimelinePage'
 import awsExports from '../../../aws-exports';
 
 Amplify.configure(awsExports);
@@ -42,8 +42,8 @@ const AdminPage: React.FC = () => {
 
   return (
     <div>
-      <h1>管理者専用ページ</h1>
       {/* 管理者向けのコンテンツ */}
+      <ReportedDeletedPostsPage></ReportedDeletedPostsPage>
     </div>
   );
 };

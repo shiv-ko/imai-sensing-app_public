@@ -79,7 +79,7 @@ const TimelinePage: React.FC = () => {
 
   const variables = {
     postType: 'POST',
-    updatedAt: { beginsWith: '2024-10' },
+    updatedAt: { beginsWith: '2024' },
     sortDirection: ModelSortDirection.DESC,
     limit: 50,
     filter: filter, // 修正されたフィルタを使用

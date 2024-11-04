@@ -19,6 +19,8 @@ import { addPointsToUser, createNewBingoSheet, fetchBingoSheet, markCategoryAsCo
 import { CreateBingoSheetMutationVariables } from '../../../API'; // 正しくインポート
 
 import UserRanking from '@/shared/components/ranking';
+import { useRouter } from 'next/navigation'; // 追加
+import { usePost } from '@/shared/contexts/PostContext'; // 追加
 
 // Button コンポーネント
 export const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) => (
@@ -30,6 +32,8 @@ export const Button: React.FC<ButtonProps> = ({ onClick, disabled, children }) =
 // BingoBoard コンポーネント
 export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
   ({ bingoSheet }, ref) => {
+    const router = useRouter();
+    const { setSelectedCategory } = usePost();
     const [board, setBoard] = useState(
       bingoSheet.map(cell => ({ ...cell }))
     );
@@ -69,6 +73,11 @@ export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
       state: { board },
     }));
 
+    const handleCellClick = (category: string) => {
+      setSelectedCategory(category);
+      router.push('/camera');
+    };
+
     return (
       <div className="bingo-gacha-board">
         {board.map((cell, index) => (
@@ -82,6 +91,8 @@ export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
               duration: 0.3,
               ease: "easeInOut",
             }}
+            onClick={() => handleCellClick(cell.category)}
+            style={{ cursor: 'pointer' }}
           >
             <span className="category-text">{cell.category}</span>
             {cell.isCompleted && (
@@ -102,7 +113,7 @@ export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
 
 BingoBoard.displayName = 'BingoBoard';
 
-// BingoGachaPopup コンポーネントの props に handleGenerateBingo を追加
+// BingoGachaPopup コンポーネトの props に handleGenerateBingo を追加
 export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBingo: () => Promise<void> }> = ({ onClose, completedLines, addPoints, handleGenerateBingo }) => {
   const [result, setResult] = useState<{ points: number } | null>(null);
   const [stage, setStage] = useState<'idle' | 'result'>('idle');
@@ -217,7 +228,7 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
             onClick={stage === 'idle' ? handlePullGacha : handleClose}
             disabled={isAddingPoints}
           >
-            {stage === 'idle' ? (isAddingPoints ? '処理中...' : 'ガチャを回す') : '閉じる'}
+            {stage === 'idle' ? (isAddingPoints ? '処理中...' : 'ガチャを回す') : 'じる'}
           </Button>
         </div>
       </motion.div>
@@ -350,16 +361,26 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           }
           return cell;
         });
+
         if (updatedCategories.length > 0) {
           console.log('ビンゴシートの更新前:', bingoSheet);
           console.log('ビンゴシートの更新後:', updatedSheet);
           setBingoSheet(updatedSheet);
+
+          // ビンゴ判定を実行
           const completed = checkBingoLines(updatedSheet);
+          setCompletedLines(completed);
+          
+          // ビンゴが1つ以上完成していればガチャボタンを表示
           if (completed > 0) {
-            setCompletedLines(completed);
             setShowGachaButton(true);
-            console.log(`ビンゴラインが${completed}本完成しました。`);
+            console.log(`ビンゴラインが${completed}本完成しました。ガチャボタンを表示します。`);
+          } else {
+            setShowGachaButton(false);
+            console.log('完成したビンゴラインはありません。');
           }
+
+          // バックエンドの更新処理
           for (const category of updatedCategories) {
             if (currentSheetId) {
               try {
@@ -368,12 +389,8 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
               } catch (error) {
                 console.error(`カテゴリ "${category}" の更新に失敗しました:`, error);
               }
-            } else {
-              console.error('現在のビンゴシートIDがnullです。更新できません。');
             }
           }
-        } else {
-          console.log('ビンゴシートの更新は必要ありませんでした。');
         }
       }
     } catch (error) {
@@ -424,7 +441,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   }, [completedLines]);
 
   useEffect(() => {
-    console.log(`showGachaButton の状態が変更されました: ${showGachaButton}`);
+    console.log(`showGachaButton の態が変更さました: ${showGachaButton}`);
   }, [showGachaButton]);
 
   useEffect(() => {
@@ -486,6 +503,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         .bingo-gacha-button:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+          background: linear-gradient(to right, #9ca3af, #6b7280);
         }
         .bingo-gacha-board {
           display: grid;
@@ -501,7 +519,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           max-width: 500px;
         }
         .bingo-gacha-board-cell {
-          position: relative; /* オーバーレイを正しく配置するためにrelativeを追加 */
+          position: relative;
           width: 5rem;
           height: 5rem;
           display: flex;
@@ -510,12 +528,17 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           background-color: #e0e0e0;
           border: 1px solid #fbbf24;
           border-radius: 0.5rem;
-          cursor: default; /* クリックできないようにカーソルを変更 */
-          font-size: 0.9rem; /* フォントサイズ調整 */
+          font-size: 0.9rem;
           font-weight: bold;
           color: #4a4a4a;
-          text-align: center; /* テキストを中央揃え */
-          padding: 0; /* パディングを削除 */
+          text-align: center;
+          padding: 0;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+
+        .bingo-gacha-board-cell:hover {
+          transform: scale(1.05);
         }
 
         .bingo-gacha-board-cell.completed {
@@ -672,16 +695,19 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         <AnimatedTitle />
       </div>
 
-      {/* ビンゴ生成ボタンとガチャ表示ボタン */}
+      {/* ビンゴ生成ボタンとガチャボタン */}
       <div className="bingo-gacha-button-container">
         {!bingoSheetExists && (
           <Button onClick={handleGenerateBingo} disabled={false}>
             ビンゴを生成
           </Button>
         )}
-        {bingoSheetExists && showGachaButton && (
-          <Button onClick={handleOpenGacha} disabled={false}>
-            ガチャを表示 ({completedLines}ライン完成)
+        {bingoSheetExists && (
+          <Button 
+            onClick={handleOpenGacha} 
+            disabled={completedLines === 0}
+          >
+            ガチャを表示 {completedLines > 0 && `(${completedLines}ライン完成)`}
           </Button>
         )}
       </div>

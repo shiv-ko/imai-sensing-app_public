@@ -29,6 +29,19 @@ async function compressImage(file: File): Promise<File> {
     throw error;
   }
 }
+function getFormattedTimestamp(): string {
+  const date = new Date();
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月は0から始まるので+1
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+  return `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+}
+
+
 
 const PostPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -143,9 +156,32 @@ const PostPage: React.FC = () => {
 
   async function createPost(event: React.FormEvent) {
     event.preventDefault();
-    
+
     try {
-      // フォームから入力を取得
+      // Ensure userid is available
+      if (!userid) {
+        console.error('User ID is not available.');
+        return;
+      }
+
+      // 詳細なタイムスタンプを取得
+      const timestamp = getFormattedTimestamp();
+      const uniqueString = `${userid}+${timestamp}`;
+      const imageName = uniqueString;
+
+      // Create new File object with new name
+      if (formData.image) {
+        const image = formData.image;
+        const newImageFile = new File([image], imageName, { type: image.type });
+        // Update formData.image
+        setFormData(prevData => ({
+          ...prevData,
+          image: newImageFile
+        }));
+      }
+
+
+      // Extract form data
       const {
         lat,
         lng,
@@ -159,7 +195,7 @@ const PostPage: React.FC = () => {
         postType,
       } = formData;
 
-      // 投稿するデータの定義
+      // Prepare post data
       const postData = {
         userId: userid || '',
         lat: parseFloat(lat),
@@ -171,31 +207,22 @@ const PostPage: React.FC = () => {
         visible,
         point,
         postType,
-        imageUrl: image?.name ?? null,
+        imageUrl: imageName,
         postedby: nickName,
       };
 
-      console.log('user id', userid);
-
-     
-
-      // 画像があったら別でS3に保存
+      // Upload image with new name
       if (image) {
-        await uploadData({ key: image.name, data: image });
+        await uploadData({ key: imageName, data: image });
       }
-      
 
-      // データをDBに保存
+      // Save post data to the database
       await client.graphql({
         query: createPostData,
         variables: { input: { ...postData, postedby: postData.postedby || '' } },
       });
 
-      // const updatedUser = await updateUserScore(userid || '', 1);
-      // console.log('ユーザーのスコアが更新されました:', updatedUser.score);
-
-
-      // フォームのリセット
+      // Reset form data
       setFormData({
         ...formData,
         comment: '',
@@ -204,10 +231,11 @@ const PostPage: React.FC = () => {
     } catch (error) {
       console.error('Error while creating post:', error);
     } finally {
-      // エラーの有無に関わらず、ルーティングを実行
+      // Navigate to the completion page
       router.push('/camera/completion');
     }
-}
+  }
+
 
 
   function handleInputChange(

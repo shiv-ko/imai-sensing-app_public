@@ -203,8 +203,4 @@ const styles = {
 };
 
 
-
-
-
-
 export default PostMapPage;
