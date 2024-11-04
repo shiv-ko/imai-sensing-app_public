@@ -113,58 +113,96 @@ export const BingoBoard = forwardRef<BingoBoardHandle, BingoBoardProps>(
 
 BingoBoard.displayName = 'BingoBoard';
 
-// BingoGachaPopup コンポーネトの props に handleGenerateBingo を追加
+// BingoGachaPopup コンポーネントの props に handleGenerateBingo を追加
 export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBingo: () => Promise<void> }> = ({ onClose, completedLines, addPoints, handleGenerateBingo }) => {
   const [result, setResult] = useState<{ points: number } | null>(null);
-  const [stage, setStage] = useState<'idle' | 'result'>('idle');
+  const [stage, setStage] = useState<'idle' | 'spinning' | 'result'>('idle');
   const confettiCanvasRef = useRef<HTMLDivElement>(null);
   const [isAddingPoints, setIsAddingPoints] = useState<boolean>(false);
+  const [rotation, setRotation] = useState(0);
+  const [showBall, setShowBall] = useState(false);
+  const [ballColor, setBallColor] = useState<string>('#ffffff'); // ボールの色を状態として管理
+  const [isAnimating, setIsAnimating] = useState<boolean>(false); // アニメーション状態を管理
+
+  const getBallColor = (points: number): string => {
+    if (points < 2) return '#ffffff'; // 白
+    if (points < 4) return '#00bfff'; // 青 (deepskyblue)
+    if (points < 6) return '#ffd700'; // 黄色 (gold)
+    if (points < 8) return '#32cd32'; // 緑 (limegreen)
+    if (points < 10) return '#9370db'; // 紫 (mediumpurple)
+    if (points < 16) return '#ff0000'; // 赤
+    return 'linear-gradient(145deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #800080)'; // 虹色
+  };
 
   const handlePullGacha = useCallback(async () => {
     if (isAddingPoints) return;
     setIsAddingPoints(true);
+    setIsAnimating(true); // アニメーション開始
+    setStage('spinning');
+    setShowBall(false);
 
-    const newResult = pullGacha(completedLines);
-    setResult(newResult);
-    
-    try {
-      await addPoints(newResult.points);
+    const newResult = await pullGacha(completedLines);
+    // ボールの色を決定
+    const color = getBallColor(newResult.points); // newResultからポイントを取得
+    setBallColor(color); // 状態を更新
+    const gachaBall = document.querySelector('.gacha-ball') as HTMLElement; // HTMLElementにキャスト
+    if (gachaBall) {
+      gachaBall.style.background = color; // ボールの色を設定
+    }
+
+    let currentRotation = 0;
+    const spinInterval = setInterval(() => {
+      currentRotation += 30;
+      setRotation(currentRotation);
+      
+      // 720度（2回転）回ったらボールを表示
+      if (currentRotation >= 720) {
+        setShowBall(true);
+      }
+    }, 50);
+
+    setTimeout(async () => {
+      clearInterval(spinInterval);
+      setResult(newResult);
       setStage('result');
+      setShowBall(false);  // 結果表示時にボールを非表示
+      setIsAnimating(false); // アニメーション終了
       
-      // 新しいビンゴシートを生成
-      await handleGenerateBingo();
-      
-    } catch (error) {
-      console.error('ポイント追加またはビンゴシート生成中にエラーが発生しした:', error);
-    } finally {
-      setIsAddingPoints(false);
-    }
+      try {
+        await addPoints(newResult.points);
+        await handleGenerateBingo();
+        
+        // Confettiの表示
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'absolute';
+        canvas.style.inset = '0';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.pointerEvents = 'none';
+        if (confettiCanvasRef.current) {
+          confettiCanvasRef.current.appendChild(canvas);
+        }
 
-    // Confettiの表示
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'absolute';
-    canvas.style.inset = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.pointerEvents = 'none';
-    if (confettiCanvasRef.current) {
-      confettiCanvasRef.current.appendChild(canvas);
-    }
+        const myConfetti = confetti.create(canvas, {
+          resize: true,
+          useWorker: true
+        });
 
-    const myConfetti = confetti.create(canvas, {
-      resize: true,
-      useWorker: true
-    });
+        myConfetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
 
-    myConfetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-
-    setTimeout(() => {
-      canvas.remove();
-    }, 3000);
+        setTimeout(() => {
+          canvas.remove();
+        }, 3000);
+      } catch (error) {
+        console.error('ポイント追加またはビンゴシート生成中にエラーが発生しした:', error);
+      } finally {
+        setIsAddingPoints(false);
+      }
+    }, 2000);
   }, [completedLines, addPoints, isAddingPoints, handleGenerateBingo]);
 
   const handleClose = useCallback(() => {
@@ -189,12 +227,56 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
         className="bingo-gacha-popup"
         ref={confettiCanvasRef}
       >
-        <h2>ビンゴガチャ</h2>
-        <p className="result-text">
-          完成したライン数: {completedLines}
-        </p>
+        <h1>ビンゴガチャ</h1>
         <div className="bingo-gacha-content">
           <AnimatePresence mode="wait">
+            {stage === 'idle' && (
+              <div className="gacha-container">
+                <motion.img
+                  src="/gacha-image.png"
+                  alt="ガチャ"
+                  className="gacha-image"
+                />
+                <img
+                  src="/gacha-base.png"
+                  alt="ガチャ台座"
+                  className="gacha-base"
+                />
+              </div>
+            )}
+            {stage === 'spinning' && (
+              <div className="gacha-container">
+                <motion.img
+                  src="/gacha-image.png"
+                  alt="ガチャ"
+                  className="gacha-image"
+                  style={{ 
+                    rotate: rotation,
+                    transformOrigin: 'center'
+                  }}
+                />
+                <img
+                  src="/gacha-base.png"  
+                  alt="ガチャ台座"
+                  className="gacha-base"
+                />
+                {showBall && (
+                  <motion.div
+                    className="gacha-ball"
+                    style={{ background: ballColor }} // 状態に基づいて色を設定
+                    initial={{ x: '-50%', y: '-50%' }}
+                    animate={{ 
+                      x: ['0%', '100%'],
+                      y: ['0%', '100%'],
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      ease: "easeOut"
+                    }}
+                  />
+                )}
+              </div>
+            )}
             {stage === 'result' && result && (
               <motion.div
                 key="result"
@@ -226,9 +308,9 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
         <div className="bingo-gacha-button-container popup-buttons">
           <Button
             onClick={stage === 'idle' ? handlePullGacha : handleClose}
-            disabled={isAddingPoints}
+            disabled={isAddingPoints || stage === 'spinning' || isAnimating}
           >
-            {stage === 'idle' ? (isAddingPoints ? '処理中...' : 'ガチャを回す') : 'じる'}
+            {stage === 'idle' ? (isAddingPoints ? '処理中...' : 'ガチャを回す') : '閉じる'}
           </Button>
         </div>
       </motion.div>
@@ -284,7 +366,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         setBingoSheetExists(true);
       }
     } catch (error) {
-      console.error('ビンゴシートの保存に失敗しました:', error);
+      console.error('ンゴシートの保存に失敗しました:', error);
     }
   }, [userId]);
 
@@ -319,7 +401,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
 
   const loadPostsAndUpdateBingoSheet = useCallback(async (sheetCreatedAt: Date) => {
     console.log('loadPostsAndUpdateBingoSheet が呼び出されました');
-    console.log('ビンゴシートの作成日時:', sheetCreatedAt);
+    console.log('ビンゴシートの作成時:', sheetCreatedAt);
     try {
       console.log('投稿データを取得中...');
       const startDateString = sheetCreatedAt.toISOString();
@@ -387,7 +469,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
                 await markCategoryAsCompleted(currentSheetId, category);
                 console.log(`バックエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
               } catch (error) {
-                console.error(`カテゴリ "${category}" の更新に失敗しました:`, error);
+                console.error(`カテリ "${category}" の新に失敗しました:`, error);
               }
             }
           }
@@ -425,7 +507,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         const newScore = totalPoints + points;
         setTotalPoints(newScore);
         await addPointsToUser(userId, points);
-        console.log(`${points} ポイントを追加しました。新しいスコア: ${newScore}`);
+        console.log(`${points} ポイント追加しました。新しいスコア: ${newScore}`);
       } catch (error) {
         console.error('ポイント追加エラー:', error);
       }
@@ -450,18 +532,15 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         const lines = boardRef.current.checkBingo();
         console.log(`ビンゴチェック結果: ${lines}本のラインが完成`);
         setCompletedLines(lines);
-        const shouldShowButton = lines > 0;
-        console.log(`ガチャボタンを表示すべきか: ${shouldShowButton}`);
-        setShowGachaButton(shouldShowButton);
       } else {
-        console.log('boardRef.current または checkBingo  undefined で');
+        console.log('boardRef.current または checkBingo が undefined です');
       }
     };
 
-    // ビンゴシートが更新されたときにチェックを実行
     if (bingoSheet.length > 0 && bingoSheetExists) {
       console.log('ビンゴシートが更新されました。チェックを実行します。');
       performBingoCheck();
+      setShowGachaButton(true);
     } else {
       console.log('ビンゴシートが空か、存在しません');
     }
@@ -599,7 +678,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         .bingo-gacha-popup {
           background-color: #ffffff;
           border-radius: 0.5rem;
-          padding: 1.5rem;
+          padding: 1rem;
           max-width: 28rem;
           width: 90%;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -608,7 +687,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         }
         .bingo-gacha-content {
           width: 100%;
-          height: 24rem;
+          height: 20rem;
           background-color: #f3f4f6;
           border-radius: 0.75rem;
           box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
@@ -616,7 +695,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          margin-bottom: 2rem;
+          margin-bottom: 1rem;
           overflow: hidden;
           position: relative;
         }
@@ -651,8 +730,8 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         .bingo-gacha-button-container {
           display: flex;
           justify-content: center;
-          gap: 2rem; /* ボタン間のスペースを2remに増加 */
-          flex-wrap: wrap; /* ボタが小さい画面でも折り返す */
+          gap: 2rem; /* タン間のスペース2remに増加 */
+          flex-wrap: wrap; /* ボタンが小さい画面でも折り返す */
         }
         .bingo-gacha-button-container.popup-buttons {
           justify-content: center;
@@ -688,10 +767,80 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           width: 100%;
           margin-top: 4rem;  // 1remから4remに変更
         }
+        .gacha-image {
+          width: 200px;
+          height: 200px;
+          object-fit: contain;
+        }
+        .bingo-gacha-content {
+          position: relative;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .gacha-container {
+          position: relative;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .gacha-image {
+          width: 240px;
+          height: 240px;
+          object-fit: contain;
+          position: relative;
+          z-index: 2;
+        }
+        .gacha-base {
+          position: absolute;
+          width: 240px;
+          height: auto;
+          bottom: -30px;
+          left: 57%;
+          transform: translateX(-50%);
+          z-index: 1;
+        }
+        .bingo-gacha-content {
+          position: relative;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 300px;
+          overflow: hidden;
+        }
+        .gacha-ball {
+          position: absolute;
+          width: 25px;
+          height: 25px;
+          background: linear-gradient(145deg, #ffffff, #e0e0e0);
+          border-radius: 50%;
+          right: 15%;
+          bottom: 10%;
+          z-index: 0;
+          animation: fall 0.5s ease forwards, rotate 0.5s ease forwards;
+        }
+
+        @keyframes fall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+          }
+          100% {
+            transform: translateY(30px) rotate(360deg);
+          }
+        }
+
+
+        .gacha-container {
+          position: relative;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          overflow: visible;  // ボールがはみ出せるように
+        }
       `}</style>
 
-      {/* タイトルの追加 */}
-      <div className="bingo-title">
+     {/* タイトルの追加 */}
+     <div className="bingo-title">
         <AnimatedTitle />
       </div>
 
@@ -741,4 +890,3 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     </div>
   );
 };
-
