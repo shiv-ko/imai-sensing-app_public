@@ -75,7 +75,7 @@ const CancelReportButton: React.FC<CancelReportButtonProps> = ({ postId }) => {
       style={{
         padding: '8px 16px',
         fontSize: '14px',
-        backgroundColor: isDismissed ? 'gray' : '#4CAF50',
+        backgroundColor: isDismissed ? 'gray' : 'blue',
         color: 'white',
         border: 'none',
         borderRadius: '20px',

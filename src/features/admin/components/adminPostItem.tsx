@@ -94,7 +94,7 @@ const PostItem: React.FC<PostItemProps> = ({ post }) => {
 
             </>
           )}
-          {post.postType !== 'DELETED' && (
+          { (
             <button onClick={toggleLocationModal} style={styles.locationButton}>
               場所を確認する
             </button>
