@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import LocationModal from '../../../shared/utils/modal/locationModal';
 import ImageModal from '../../../shared/utils/modal/imageModal';
-import LikeButton from '../../../shared/utils/button/likeButton';
-import ReportButton from '../../../shared/utils/button/reportButton';
+import { updatePostData } from '../../../graphql/mutations';
+import { generateClient } from 'aws-amplify/api';
+import CancelReportButton from '@/shared/utils/button/cancelReportButton';
 
 interface Post {
   id: string;
@@ -22,10 +23,11 @@ interface Post {
 
 interface PostItemProps {
   post: Post;
-  currentUserId: string;
 }
 
-const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
+const client = generateClient();
+
+const PostItem: React.FC<PostItemProps> = ({ post }) => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
@@ -37,15 +39,42 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
     setIsLocationModalOpen(!isLocationModalOpen);
   };
 
+  // 投稿を削除する関数
+  const deletePost = async () => {
+    try {
+      await client.graphql({
+        query: updatePostData,
+        variables: {
+          input: {
+            id: post.id,
+            postType: 'DELETED', // 通常の投稿状態に戻す
+            reported: false,
+          },
+        },
+      });
+      alert('投稿を削除しました');
+      // 必要に応じて、リストから投稿を削除する処理を追加
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('投稿を削除しました');
+    }
+  };
+
+
+  // 投稿を削除する際の確認処理を含む関数
+  const handleDeleteClick = () => {
+    const confirmed = window.confirm('本当にこの投稿を削除しますか？');
+    if (confirmed) {
+      deletePost();
+    }
+  };
+
+
   return (
     <li style={styles.container}>
       {post.imageUrl && (
         <div style={styles.imageContainer} onClick={toggleImageModal}>
-          <img
-            src={post.imageUrl}
-            alt={post.category}
-            style={styles.image}
-          />
+          <img src={post.imageUrl} alt={post.category} style={styles.image} />
           <p style={styles.clickToEnlarge}>画像をクリックで拡大</p>
         </div>
       )}
@@ -56,14 +85,20 @@ const PostItem: React.FC<PostItemProps> = ({ post, currentUserId }) => {
         <p style={styles.comment}>{post.comment}</p>
 
         <div style={styles.buttonContainer}>
-          <ReportButton postId={post.id} />
-          <button onClick={toggleLocationModal} style={styles.locationButton}>
-            場所を確認する
-          </button>
-        </div>
+          {post.postType === 'REPORTED' && (
+            <>
+              <button onClick={handleDeleteClick} style={styles.actionButton}>
+                投稿を削除する
+              </button>
+              <CancelReportButton postId={post.id} />
 
-        <div style={styles.likeButtonContainer}>
-          <LikeButton postId={post.id} userId={currentUserId} />
+            </>
+          )}
+          {post.postType !== 'DELETED' && (
+            <button onClick={toggleLocationModal} style={styles.locationButton}>
+              場所を確認する
+            </button>
+          )}
         </div>
       </div>
 
@@ -123,7 +158,7 @@ const styles = {
     fontWeight: 'bold' as const,
     color: '#333',
     marginBottom: '8px',
-    whiteSpace: 'nowrap' as const, // テキストが縦にならないように設定
+    whiteSpace: 'nowrap' as const,
   },
   postedby: {
     fontStyle: 'italic',
@@ -143,6 +178,16 @@ const styles = {
     flexWrap: 'wrap' as const,
     justifyContent: 'center',
   },
+  actionButton: {
+    padding: '8px 16px',
+    fontSize: '14px',
+    backgroundColor: '#f44336', // 赤色
+    color: 'white',
+    border: 'none',
+    borderRadius: '20px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
+  },
   locationButton: {
     padding: '8px 16px',
     fontSize: '14px',
@@ -152,12 +197,6 @@ const styles = {
     borderRadius: '20px',
     cursor: 'pointer',
     transition: 'background-color 0.3s',
-  },
-  likeButtonContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: '8px',
-    marginBottom: '-8px', // 間隔を狭めるために負のマージンを使用
   },
 };
 
