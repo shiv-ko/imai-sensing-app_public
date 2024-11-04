@@ -162,85 +162,86 @@ const PostPage: React.FC = () => {
   };
 
   async function createPost(event: React.FormEvent) {
-  event.preventDefault();
+    event.preventDefault();
 
-  try {
-    // Ensure userid is available
-    if (!userid) {
-      console.error('User ID is not available.');
-      return;
+    try {
+      // Ensure userid is available
+      if (!userid) {
+        console.error('User ID is not available.');
+        return;
+      }
+
+      // 詳細なタイムスタンプを取得
+      const timestamp = getFormattedTimestamp();
+      const uniqueString = `${userid}+${timestamp}`;
+      const imageName = await generateHash(uniqueString);
+
+      // Create new File object with new name
+      if (formData.image) {
+        const image = formData.image;
+        const newImageFile = new File([image], imageName, { type: image.type });
+        // Update formData.image
+        setFormData(prevData => ({
+          ...prevData,
+          image: newImageFile
+        }));
+      }
+
+
+      // Extract form data
+      const {
+        lat,
+        lng,
+        category,
+        comment,
+        image,
+        reported,
+        deleted,
+        visible,
+        point,
+        postType,
+      } = formData;
+
+      // Prepare post data
+      const postData = {
+        userId: userid || '',
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        category,
+        comment,
+        reported,
+        deleted,
+        visible,
+        point,
+        postType,
+        imageUrl: imageName,
+        postedby: nickName,
+      };
+
+      // Upload image with new name
+      if (image) {
+        await uploadData({ key: imageName, data: image });
+      }
+
+      // Save post data to the database
+      await client.graphql({
+        query: createPostData,
+        variables: { input: { ...postData, postedby: postData.postedby || '' } },
+      });
+
+      // Reset form data
+      setFormData({
+        ...formData,
+        comment: '',
+        image: null,
+      });
+    } catch (error) {
+      console.error('Error while creating post:', error);
+    } finally {
+      // Navigate to the completion page
+      router.push('/camera/completion');
     }
-
-    // 詳細なタイムスタンプを取得
-    const timestamp = getFormattedTimestamp();
-    const uniqueString = `${userid}-${timestamp}`;
-    const imageName = await generateHash(uniqueString);
-
-    // Create new File object with new name
-    if (formData.image) {
-      const image = formData.image;
-      const newImageFile = new File([image], imageName, { type: image.type });
-      // Update formData.image
-      setFormData(prevData => ({
-        ...prevData,
-        image: newImageFile
-      }));
-    }
-
-    // Extract form data
-    const {
-      lat,
-      lng,
-      category,
-      comment,
-      image,
-      reported,
-      deleted,
-      visible,
-      point,
-      postType,
-    } = formData;
-
-    // Prepare post data
-    const postData = {
-      userId: userid || '',
-      lat: parseFloat(lat),
-      lng: parseFloat(lng),
-      category,
-      comment,
-      reported,
-      deleted,
-      visible,
-      point,
-      postType,
-      imageUrl: imageName,
-      postedby: nickName,
-    };
-
-    // Upload image with new name
-    if (image) {
-      await uploadData({ key: imageName, data: image });
-    }
-
-    // Save post data to the database
-    await client.graphql({
-      query: createPostData,
-      variables: { input: { ...postData, postedby: postData.postedby || '' } },
-    });
-
-    // Reset form data
-    setFormData({
-      ...formData,
-      comment: '',
-      image: null,
-    });
-  } catch (error) {
-    console.error('Error while creating post:', error);
-  } finally {
-    // Navigate to the completion page
-    router.push('/camera/completion');
   }
-}
 
 
 
