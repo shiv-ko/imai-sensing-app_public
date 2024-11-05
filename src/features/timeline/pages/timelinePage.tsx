@@ -6,7 +6,7 @@ import { getUrl } from 'aws-amplify/storage';
 import { Amplify } from 'aws-amplify';
 import PostItem from '../components/postItem';
 import awsExports from '../../../aws-exports';
-import CategoryDropdown from '@/shared/utils/category/categorydownMenu';
+import CategoryDropdown from '@/shared/utils/category/categorydownMenuInvisible';
 import { categoriesList } from '@/shared/utils/category/categoryList';
 import { ModelSortDirection } from '../../../API';
 import { getCurrentUser } from 'aws-amplify/auth';
