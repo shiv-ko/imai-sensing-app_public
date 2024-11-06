@@ -112,18 +112,18 @@ const PostPage: React.FC = () => {
   const getCurrentUserAsync = async () => {
     const result = await getCurrentUser();
     setUser(result);
-    console.log('user is ',user);
+    //console.log('user is ',user);
   };
   //ユーザの属性を取得する関数
   async function handleFetchUserAttributes() {
     try {
       const userAttributes = await fetchUserAttributes();
       setNickName(userAttributes.nickname);
-      console.log('userAttributes:',userAttributes);
-      console.log('userNickName',userAttributes.nickname);
+      //console.log('userAttributes:',userAttributes);
+      //console.log('userNickName',userAttributes.nickname);
       setUserid(userAttributes.sub)
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
 

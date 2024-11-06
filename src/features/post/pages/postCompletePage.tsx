@@ -18,7 +18,7 @@ const PostCompletionPage: React.FC = () => {
 
         // スコアを更新
         const updatedUser = await updateUserScore(userId || '', 1);
-        console.log('ユーザーのスコアが更新されました:', updatedUser.score);
+        //console.log('ユーザーのスコアが更新されました:', updatedUser.score);
         setUpdatedScore(updatedUser.score);
       } catch (err) {
         console.error('スコアの更新中にエラーが発生しました:', err);

@@ -28,7 +28,7 @@ const updateUserScore = async (userId: string, newScore: number) => {
       query: updateUser,
       variables: { input },
     });
-    console.log('User score updated:', result.data?.updateUser);
+    //console.log('User score updated:', result.data?.updateUser);
     return result.data?.updateUser || null;
   } catch (error) {
     console.error('Error updating user score:', error);
@@ -295,7 +295,7 @@ export function Bingo({ userId, initialScore }: BingoProps) {
 
       try {
         await updateUserScore(userId, newScore);
-        console.log('User score updated successfully:', newScore);
+        //console.log('User score updated successfully:', newScore);
       } catch (error) {
         console.error('Failed to update score:', error);
       }

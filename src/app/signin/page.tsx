@@ -155,7 +155,7 @@ export default function App() {
         if (position) {
           // 位置情報が取得できたらフラグをtrueに
           setLocationGranted(true);
-          console.log(position);
+          //console.log(position);
         }
       },
       (error) => {
@@ -169,7 +169,7 @@ export default function App() {
   const handleButtonClick = async () => {
     try {
       const currentUser = await fetchUserAttributes();
-      console.log(currentUser);
+      //console.log(currentUser);
       const username = currentUser.nickname || '';
       setDisplayName(username);
       setButtonClicked(true);
@@ -181,7 +181,7 @@ export default function App() {
         router.push('/home');
       }, 2000); // 2秒後にリダイレクト
     } catch (err) {
-      console.log(err);
+      //console.log(err);
     }
   };
 

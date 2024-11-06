@@ -57,9 +57,9 @@ const ReportButton: React.FC<ReportButtonProps> = ({ postId }) => {
 
       const postData = postDataResult.data.getPostData;
       const posterUserId = postData?.userId;
-      console.log(posterUserId)
+      //console.log(posterUserId)
       const updatedUser = await updateUserScore(posterUserId  || '', -1);
-      console.log('ユーザーのスコアが更新されました:', updatedUser.score);
+      //console.log('ユーザーのスコアが更新されました:', updatedUser.score);
     } catch (error) {
       console.error('Error updating user score:', error);
     }
