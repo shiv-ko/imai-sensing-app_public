@@ -43,7 +43,6 @@ const ReportedDeletedPostsPage: React.FC = () => {
     resetAndFetchPostData(selectedPostType);
   }, [selectedCategory, selectedPostType]);
 
-  
   const resetAndFetchPostData = (postType: string) => {
     setPosts([]);
     setNextToken(null);
@@ -62,13 +61,14 @@ const ReportedDeletedPostsPage: React.FC = () => {
     const postTypeToUse = postTypeParam || selectedPostType;
 
     let filter = {};
-    if (selectedCategory !== 'すべて') {
-    filter = {
-      ...filter,
-      category: { eq: selectedCategory }, // 選択されたカテゴリで絞り込み
-    };
-  }
-    
+
+    // Apply category filter only if selectedPostType is not 'INVISIBLE'
+    if (selectedPostType !== 'INVISIBLE' && selectedCategory !== 'すべて') {
+      filter = {
+        ...filter,
+        category: { eq: selectedCategory }, // Filter by selected category
+      };
+    }
 
     const variables = {
       postType: postTypeToUse,
@@ -97,7 +97,9 @@ const ReportedDeletedPostsPage: React.FC = () => {
         })
       );
 
-      setPosts((prevPosts) => (isInitialLoad ? postsFromAPI : [...prevPosts, ...postsFromAPI]));
+      setPosts((prevPosts) =>
+        isInitialLoad ? postsFromAPI : [...prevPosts, ...postsFromAPI]
+      );
       setNextToken(nextTokenFromAPI ?? null);
       setIsMoreAvailable(!!nextTokenFromAPI);
     } catch (error) {
@@ -109,8 +111,17 @@ const ReportedDeletedPostsPage: React.FC = () => {
 
   return (
     <div style={styles.timeline}>
-      {/* ナビゲーションボタン */}
+      {/* Navigation Buttons */}
       <div style={styles.navigation}>
+        <button
+          style={selectedPostType === 'INVISIBLE' ? styles.activeButton : styles.button}
+          onClick={() => {
+            setSelectedPostType('INVISIBLE');
+            resetAndFetchPostData('INVISIBLE');
+          }}
+        >
+          非表示投稿
+        </button>
         <button
           style={selectedPostType === 'REPORTED' ? styles.activeButton : styles.button}
           onClick={() => {
@@ -129,23 +140,26 @@ const ReportedDeletedPostsPage: React.FC = () => {
         >
           削除された投稿
         </button>
+        
       </div>
 
-      {/* カテゴリドロップダウン */}
-      <div style={styles.dropdown}>
-        <CategoryDropdown
-          selectedCategory={selectedCategory}
-          categories={categoriesList}
-          onCategoryChange={setSelectedCategory}
-        />
-      </div>
+      {/* Category Dropdown - Hidden when selectedPostType is 'INVISIBLE' */}
+      {selectedPostType !== 'INVISIBLE' && (
+        <div style={styles.dropdown}>
+          <CategoryDropdown
+            selectedCategory={selectedCategory}
+            categories={categoriesList}
+            onCategoryChange={setSelectedCategory}
+          />
+        </div>
+      )}
 
       {loading && posts.length === 0 ? (
         <p>Loading...</p>
       ) : (
         <ul style={styles.postList}>
           {posts.map((post) => (
-            <PostItem key={post.id} post={post}/>
+            <PostItem key={post.id} post={post} />
           ))}
         </ul>
       )}

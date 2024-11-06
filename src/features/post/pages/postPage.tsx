@@ -85,6 +85,7 @@ const PostPage: React.FC = () => {
       setFormData((prevData) => ({
         ...prevData,
         category: theme,
+        postType: theme === '自治会に伝えたいこと' ? 'INVISIBLE' : 'POST',
       }));
     }
 

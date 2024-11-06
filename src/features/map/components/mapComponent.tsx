@@ -13,26 +13,28 @@ const userIcon = new L.Icon({
 
 // カテゴリとピン画像のマッピング
 const categoryIconMapping: { [key: string]: string } = {
-  '防災器具の場所': 'output/pin_variation_1.png',
-  '避難場所': 'output/pin_variation_2.png',
-  '道の名前': 'output/pin_variation_3.png',
-  '懐かしい場所': 'output/pin_variation_4.png',
-  '思い出の場所': 'output/pin_variation_5.png',
-  '守りたい場所': 'output/pin_variation_6.png',
-  '大切な場所': 'output/pin_variation_7.png',
-  '友達に教えてあげたいこと': 'output/pin_variation_8.png',
-  'おすすめスポット': 'output/pin_variation_9.png',
-  '珍しいもの': 'output/pin_variation_10.png',
-  '面白いもの': 'output/pin_variation_11.png',
-  '危険な場所': 'output/pin_variation_12.png',
-  '注意が必要な場所': 'output/pin_variation_13.png',
-  '景観が綺麗な場所': 'output/pin_variation_14.png',
-  '写真映えするスポット': 'output/pin_variation_15.png',
-  '歴史的な場所': 'output/pin_variation_16.png',
-  '地域の名物': 'output/pin_variation_17.png',
-  '季節を感じる場所': 'output/pin_variation_18.png',
+  '防災器具の場所': 'output/pin_variation_1.png',  // 消火器／消火栓
+  '道の名前': 'output/pin_variation_2.png',  // 路地の名称
+  '道幅のせまい場所': 'output/pin_variation_3.png',
+  '避難できる場所': 'output/pin_variation_4.png',
+  '避難しやすい道': 'output/pin_variation_5.png',
+  '懐かしい場所': 'output/pin_variation_6.png',
+  '守りたい場所': 'output/pin_variation_7.png',
+  '思い出の場所': 'output/pin_variation_8.png',
+  '大切な場所': 'output/pin_variation_9.png',
+  '観光地になるような場所': 'output/pin_variation_10.png',
+  '友達に教えてあげたいこと': 'output/pin_variation_11.png',
+  'おすすめスポット': 'output/pin_variation_12.png',
+  '写真映えするスポット': 'output/pin_variation_13.png',
+  '珍しいもの': 'output/pin_variation_14.png',
+  '面白いもの': 'output/pin_variation_15.png',
+  '危険な場所': 'output/pin_variation_16.png',
+  '注意が必要な場所': 'output/pin_variation_17.png',
+  '景観が綺麗な場所': 'output/pin_variation_18.png',
+  '緑を増やしたい場所': 'output/pin_variation_19.png',
+  '誇りに思う場所': 'output/pin_variation_20.png',
+  // '自治会に伝えたいこと' は非表示投稿なのでマッピングしない
 };
-
 interface Post {
   id: string;
   imageUrl?: string | null;

@@ -7,7 +7,7 @@ import awsExports from './../../../aws-exports';
 import dynamic from 'next/dynamic';
 import { getCurrentUser } from 'aws-amplify/auth'; // ユーザー情報取得のためのインポート
 const MapComponent = dynamic(() => import('../components/mapComponent'), { ssr: false });
-import CategoryDropdown from '@/shared/utils/category/categorydownMenu';
+import CategoryDropdown from '@/shared/utils/category/categorydownMenuInvisibleMap';
 import { categoriesList } from '@/shared/utils/category/categoryList';
 import { getUrl } from 'aws-amplify/storage';
 import { listLikes } from '../../../graphql/queries'; // いいねのリストを取得
