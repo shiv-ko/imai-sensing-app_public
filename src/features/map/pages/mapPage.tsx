@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { postDataByPostTypeAndUpdatedAt } from '../../../graphql/queries';
+import { listPostData  } from '../../../graphql/queries';
 import { generateClient } from 'aws-amplify/api';
 import { Amplify } from 'aws-amplify';
 import awsExports from './../../../aws-exports';
@@ -96,32 +96,33 @@ const PostMapPage: React.FC = () => {
   };
 
   async function fetchPostData(token: string | null, isInitialLoad: boolean = false) {
+
+    
     if (!isMoreAvailable && !isInitialLoad) return;
 
-    let variables;
-    if (selectedCategory === 'すべて') {
-      variables = {
-        postType: 'POST',
-        filter: {
-        },
-      };
-    } else {
-      variables = {
-        postType: 'POST',
-        filter: {
-          category: { eq: selectedCategory },
-        },
-      };
+    // Initialize the filter with postType: 'POST'
+    const filter: Record<string,  { eq: string }> = {
+        postType: { eq: 'POST' },
+    };
+
+    if (selectedCategory !== 'すべて') {
+        filter.category = { eq: selectedCategory };
     }
+    // Set up variables for the query
+    const variables = {
+        filter: filter,
+        limit: 10000, 
+    };
 
     try {
-      const apiData = await client.graphql({
-        query: postDataByPostTypeAndUpdatedAt,
-        variables: variables,
-      });
+        const apiData = await client.graphql({
+            query: listPostData,
+            variables: variables,
+        });
+        
 
-      const postsFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.items;
-      const nextTokenFromAPI = apiData.data.postDataByPostTypeAndUpdatedAt.nextToken;
+        const postsFromAPI = apiData.data.listPostData.items;
+        console.log(postsFromAPI);
 
       // いいね数の取得処理を追加
       await Promise.all(
@@ -143,7 +144,6 @@ const PostMapPage: React.FC = () => {
       );
 
       setPosts((prevPosts) => (isInitialLoad ? postsFromAPI : [...prevPosts, ...postsFromAPI]));
-      setIsMoreAvailable(!!nextTokenFromAPI);
     } catch (error) {
       console.error('Error fetching data', error);
     }
