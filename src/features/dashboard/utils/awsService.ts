@@ -213,7 +213,7 @@ export async function addPointsToUser(userId: string, points: number): Promise<v
 
 export const updateUserData = async (input: UpdateUserMutationVariables['input']): Promise<void> => {
   try {
-    const result = await client.graphql<UpdateUserMutation>({
+    await client.graphql<UpdateUserMutation>({
       query: updateUser,
       variables: { input }
     }) as GraphQLResult<UpdateUserMutation>;
