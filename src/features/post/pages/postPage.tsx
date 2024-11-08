@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import { createPostData } from '../../../graphql/mutations';
 import { uploadData } from 'aws-amplify/storage';
-import { getCurrentUser, GetCurrentUserOutput ,fetchUserAttributes} from 'aws-amplify/auth';
+import {fetchUserAttributes} from 'aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
 import awsExports from '../../../aws-exports';
@@ -65,14 +65,12 @@ const PostPage: React.FC = () => {
     likes:0,
   });
   const [loadingLocation, setLoadingLocation] = useState(false);
-  const [user, setUser] = useState<GetCurrentUserOutput>();
   const [nickName,setNickName]=useState<string>();
   const [userid,setUserid]=useState<string>();
 
   //ユーザの位置情報と認証情報を取得
   useEffect(() => {
     getUserLocation();
-    getCurrentUserAsync();
     const fetchData = async () => {
       await handleFetchUserAttributes();
     };
@@ -108,12 +106,6 @@ const PostPage: React.FC = () => {
     }
   }, [theme, capturedImage]);
 
-  //ユーザの認証情報を取得する関数
-  const getCurrentUserAsync = async () => {
-    const result = await getCurrentUser();
-    setUser(result);
-    //console.log('user is ',user);
-  };
   //ユーザの属性を取得する関数
   async function handleFetchUserAttributes() {
     try {

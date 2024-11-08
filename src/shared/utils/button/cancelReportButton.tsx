@@ -57,7 +57,7 @@ const CancelReportButton: React.FC<CancelReportButtonProps> = ({ postId }) => {
 
       // ユーザーのスコアを +1 する
       if (posterUserId) {
-        const updatedUser = await updateUserScore(posterUserId, 1);
+        await updateUserScore(posterUserId, 1);
         //console.log('ユーザーのスコアが更新されました:', updatedUser.score);
       }
     } catch (error) {
