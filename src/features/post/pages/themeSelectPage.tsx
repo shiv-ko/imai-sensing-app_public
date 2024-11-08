@@ -17,7 +17,7 @@ const ThemeSelectPage: React.FC = () => {
   const [capturedImage, setCapturedImage] = useRecoilState(capturedImageAtom);
 
   const inputRef = useRef<HTMLInputElement>(null);
-
+  console.log(capturedImage);
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
       try {
