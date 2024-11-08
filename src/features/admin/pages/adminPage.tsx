@@ -17,7 +17,7 @@ const AdminPage: React.FC = () => {
   useEffect(() => {
     async function checkAdminAccess() {
       const { userId } = await handleFetchUserAttributes();
-      console.log(userId);
+      //console.log(userId);
       if (userId && adminUserIds.includes(userId)) {
         setAuthorized(true);
       } else {

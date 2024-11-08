@@ -53,12 +53,12 @@ const CancelReportButton: React.FC<CancelReportButtonProps> = ({ postId }) => {
 
       const postData = postDataResult.data.getPostData;
       const posterUserId = postData?.userId;
-      console.log(postData);
+      //console.log(postData);
 
       // ユーザーのスコアを +1 する
       if (posterUserId) {
-        const updatedUser = await updateUserScore(posterUserId, 1);
-        console.log('ユーザーのスコアが更新されました:', updatedUser.score);
+        await updateUserScore(posterUserId, 1);
+        //console.log('ユーザーのスコアが更新されました:', updatedUser.score);
       }
     } catch (error) {
       console.error('Error fetching post data:', error);

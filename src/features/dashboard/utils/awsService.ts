@@ -155,7 +155,7 @@ export async function getUserData(userId: string): Promise<GetUserQuery['getUser
       variables: { id: userId }
     }) as GraphQLResult<GetUserQuery>;
 
-    console.log('getUserData APIレスポンス:', JSON.stringify(userData, null, 2)); // レスポンス全体をログに出力
+    //console.log('getUserData APIレスポンス:', JSON.stringify(userData, null, 2)); // レスポンス全体をログに出力
 
     if (userData && userData.data && userData.data.getUser) {
       return userData.data.getUser;
@@ -186,7 +186,7 @@ export async function updateUserScore(userId: string, newScore: number): Promise
       variables: { input },
     }) as GraphQLResult<UpdateUserMutation>;
 
-    console.log('ユーザースコア更新:', JSON.stringify(result.data?.updateUser, null, 2));
+    //console.log('ユーザースコア更新:', JSON.stringify(result.data?.updateUser, null, 2));
     return result.data?.updateUser as UpdateUserMutation['updateUser'];
   } catch (error) {
     console.error('ユーザースコア更新エラー:', error);
@@ -204,7 +204,7 @@ export async function addPointsToUser(userId: string, points: number): Promise<v
     const userData = await getUserData(userId);
     const currentScore = userData?.score || 0;
     await updateUserScore(userId, currentScore + points);
-    console.log(`ユーザー ${userId} に ${points} ポイントを追加しました。新しいスコア: ${currentScore + points}`);
+    //console.log(`ユーザー ${userId} に ${points} ポイントを追加しました。新しいスコア: ${currentScore + points}`);
   } catch (error) {
     console.error('ユーザーへのポイント追加失敗:', error);
     throw new Error('ポイントの追加に失敗しました。');
@@ -213,12 +213,12 @@ export async function addPointsToUser(userId: string, points: number): Promise<v
 
 export const updateUserData = async (input: UpdateUserMutationVariables['input']): Promise<void> => {
   try {
-    const result = await client.graphql<UpdateUserMutation>({
+    await client.graphql<UpdateUserMutation>({
       query: updateUser,
       variables: { input }
     }) as GraphQLResult<UpdateUserMutation>;
 
-    console.log('updateUserData APIレスポンス:', JSON.stringify(result, null, 2));
+    //console.log('updateUserData APIレスポンス:', JSON.stringify(result, null, 2));
   } catch (error) {
     console.error('ユーザーデータの更新に失敗しました', error);
     throw error;
@@ -243,10 +243,10 @@ export async function markCategoryAsCompleted(sheetId: string, category: string)
       variables: variablesForGet
     }) as GraphQLResult<GetBingoSheetQuery>;
 
-    console.log('markCategoryAsCompleted APIレスポンス (Get):', JSON.stringify(getResult, null, 2));
+    //console.log('markCategoryAsCompleted APIレスポンス (Get):', JSON.stringify(getResult, null, 2));
 
     if (!getResult.data || !getResult.data.getBingoSheet) {
-      console.log('markCategoryAsCompleted: ビンゴシートが存在しません。');
+      //console.log('markCategoryAsCompleted: ビンゴシートが存在しません。');
       return null;
     }
 
@@ -272,13 +272,13 @@ export async function markCategoryAsCompleted(sheetId: string, category: string)
       variables: { input }
     }) as GraphQLResult<UpdateBingoSheetMutation>;
 
-    console.log('markCategoryAsCompleted APIレスポンス (Update):', JSON.stringify(updateResult, null, 2));
+    //console.log('markCategoryAsCompleted APIレスポンス (Update):', JSON.stringify(updateResult, null, 2));
 
     if (updateResult.data && updateResult.data.updateBingoSheet) {
-      console.log(`カテゴリ "${category}" を完了しました。ビンゴシートが更新されました。`);
+      //console.log(`カテゴリ "${category}" を完了しました。ビンゴシートが更新されました。`);
       return updateResult.data.updateBingoSheet;
     } else {
-      console.log('markCategoryAsCompleted: ビンゴシートの更新に失敗しました。');
+      //console.log('markCategoryAsCompleted: ビンゴシートの更新に失敗しました。');
       return null;
     }
   } catch (error) {
@@ -310,7 +310,7 @@ export async function fetchBingoSheet(userId: string): Promise<BingoSheet | null
         variables: variables
       }) as GraphQLResult<BingoSheetsByUserIdQuery>;
 
-      console.log('fetchBingoSheet APIレスポンス (List):', JSON.stringify(listResult, null, 2)); // レスポンス全体をログに出力
+      //console.log('fetchBingoSheet APIレスポンス (List):', JSON.stringify(listResult, null, 2)); // レスポンス全体をログに出力
 
       if (listResult.errors && listResult.errors.length > 0) {
         console.error('GraphQL errors:', listResult.errors);
@@ -327,7 +327,7 @@ export async function fetchBingoSheet(userId: string): Promise<BingoSheet | null
     } while (nextToken);
 
     if (allSheets.length === 0) {
-      console.log('fetchBingoSheet: bingoSheetsByUserIdクエリでビンゴシートが存在しません。');
+      //console.log('fetchBingoSheet: bingoSheetsByUserIdクエリでビンゴシートが存在しません。');
       return null;
     }
 
@@ -339,11 +339,11 @@ export async function fetchBingoSheet(userId: string): Promise<BingoSheet | null
 
     const latestSheet = allSheets[0];
     if (!latestSheet) {
-      console.log('fetchBingoSheet: 有効なビンゴシートが見つかりません。');
+      //console.log('fetchBingoSheet: 有効なビンゴシートが見つかりません。');
       return null;
     }
 
-    console.log('fetchBingoSheet: 最新のビンゴシートを選択しました:', JSON.stringify(latestSheet, null, 2));
+    //console.log('fetchBingoSheet: 最新のビンゴシートを選択しました:', JSON.stringify(latestSheet, null, 2));
 
     // 2. getBingoSheetクエで詳細なビンゴシートを取得
     const variablesForGet: GetBingoSheetQueryVariables = {
@@ -355,7 +355,7 @@ export async function fetchBingoSheet(userId: string): Promise<BingoSheet | null
       variables: variablesForGet
     }) as GraphQLResult<GetBingoSheetQuery>;
 
-    console.log('fetchBingoSheet APIレスポンス (Get):', JSON.stringify(getResult, null, 2)); // レスポンス全体をログに出力
+    //console.log('fetchBingoSheet APIレスポンス (Get):', JSON.stringify(getResult, null, 2)); // レスポンス全体をログに出力
 
     if (getResult.errors && getResult.errors.length > 0) {
       console.error('GraphQL errors in getBingoSheet:', getResult.errors);
@@ -363,10 +363,10 @@ export async function fetchBingoSheet(userId: string): Promise<BingoSheet | null
     }
 
     if (getResult.data && getResult.data.getBingoSheet) {
-      console.log('fetchBingoSheet: ビンゴシートを取得しました:', JSON.stringify(getResult.data.getBingoSheet, null, 2));
+      //console.log('fetchBingoSheet: ビンゴシートを取得しました:', JSON.stringify(getResult.data.getBingoSheet, null, 2));
       return getResult.data.getBingoSheet as BingoSheet;
     } else {
-      console.log('fetchBingoSheet: getBingoSheetクエリでビンゴシートが存在しません。');
+      //console.log('fetchBingoSheet: getBingoSheetクエリでビンゴシートが存在しません。');
       return null;
     }
 
@@ -388,10 +388,10 @@ export async function createNewBingoSheet(input: CreateBingoSheetMutationVariabl
       variables: { input }
     }) as GraphQLResult<CreateBingoSheetMutation>;
 
-    console.log('createNewBingoSheet APIレスポンス:', JSON.stringify(result, null, 2)); // レスポンス全体をログに出力
+    //console.log('createNewBingoSheet APIレスポンス:', JSON.stringify(result, null, 2)); // レスポンス全体をログに出力
 
     if (result && result.data && result.data.createBingoSheet) {
-      console.log('createNewBingoSheet: ビンゴシートが作成されました:', JSON.stringify(result.data.createBingoSheet, null, 2));
+      //console.log('createNewBingoSheet: ビンゴシートが作成されました:', JSON.stringify(result.data.createBingoSheet, null, 2));
       return result.data.createBingoSheet;
     } else {
       throw new Error('ビンゴシートの作成に失敗しました。');
@@ -414,7 +414,7 @@ export async function createOrUpdateBingoSheet(userId: string, input: CreateBing
     const existingSheet = await fetchBingoSheet(userId);
 
     if (existingSheet) {
-      console.log('既存のビンゴシートが見つかりました。更新します。');
+      //console.log('既存のビンゴシートが見つかりました。更新します。');
 
       // 2. 既存のビンゴシートを更新
       const updatedCells = input.cells.map(cell => stripTypename(cell));
@@ -430,7 +430,7 @@ export async function createOrUpdateBingoSheet(userId: string, input: CreateBing
         variables: { input: updateInput }
       }) as GraphQLResult<UpdateBingoSheetMutation>;
 
-      console.log('createOrUpdateBingoSheet APIレスポンス (Update):', JSON.stringify(updateResult, null, 2));
+      //console.log('createOrUpdateBingoSheet APIレスポンス (Update):', JSON.stringify(updateResult, null, 2));
 
       if (updateResult.errors && updateResult.errors.length > 0) {
         console.error('GraphQL errors during update:', updateResult.errors);
@@ -438,14 +438,14 @@ export async function createOrUpdateBingoSheet(userId: string, input: CreateBing
       }
 
       if (updateResult.data && updateResult.data.updateBingoSheet) {
-        console.log('ビンゴシートが更新されました:', JSON.stringify(updateResult.data.updateBingoSheet, null, 2));
+        //console.log('ビンゴシートが更新されました:', JSON.stringify(updateResult.data.updateBingoSheet, null, 2));
         return updateResult.data.updateBingoSheet as BingoSheet;
       } else {
         throw new Error('ビンゴシートの更新に失敗しました。');
       }
 
     } else {
-      console.log('既存のビンゴシートが存在しません。新規作成します。');
+      //console.log('既存のビンゴシートが存在しません。新規作成します。');
 
       // 3. 新しいビンゴシートを作成
       const cleanedCells = input.cells.map(cell => stripTypename(cell));
@@ -461,7 +461,7 @@ export async function createOrUpdateBingoSheet(userId: string, input: CreateBing
         variables: { input: cleanedInput }
       }) as GraphQLResult<CreateBingoSheetMutation>;
 
-      console.log('createOrUpdateBingoSheet APIレスポンス (Create):', JSON.stringify(createResult, null, 2));
+      //console.log('createOrUpdateBingoSheet APIレスポンス (Create):', JSON.stringify(createResult, null, 2));
 
       if (createResult.errors && createResult.errors.length > 0) {
         console.error('GraphQL errors during creation:', createResult.errors);
@@ -469,7 +469,7 @@ export async function createOrUpdateBingoSheet(userId: string, input: CreateBing
       }
 
       if (createResult.data && createResult.data.createBingoSheet) {
-        console.log('ビンゴシートが作成されました:', JSON.stringify(createResult.data.createBingoSheet, null, 2));
+        //console.log('ビンゴシートが作成されました:', JSON.stringify(createResult.data.createBingoSheet, null, 2));
         return createResult.data.createBingoSheet as BingoSheet;
       } else {
         throw new Error('ビンゴシートの作成に失敗しました。');
@@ -503,11 +503,11 @@ export async function createUserIfNotExists(userId: string): Promise<CreateUserM
       variables: { input },
     }) as GraphQLResult<CreateUserMutation>;
 
-    console.log('新規ユーザー作成:', JSON.stringify(result.data?.createUser, null, 2));
+    //console.log('新規ユーザー作成:', JSON.stringify(result.data?.createUser, null, 2));
     return result.data?.createUser as CreateUserMutation['createUser'];
   } catch (error) {
     console.error('ユーザー情報取得エラー:', error);
-    console.log('ユーザー情報の取得に失敗しましたが、処理を続行します。');
+    //console.log('ユーザー情報の取得に失敗しましたが、処理を続行します。');
     return null;
   }
 }

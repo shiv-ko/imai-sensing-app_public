@@ -245,10 +245,10 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
         setBingoSheet(sheet.cells);
         setCurrentSheetId(sheet.id);
         setBingoSheetExists(true);
-        console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
+        //console.log('ビンゴシートをロードしました。セル数:', sheet.cells.length);
         return sheet;
       } else {
-        console.log('保存されたビンゴシートが存在しません。');
+        //console.log('保存されたビンゴシートが存在しません。');
         setBingoSheetExists(false);
         return null;
       }
@@ -260,12 +260,12 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
   }, [userId]);
 
   const loadPostsAndUpdateBingoSheet = useCallback(async (sheetCreatedAt: Date) => {
-    console.log('loadPostsAndUpdateBingoSheet が呼び出されました');
-    console.log('ビンゴシートの作成日時:', sheetCreatedAt);
+    //console.log('loadPostsAndUpdateBingoSheet が呼び出されました');
+    //console.log('ビンゴシートの作成日時:', sheetCreatedAt);
     try {
-      console.log('投稿データを取得中...');
+      //console.log('投稿データを取得中...');
       const startDateString = sheetCreatedAt.toISOString();
-      console.log('startDateString:', startDateString);
+      //console.log('startDateString:', startDateString);
       const fetchPostsResult = await fetchPosts(
         'POST',
         'すべて',
@@ -275,11 +275,11 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
         undefined,
         userId
       );
-      console.log('fetchPosts の結果:', fetchPostsResult);
+      //console.log('fetchPosts の結果:', fetchPostsResult);
       const { posts } = fetchPostsResult;
-      console.log('取得した投稿データ:', posts);
+      //console.log('取得した投稿データ:', posts);
       if (posts.length === 0) {
-        console.log('投稿データはありません。');
+        //console.log('投稿データはありません。');
         return;
       }
       const categoriesWithDates: { category: string; createdAt: Date }[] = posts.map(post => ({
@@ -287,35 +287,35 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
         createdAt: new Date((post as any).createdAt)
       }));
       categoriesWithDates.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-      console.log('カテゴリと作成日時のペア:', categoriesWithDates);
+      //console.log('カテゴリと作成日時のペア:', categoriesWithDates);
       const filteredCategories = categoriesWithDates
         .filter(post => post.createdAt > sheetCreatedAt)
         .map(post => post.category);
-      console.log('フィルタリングされたカテゴリ:', filteredCategories);
+      //console.log('フィルタリングされたカテゴリ:', filteredCategories);
       if (bingoSheet.length > 0) {
         let updatedSheet = [...bingoSheet];
         const updatedCategories: string[] = [];
         updatedSheet = updatedSheet.map(cell => {
           if (!cell.isCompleted && filteredCategories.includes(cell.category)) {
-            console.log(`カテゴリ "${cell.category}" を完了しました。`);
+            //console.log(`カテゴリ "${cell.category}" を完了しました。`);
             updatedCategories.push(cell.category);
             return { ...cell, isCompleted: true, completedAt: new Date() };
           }
           return cell;
         });
         if (updatedCategories.length > 0) {
-          console.log('ビンゴシートの更新前:', bingoSheet);
-          console.log('ビンゴシートの更新後:', updatedSheet);
+          //console.log('ビンゴシートの更新前:', bingoSheet);
+          //console.log('ビンゴシートの更新後:', updatedSheet);
           setBingoSheet(updatedSheet);
           const completed = checkBingoLines(updatedSheet);
           if (completed > 0) {
-            console.log(`ビンゴラインが${completed}本完成しました。`);
+            //console.log(`ビンゴラインが${completed}本完成しました。`);
           }
           for (const category of updatedCategories) {
             if (currentSheetId) {
               try {
                 await markCategoryAsCompleted(currentSheetId, category);
-                console.log(`バックエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
+                //console.log(`バックエンドのビンゴシートも更新しました: カテゴリ "${category}" を完了しました。`);
               } catch (error) {
                 console.error(`カテゴリ "${category}" の更新に失敗しました:`, error);
               }
@@ -324,7 +324,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
             }
           }
         } else {
-          console.log('ビンゴシートの更新は必要ありませんでした。');
+          //console.log('ビンゴシートの更新は必要ありませんでした。');
         }
       }
     } catch (error) {
@@ -336,13 +336,13 @@ export const Bingo: React.FC<BingoProps> = ({ userId }) => {
     const initializeBingoAndPosts = async () => {
       if (isInitialized) return;
       const sheet = await loadBingoSheet();
-      console.log('ビンゴシートのロード完了');
+      //console.log('ビンゴシートのロード完了');
       if (sheet && sheet.createdAt) {
         const createdAt = new Date(sheet.createdAt);
-        console.log('ビンゴシートの作成日時:', createdAt);
+        //console.log('ビンゴシートの作成日時:', createdAt);
         await loadPostsAndUpdateBingoSheet(createdAt);
       } else {
-        console.log('ビンゴシートの作成日時が設定されていません。');
+        //console.log('ビンゴシートの作成日時が設定されていません。');
       }
       setIsInitialized(true);
     };

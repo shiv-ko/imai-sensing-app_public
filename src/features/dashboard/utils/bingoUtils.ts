@@ -2,8 +2,11 @@
 
 import { categoriesList } from '../../../shared/utils/category/categoryList';
 
-// 'すべて' カテゴリーを除外
-const filteredCategories = categoriesList.filter(category => category.trim() !== 'すべて');
+// カテゴリフィルタ
+const filteredCategories = categoriesList.filter(category => 
+  category.trim() !== 'すべて' && category.trim() !== '自治会に伝えたいこと'
+);
+
 
 // ガチャ関連の定数と関数
 const basePointValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];

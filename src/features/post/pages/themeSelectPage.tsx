@@ -17,7 +17,7 @@ const ThemeSelectPage: React.FC = () => {
   const [capturedImage, setCapturedImage] = useRecoilState(capturedImageAtom);
 
   const inputRef = useRef<HTMLInputElement>(null);
-
+  console.log(capturedImage);
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
       try {
@@ -60,7 +60,7 @@ const ThemeSelectPage: React.FC = () => {
     if (files && files[0]) {
       const file = files[0];
       setCapturedImage(file);
-      console.log(capturedImage);
+      //console.log(capturedImage);
 
       // Navigate to post page with theme as query parameter
       const params = new URLSearchParams({ theme: selectedTheme });

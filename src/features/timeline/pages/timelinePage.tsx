@@ -158,7 +158,7 @@ const TimelinePage: React.FC = () => {
                   transition: 'background-color 0.3s',
                 }}
               >
-            {loading ? 'Loading...' : 'Load More'}
+            {loading ? 'ロード中' : 'もっと見る'}
           </button>
         )}
         </div>
