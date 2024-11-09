@@ -198,7 +198,7 @@ export default function App() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  安土桃山時代からつづく<br></br>
+                  室町時代からつづく<br></br>
                   今井町の魅力を探る
                 </motion.button>
               ) : (
