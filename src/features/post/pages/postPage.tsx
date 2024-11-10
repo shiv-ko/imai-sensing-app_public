@@ -14,6 +14,7 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useRecoilValue } from 'recoil';
 import { capturedImageAtom } from '../states/imageAtom';
+import updateUserScore from '@/hooks/updatePoint';
 
 Amplify.configure(awsExports);
 
@@ -172,6 +173,18 @@ const PostPage: React.FC = () => {
           image: newImageFile
         }));
       }
+      try {
+        // 現在のユーザーを取得
+        const userAttributes = await fetchUserAttributes();
+        const userId = userAttributes.sub;
+
+        // スコアを更新
+        await updateUserScore(userId || '', 1);
+        //console.log('ユーザーのスコアが更新されました:', updatedUser.score);
+      } catch (err) {
+        console.error('スコアの更新中にエラーが発生しました:', err);
+      } 
+      
 
 
       // Extract form data
