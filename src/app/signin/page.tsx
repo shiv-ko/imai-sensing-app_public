@@ -1,5 +1,6 @@
 'use client';
 import { Authenticator } from '@aws-amplify/ui-react';
+import Image from 'next/image';
 import { fetchUserAttributes} from 'aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import { I18n } from '@aws-amplify/core';
@@ -149,19 +150,16 @@ export default function App() {
   const router = useRouter();
 
   useEffect(() => {
-    // ページに入ったときに位置情報を取得
     navigator.geolocation.getCurrentPosition(
       (position) => {
         if (position) {
-          // 位置情報が取得できたらフラグをtrueに
           setLocationGranted(true);
-          //console.log(position);
         }
       },
       (error) => {
         console.error(error);
         setErrorMessage('位置情報が取得できません。ログインできません。');
-        setLocationGranted(false); // 取得失敗した場合はfalse
+        setLocationGranted(false);
       }
     );
   }, []);
@@ -169,26 +167,39 @@ export default function App() {
   const handleButtonClick = async () => {
     try {
       const currentUser = await fetchUserAttributes();
-      //console.log(currentUser);
       const username = currentUser.nickname || '';
       setDisplayName(username);
       setButtonClicked(true);
       
-      // ユーザーのデータを取得し、存在しない場合は新規作成する関数を呼び出す
-      await createUserIfNotExists(currentUser.sub || ''); // currentUser.subがundefinedの場合は空文字を渡す
-
+      await createUserIfNotExists(currentUser.sub || '');
       setTimeout(() => {
         router.push('/home');
-      }, 2000); // 2秒後にリダイレクト
+      }, 2000);
     } catch (err) {
-      //console.log(err);
+      console.error(err);
     }
   };
 
   return (
     <div style={styles.container}>
       {locationGranted ? (
-        <Authenticator formFields={formFields}>
+        <Authenticator formFields={formFields} components={{
+          Header() {
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Image src="/favicon.ico" alt="Logo" style={styles.logo} width={100} height={100} />
+                <button
+                  style={styles.linkButton}
+                  onClick={() => {
+                    window.open('http://watery-literature-3ab.notion.site', '_blank');
+                  }}
+                >
+                  使い方を学ぶ（外部サイト）
+                </button>
+            </div>
+            );
+          }
+        }}>
           {() => (
             <div>
               {!buttonClicked ? (
@@ -250,15 +261,16 @@ export default function App() {
   );
 }
 
+
 const styles = {
   container: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     height: '100vh',
     backgroundColor: '#f8f9fa',
-  },
+  }as const,
   errorMessage: {
     color: 'red',
     fontSize: '1.2rem',
@@ -274,19 +286,41 @@ const styles = {
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     transition: 'all 0.3s ease',
   },
+  logo: {
+    width: '80px', // アイコンの幅を調整
+    height: '80px',
+    marginBottom: '1rem', // アイコンとボタンの間に余白を追加
+  },
+  linkButton: {
+    padding: '10px 20px',
+    fontSize: '1rem',
+    color: '#ffffff',
+    backgroundColor: '#007bff',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    boxShadow: '0 4px 8px rgba(0, 123, 255, 0.2)',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    marginBottom: '30px', // ボタンの下にマージンを追加
+  } as const,
   welcomeContainer: {
     backgroundColor: '#ffffff',
     padding: '3rem 4rem',
     borderRadius: '10px',
     boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     maxWidth: '500px',
     width: '90%',
-    position: 'absolute' as const,
+    position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-  },
+  }as const,
   welcomeText: {
     fontSize: '2.5rem',
     color: '#1a1a1a',
