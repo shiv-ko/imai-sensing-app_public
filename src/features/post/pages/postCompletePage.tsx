@@ -1,35 +1,8 @@
 'use client'
-import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { fetchUserAttributes } from 'aws-amplify/auth';
-import updateUserScore from '@/hooks/updatePoint'; // パスを調整してください
 
 const PostCompletionPage: React.FC = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [updatedScore, setUpdatedScore] = useState<number | null>(null);
 
-  useEffect(() => {
-    async function updateScore() {
-      try {
-        // 現在のユーザーを取得
-        const userAttributes = await fetchUserAttributes();
-        const userId = userAttributes.sub;
-
-        // スコアを更新
-        const updatedUser = await updateUserScore(userId || '', 1);
-        //console.log('ユーザーのスコアが更新されました:', updatedUser.score);
-        setUpdatedScore(updatedUser.score);
-      } catch (err) {
-        console.error('スコアの更新中にエラーが発生しました:', err);
-        setError('スコアの更新に成功しました。');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    updateScore();
-  }, []);
 
   return (
     <div className="container">
@@ -37,11 +10,6 @@ const PostCompletionPage: React.FC = () => {
         <div className="icon">🎉</div>
         <h1 className="title">投稿が完了しました！</h1>
         <p className="message">ご投稿ありがとうございます。</p>
-        {loading && <p className="loading">スコアを更新中...</p>}
-        {error && <p className="error">{error}</p>}
-        {updatedScore !== null && (
-          <p className="score">あなたの新しいスコア: {updatedScore}</p>
-        )}
         <Link href="/home">
           <button className="button">ホームに戻る</button>
         </Link>
