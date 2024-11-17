@@ -73,11 +73,15 @@ const ThemeSelectPage: React.FC = () => {
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>お題を選択してください</h1>
+      
       <ThemeSelector
         themes={filteredThemes}
         selectedTheme={selectedTheme}
         onThemeChange={handleThemeChange}
       />
+      <div style={styles.warning}>
+        不適切な投稿が確認された場合、削除やアカウント凍結の対象となることがあります。
+      </div>
       <button style={styles.button} onClick={handleNext}>
         次へ
       </button>
@@ -124,6 +128,16 @@ const styles = {
     cursor: 'pointer',
     transition: 'background-color 0.3s ease',
     marginTop: '20px', // テーマセレクターとボタンの間に余白を作成
+  },
+  warning: {
+    marginBottom: '10px',
+    padding: '5px',
+    backgroundColor: '#ffe4e1',
+    border: '1px solid #ff0000',
+    color: '#ff0000',
+    fontWeight: 'bold',
+    borderRadius: '3px',
+    textAlign: 'center' as const,
   },
 };
 
