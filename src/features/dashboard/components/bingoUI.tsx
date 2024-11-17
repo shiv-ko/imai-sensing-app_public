@@ -813,6 +813,13 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
           z-index: 0;
           animation: fall 0.5s ease forwards, rotate 0.5s ease forwards;
         }
+        .gachaHint: {
+          fontSize: '14px',
+          color: '#666',
+          marginBottom: '20px',
+          marginTop: '5px',
+          textAlign: 'center' as const,
+        }
 
         @keyframes fall {
           0% {
@@ -822,8 +829,6 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
             transform: translateY(30px) rotate(360deg);
           }
         }
-
-
         .gacha-container {
           position: relative;
           display: flex;
@@ -853,6 +858,9 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
             ガチャを表示 {completedLines > 0 && `(${completedLines}ライン完成)`}
           </Button>
         )}
+      </div>
+      <div style={styles.gachaHint}>
+        ビンゴを揃えるとガチャを引けます！多く揃えると高ポイントのチャンス！
       </div>
 
       {/* ビンゴボードの表示 */}
@@ -884,3 +892,15 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     </div>
   );
 };
+
+const styles = {
+  gachaHint: {
+    fontSize: '16px',
+    color: '#E95B6B', 
+    marginBottom: '15px',
+    marginTop: '20px', // 上部に余白を追加
+    fontWeight: 'bold',
+    textAlign: 'center' as const,
+    animation: 'pulse 2s infinite', // アニメーションでワクワク感
+  },
+}
