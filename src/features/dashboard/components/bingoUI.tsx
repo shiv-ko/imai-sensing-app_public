@@ -842,6 +842,11 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
      <div className="bingo-title">
         <AnimatedTitle />
       </div>
+      <p style={styles.dataCollectionPeriod}>
+        データ収集期間<br></br>
+        11/18 (月) - 12/20 (金)
+      </p>
+
 
       {/* ビンゴ生成ボタンとガチャボタン */}
       <div className="bingo-gacha-button-container">
@@ -902,5 +907,12 @@ const styles = {
     fontWeight: 'bold',
     textAlign: 'center' as const,
     animation: 'pulse 2s infinite', // アニメーションでワクワク感
+  },
+  dataCollectionPeriod: {
+    color: 'black', // 好きな色に変更（例: 緑色）
+    fontSize: '18px', // フォントサイズも調整可能
+    fontWeight: 'bold',
+    textAlign: 'center' as const,
+    marginBottom: '10px',
   },
 }
