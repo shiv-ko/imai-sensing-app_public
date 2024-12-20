@@ -844,7 +844,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
       </div>
       <p style={styles.dataCollectionPeriod}>
         データ収集期間<br></br>
-        11/18 (月) - 12/20 (金)
+        11/18 (月) - 12/27 (金)
       </p>
 
 
