@@ -10,6 +10,7 @@ const Home: React.FC = () => {
   return (
     <div>
       <Header />
+
       <HomePage />
       <FooterNavBar />
     </div>
