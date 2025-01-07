@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import { createPostData } from '../../../graphql/mutations';
 import { uploadData } from 'aws-amplify/storage';
-import {fetchUserAttributes} from 'aws-amplify/auth';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
 import awsExports from '../../../aws-exports';
 import PostForm from '../components/postForm';
-import imageCompression from '../../../shared/utils/image/compressImage'; 
+import imageCompression from '../../../shared/utils/image/compressImage';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useRecoilValue } from 'recoil';
@@ -63,11 +63,11 @@ const PostPage: React.FC = () => {
     visible: true,
     point: 1,
     postType: 'POST',
-    likes:0,
+    likes: 0,
   });
   const [loadingLocation, setLoadingLocation] = useState(false);
-  const [nickName,setNickName]=useState<string>();
-  const [userid,setUserid]=useState<string>();
+  const [nickName, setNickName] = useState<string>();
+  const [userid, setUserid] = useState<string>();
 
   //ユーザの位置情報と認証情報を取得
   useEffect(() => {
@@ -183,8 +183,8 @@ const PostPage: React.FC = () => {
         //console.log('ユーザーのスコアが更新されました:', updatedUser.score);
       } catch (err) {
         console.error('スコアの更新中にエラーが発生しました:', err);
-      } 
-      
+      }
+
 
 
       // Extract form data
@@ -253,15 +253,15 @@ const PostPage: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      
+
       {loadingLocation ? (
         <p>位置情報を取得中...</p>
       ) : (
         <PostForm
-        formData={formData}
-        handleInputChange={handleInputChange}
-        createPost={createPost}
-      />
+          formData={formData}
+          handleInputChange={handleInputChange}
+          createPost={createPost}
+        />
 
       )}
     </div>

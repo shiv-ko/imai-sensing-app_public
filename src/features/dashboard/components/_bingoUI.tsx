@@ -316,6 +316,7 @@ export const BingoGachaPopup: React.FC<BingoGachaPopupProps & { handleGenerateBi
 export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
   const [showGachaButton, setShowGachaButton] = useState(false);
   const [showGachaPopup, setShowGachaPopup] = useState(false);
+  const [bingoKey, setBingoKey] = useState(0);
   const [completedLines, setCompletedLines] = useState(0);
   const [totalPoints, setTotalPoints] = useState(initialScore);
   const [bingoSheet, setBingoSheet] = useState<{ category: string; isCompleted: boolean }[]>([]);
@@ -344,6 +345,7 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     const newSheet = generateBingoSheet();
     setBingoSheet(newSheet);
     ////console.log('生成されたビンゴシート:', newSheet);
+    setBingoKey(prevKey => prevKey + 1);
     setCompletedLines(0);
     setShowGachaButton(false);
     try {
@@ -507,6 +509,12 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
     [totalPoints, userId]
   );
 
+  const handleOpenGacha = useCallback(() => {
+    //console.log('ガチャを開く前のビンゴ状態:');
+    //console.log('完成したライン数:', completedLines);
+    setShowGachaPopup(true);
+    //console.log('ガチャポップアップを表示しました。');
+  }, [completedLines]);
 
   useEffect(() => {
     //console.log(`showGachaButton の態が変更さました: ${showGachaButton}`);
@@ -835,8 +843,41 @@ export const Bingo: React.FC<BingoProps> = ({ userId, initialScore }) => {
         <AnimatedTitle />
       </div>
       <p style={styles.dataCollectionPeriod}>
-        データ収集期間は終了しました。
+        データ収集期間<br></br>
+        11/18 (月) - 1/6 (月)
       </p>
+
+
+      {/* ビンゴ生成ボタンとガチャボタン */}
+      <div className="bingo-gacha-button-container">
+        {!bingoSheetExists && (
+          <Button onClick={handleGenerateBingo} disabled={false}>
+            ビンゴを生成
+          </Button>
+        )}
+        {bingoSheetExists && (
+          <Button 
+            onClick={handleOpenGacha} 
+            disabled={completedLines === 0}
+          >
+            ガチャを表示 {completedLines > 0 && `(${completedLines}ライン完成)`}
+          </Button>
+        )}
+      </div>
+      <div style={styles.gachaHint}>
+        ビンゴを揃えるとガチャを引けます！多く揃えると高ポイントのチャンス！
+      </div>
+
+      {/* ビンゴボードの表示 */}
+      {bingoSheetExists && bingoSheet.length > 0 && (
+        <div className="bingo-gacha-container">
+          <BingoBoard 
+            key={bingoKey} 
+            bingoSheet={bingoSheet}
+            ref={boardRef} 
+          />
+        </div>
+      )}
 
       {/* ランキングを中央揃えで配置 */}
       <div className="ranking-wrapper">
